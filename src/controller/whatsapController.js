@@ -65,7 +65,7 @@ const Recibirmessaje = async (req, res) => {
       const chatCompletion = await client.chat.completions.create({
         messages: [
           {
-            role: "assistant",
+            role: "user",
             content:
               "el mensaje es:" +
               msg_body +
