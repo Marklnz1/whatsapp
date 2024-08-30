@@ -56,8 +56,8 @@ const Recibirmessaje = (req, res) => {
       let from = body_param.entry[0].changes[0].value.messages[0].from;
       let msg_body = body_param.entry[0].changes[0].value.messages[0].text.body;
       console.log(msg_body + "  " + phon_no_id + body_param);
-      res.sendStatus(200);
-      return;
+      //   res.sendStatus(200);
+      //   return;
       axios({
         method: "POST",
         url: "https://graph.facebook.com/v20.0/" + phon_no_id + "/messages",
@@ -70,7 +70,7 @@ const Recibirmessaje = (req, res) => {
         },
         headers: {
           Authorization:
-            "Bearer EAAQfxuImFUsBO2SbPxbFcAtIKtkrLjBHtps0TrKDnYt7aUOK3CV9lqnrUCAJy8DKAmfhPo91RPZCnjSb09Q9hyrXkZAFqhlxFu0FbTa4sbtM8W4LNZC5Q4scyDAi4u6e9xRHBBG3ZA36S4Pg5FDeBBZBiIa9SXmgz4RK3CVDpZC52x4Ky8hAC5FuUnQtdgnZBs6SpFIWZAcRqEGqspZA9CBotRLVV6WsZD",
+            "Bearer EAAQfxuImFUsBO7ObBkoANZCgwOVPeoWWJZBMZAVcRhEdHjLUvPrOM2Nci51nOISiuZCvs8mLQueZBG0XfaELaMbazRlv0HcffDmUxE6OJsqNAlZANFCuZAzSIJbkGnrzNbpjZCfy6FXTNArjPB6IhYqqRz9kIZBBAblOXtlhZBLay6DWnALkxslHIgJhVSffH0ekQGlFibz5iE6IJJGUnRn3b2kUlCqpEZD",
           "Content-Type": "application/json",
         },
       });
