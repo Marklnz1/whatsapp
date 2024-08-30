@@ -31,13 +31,14 @@ const VerificarToken = (req, res) => {
     var challenge = req.query["hub.challenge"];
     if (challenge != null && token != null && token == accessToken) {
       res.send(challenge);
+      return;
     } else {
       res.status(400).send();
+      return;
     }
   } catch (e) {
     res.status(400).send();
   }
-  res.send("Hola verificarToken");
 };
 
 const Recibirmessaje = (req, res) => {
