@@ -19,7 +19,7 @@ module.exports = {
     VerificarToken,
     Recibirmessaje
 }*/
-import axios from "axios";
+const axios = require("axios");
 
 const token =
   "EAAQfxuImFUsBO2SbPxbFcAtIKtkrLjBHtps0TrKDnYt7aUOK3CV9lqnrUCAJy8DKAmfhPo91RPZCnjSb09Q9hyrXkZAFqhlxFu0FbTa4sbtM8W4LNZC5Q4scyDAi4u6e9xRHBBG3ZA36S4Pg5FDeBBZBiIa9SXmgz4RK3CVDpZC52x4Ky8hAC5FuUnQtdgnZBs6SpFIWZAcRqEGqspZA9CBotRLVV6WsZD";
