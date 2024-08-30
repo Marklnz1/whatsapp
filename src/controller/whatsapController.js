@@ -65,7 +65,7 @@ const Recibirmessaje = (req, res) => {
           messaging_product: "whatsapp",
           to: from,
           text: {
-            body: "holaaaaaaaI1234",
+            body: "bienvenido a la tienda de ropa",
           },
         },
         headers: {
