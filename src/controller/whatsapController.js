@@ -44,7 +44,6 @@ const VerificarToken = (req, res) => {
 
 const Recibirmessaje = (req, res) => {
   let body_param = req.body;
-  console.log("PARAM BODY" + body_param);
   if (body_param.object) {
     if (
       body_param.entry &&
