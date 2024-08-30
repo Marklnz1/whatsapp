@@ -20,6 +20,10 @@ module.exports = {
     Recibirmessaje
 }*/
 const axios = require("axios");
+const Groq = require("groq-sdk");
+const client = new Groq({
+  apiKey: "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", // This is the default and can be omitted
+});
 
 const token =
   "EAAQfxuImFUsBO2SbPxbFcAtIKtkrLjBHtps0TrKDnYt7aUOK3CV9lqnrUCAJy8DKAmfhPo91RPZCnjSb09Q9hyrXkZAFqhlxFu0FbTa4sbtM8W4LNZC5Q4scyDAi4u6e9xRHBBG3ZA36S4Pg5FDeBBZBiIa9SXmgz4RK3CVDpZC52x4Ky8hAC5FuUnQtdgnZBs6SpFIWZAcRqEGqspZA9CBotRLVV6WsZD";
@@ -42,7 +46,7 @@ const VerificarToken = (req, res) => {
   }
 };
 
-const Recibirmessaje = (req, res) => {
+const Recibirmessaje = async (req, res) => {
   let body_param = req.body;
   if (body_param.object) {
     if (
@@ -58,6 +62,19 @@ const Recibirmessaje = (req, res) => {
       console.log(msg_body + "  " + phon_no_id + body_param);
       //   res.sendStatus(200);
       //   return;
+      const chatCompletion = await client.chat.completions.create({
+        messages: [
+          {
+            role: "user",
+            content:
+              "el mensaje es:" +
+              msg_body +
+              ", responde como si fueras el administrador de una tienda de ropas",
+          },
+        ],
+        model: "llama3-8b-8192",
+      });
+
       axios({
         method: "POST",
         url: "https://graph.facebook.com/v20.0/" + phon_no_id + "/messages",
@@ -65,7 +82,7 @@ const Recibirmessaje = (req, res) => {
           messaging_product: "whatsapp",
           to: from,
           text: {
-            body: "bienvenido a la tienda de ropa",
+            body: chatCompletion.choices[0].message.content,
           },
         },
         headers: {
