@@ -1,6 +1,6 @@
 const expres = require("express");
 const router = expres.Router();
-const whatsapController = require("..//controller/whatsapController").default;
+const whatsapController = require("..//controller/whatsapController");
 
 router
   .get("/", whatsapController.VerificarToken)

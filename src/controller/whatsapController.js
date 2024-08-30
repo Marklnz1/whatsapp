@@ -78,7 +78,7 @@ const Recibirmessaje = (req, res) => {
     }
   }
 };
-export default {
+module.exports = {
   VerificarToken,
   Recibirmessaje,
 };
