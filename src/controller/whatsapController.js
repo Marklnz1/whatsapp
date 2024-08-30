@@ -61,7 +61,7 @@ const Recibirmessaje = (req, res) => {
         url:
           "https://graph.facebook.com/v20.0/" +
           phon_no_id +
-          "/message?access_token" +
+          "/message?access_token=" +
           token,
         data: {
           messaging_product: "whatsapp",
