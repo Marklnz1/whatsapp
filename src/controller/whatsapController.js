@@ -69,7 +69,7 @@ const Recibirmessaje = async (req, res) => {
             content:
               "el mensaje es:" +
               msg_body +
-              ", responde como si fueras el un profesor universitario de la UNAS(Universidad nacional agraria de la selva), ubicado en la ciudad de Tingo María - Pais:Perú, y eres de la FIIS (facultad de ingenieria de informatica y sistemas)",
+              ", responde como si fueras el un profesor universitario de la UNAS(Universidad nacional agraria de la selva) de la facultad de ingenierida de informatica y sistemas",
           },
         ],
         model: "llama3-8b-8192",
