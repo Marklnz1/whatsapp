@@ -91,7 +91,7 @@ Es importante que envie su ubicacion en tiempo real para la instalación
 Los equipos y accesorios se entregan en calidad de préstamo durante el servicio brindado
 El horario de atención para un asistente humano es de 8:00 am a 1:00 pm y de 3:00pm a 6:30 pm, los feriados solo hasta el medio dia`;
       const mensajeAsistente =
-        'Tu eres un asistente virtual en español, eres alguien que responde de forma breve y directa, ofrece servicios al cliente,si el cliente no pregunta nada en especifico relacionado a la empresa siempre dale la lista de planes disponibles y ofrece, pero no le des info fuera de eso, la info que necesitas de la empresa es: "' +
+        'Tu eres un asistente virtual en español, eres alguien que responde de forma breve y directa pero con informacion completa, ofrece servicios al cliente,si el cliente no pregunta nada en especifico relacionado a la empresa siempre dale la lista de planes disponibles y ofrece, pero no le des info fuera de eso, la info que necesitas de la empresa es: "' +
         info;
       const chatCompletion = await client.chat.completions.create({
         messages: [
@@ -120,8 +120,8 @@ El horario de atención para un asistente humano es de 8:00 am a 1:00 pm y de 3:
         },
         headers: {
           Authorization:
-            // "Bearer EAB4n17rdZBRsBOxFbRoTtAnZAZByQjp0ckHZAPXfnhOmMnFvgbtnWAm0Nz6g0D5KKh7DbMM0pTgcBOEWGIXVpNPc0juZA8JHFp6aL0DR9VSiU4QloZBUCOEYMZBx5leXvb3ZC7WfOIXfs7s1Ntko3riCrI5CZB1CCXqd2ZAa5zcLJZC3lNHeglxmpBai8wUUDg1jZAE0",
-            "Bearer EAAQfxuImFUsBO7xR3hBXwjBvhcK1Es9Dyk7QAAmZChEKp1d9XBTD58em2biZBLLs7MyhxO8PNQp73mfGC2eni7L9OcgcVEPmwCKJNrtTaGguiYRhQcOBZCYIYVFvcYfWmDfCk8cWddZCVA4E0F10qm1DHZBFfauit9prs0DNOAlFnAYmY1c3rZCqvtw31Q0tuxpXBCT5wfhcFYILZAMSxOy8j8GVq8ZD",
+            "Bearer EAB4n17rdZBRsBOxFbRoTtAnZAZByQjp0ckHZAPXfnhOmMnFvgbtnWAm0Nz6g0D5KKh7DbMM0pTgcBOEWGIXVpNPc0juZA8JHFp6aL0DR9VSiU4QloZBUCOEYMZBx5leXvb3ZC7WfOIXfs7s1Ntko3riCrI5CZB1CCXqd2ZAa5zcLJZC3lNHeglxmpBai8wUUDg1jZAE0",
+          // "Bearer EAAQfxuImFUsBO7xR3hBXwjBvhcK1Es9Dyk7QAAmZChEKp1d9XBTD58em2biZBLLs7MyhxO8PNQp73mfGC2eni7L9OcgcVEPmwCKJNrtTaGguiYRhQcOBZCYIYVFvcYfWmDfCk8cWddZCVA4E0F10qm1DHZBFfauit9prs0DNOAlFnAYmY1c3rZCqvtw31Q0tuxpXBCT5wfhcFYILZAMSxOy8j8GVq8ZD",
           "Content-Type": "application/json",
         },
       });
