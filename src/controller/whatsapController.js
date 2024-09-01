@@ -62,14 +62,45 @@ const Recibirmessaje = async (req, res) => {
       console.log(msg_body + "  " + phon_no_id + body_param);
       //   res.sendStatus(200);
       //   return;
+      const info = `Para la Ciudad de Tingo María
+se ofrece internet ilimitado 100% Fibra Optica
+Descargas ilimitadas
+Soporte técnico 
+los planes son:
+- 80 mbps a 50 soles
+-100 mbps a 80 soles
+-200 mbps a 110 soles
+-250 mbps a 140 soles
+Informacion sobre la instalacion:
+1.la instalación es completamente Gratis 100 metros, pasando de los 100 se cobrará 1 sol por metro 
+*2.Una vez contratado el plan, los técnicos se comunicarán para la instalación.
+3.pago por adelantado del primer mes de servicio* del plan contratado.
+4.Los pagos mensuales podrán realizar en JR Ucayali 1133.y tambien por yape ,plin ,bancos    .agentes  
+5.estar atento a la llamada del técnico
+6.Si el personal técnico no hace la respectiva llamada, comunicar al área de VENTAS 989552818 wintv tingo maria
+Es importante mencionar que los equipos de instalación están en calidad de préstamo.
+Para una instalación exitosa, verifique:
+1.Sus conectores de enchufe estén en buen estado
+2.Sus cables de energía estén seguros y funcionando correctamente
+
+La instalación se da en un plazo de 24 a 48 horas hábiles, pero puede variar dependiendo de la disponibilidad del equipo de trabajo y la complejidad de instalación
+Los datos que se brinden por el cliente estarán protegidos y utilizados solo para fines legítimos. Nuestro equipo de instalación se comunicará con usted para confirmar los detalles
+
+No hay descuentos, precios fijos
+Es importante que envie su ubicacion en tiempo real para la instalación
+Los equipos y accesorios se entregan en calidad de préstamo durante el servicio brindado
+El horario de atención para un asistente humano es de 8:00 am a 1:00 pm y de 3:00pm a 6:30 pm, los feriados solo hasta el medio dia`;
+      const mensaje =
+        'responde el siguiente mensaje como un asistente: "' +
+        msg_body +
+        '", la informacion de la empresa es: "' +
+        info +
+        '" ';
       const chatCompletion = await client.chat.completions.create({
         messages: [
           {
             role: "user",
-            content:
-              "el mensaje es:" +
-              msg_body +
-              ", responde como si fueras el un profesor universitario de la UNAS(Universidad nacional agraria de la selva) de la facultad de ingenierida de informatica y sistemas",
+            content: mensaje,
           },
         ],
         model: "llama3-8b-8192",
