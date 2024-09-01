@@ -75,7 +75,7 @@ Importante: Si el cliente tiene el servicio contratado pero tiene problemas de c
 1.la instalación es completamente Gratis 100 metros, pasando de los 100 se cobrará 1 sol por metro 
 2.Una vez contratado el plan, los técnicos se comunicarán para la instalación.
 3.pago por adelantado del primer mes de servicio del plan contratado.
-4.Los pagos mensuales podrán realizarce precensialmente en la ubicacion de JR Ucayali 1133.Pero tambien por usando Yape ,Plin ,Bancos y agentes  
+4.Los pagos mensuales podrán realizarze presencialmente en la ubicacion de JR Ucayali 1133.Pero tambien por usando Yape ,Plin ,Bancos y agentes  
 5.estar atento a la llamada del técnico
 6.Si el personal técnico no hace la respectiva llamada, comunicar al área de VENTAS 989552818 wintv tingo maria
 Es importante mencionar que los equipos de instalación están en calidad de préstamo.
