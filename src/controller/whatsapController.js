@@ -105,7 +105,7 @@ El horario de atención para un asistente humano es de 8:00 am a 1:00 pm y de 3:
           },
         ],
         model: "llama3-8b-8192",
-        temperature: 0.5,
+        temperature: 0,
       });
 
       axios({
@@ -120,8 +120,8 @@ El horario de atención para un asistente humano es de 8:00 am a 1:00 pm y de 3:
         },
         headers: {
           Authorization:
-            "Bearer EAB4n17rdZBRsBOxFbRoTtAnZAZByQjp0ckHZAPXfnhOmMnFvgbtnWAm0Nz6g0D5KKh7DbMM0pTgcBOEWGIXVpNPc0juZA8JHFp6aL0DR9VSiU4QloZBUCOEYMZBx5leXvb3ZC7WfOIXfs7s1Ntko3riCrI5CZB1CCXqd2ZAa5zcLJZC3lNHeglxmpBai8wUUDg1jZAE0",
-          // "Bearer EAAQfxuImFUsBO7xR3hBXwjBvhcK1Es9Dyk7QAAmZChEKp1d9XBTD58em2biZBLLs7MyhxO8PNQp73mfGC2eni7L9OcgcVEPmwCKJNrtTaGguiYRhQcOBZCYIYVFvcYfWmDfCk8cWddZCVA4E0F10qm1DHZBFfauit9prs0DNOAlFnAYmY1c3rZCqvtw31Q0tuxpXBCT5wfhcFYILZAMSxOy8j8GVq8ZD",
+            // "Bearer EAB4n17rdZBRsBOxFbRoTtAnZAZByQjp0ckHZAPXfnhOmMnFvgbtnWAm0Nz6g0D5KKh7DbMM0pTgcBOEWGIXVpNPc0juZA8JHFp6aL0DR9VSiU4QloZBUCOEYMZBx5leXvb3ZC7WfOIXfs7s1Ntko3riCrI5CZB1CCXqd2ZAa5zcLJZC3lNHeglxmpBai8wUUDg1jZAE0",
+            "Bearer EAAQfxuImFUsBO7xR3hBXwjBvhcK1Es9Dyk7QAAmZChEKp1d9XBTD58em2biZBLLs7MyhxO8PNQp73mfGC2eni7L9OcgcVEPmwCKJNrtTaGguiYRhQcOBZCYIYVFvcYfWmDfCk8cWddZCVA4E0F10qm1DHZBFfauit9prs0DNOAlFnAYmY1c3rZCqvtw31Q0tuxpXBCT5wfhcFYILZAMSxOy8j8GVq8ZD",
           "Content-Type": "application/json",
         },
       });
