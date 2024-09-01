@@ -90,16 +90,18 @@ No hay descuentos, precios fijos
 Es importante que envie su ubicacion en tiempo real para la instalación
 Los equipos y accesorios se entregan en calidad de préstamo durante el servicio brindado
 El horario de atención para un asistente humano es de 8:00 am a 1:00 pm y de 3:00pm a 6:30 pm, los feriados solo hasta el medio dia`;
-      const mensaje =
-        'Toma el rol de asistente virtual,trata de relacionar cualquier duda con la info de la empresa si es posible, y si no, entonces niega la pregunta, la info que necesitas de la empresa es: "' +
-        info +
-        ',eso es todo sobre el rol, ahora responde al siguiente mensaje de un cliente segun la información proporcionada: "';
-      msg_body + '"';
+      const mensajeAsistente =
+        'Tu eres un asistente virtual,trata de relacionar cualquier duda con la info de la empresa si es posible, y si no, entonces niega la pregunta, la info que necesitas de la empresa es: "' +
+        info;
       const chatCompletion = await client.chat.completions.create({
         messages: [
           {
-            role: "user",
-            content: mensaje,
+            role: "system",
+            content: mensajeAsistente,
+          },
+          {
+            role: "client",
+            content: msg_body,
           },
         ],
         model: "llama3-8b-8192",
