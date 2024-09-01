@@ -91,11 +91,10 @@ Es importante que envie su ubicacion en tiempo real para la instalación
 Los equipos y accesorios se entregan en calidad de préstamo durante el servicio brindado
 El horario de atención para un asistente humano es de 8:00 am a 1:00 pm y de 3:00pm a 6:30 pm, los feriados solo hasta el medio dia`;
       const mensaje =
-        'dame un mensaje de respuesta sin decoraciones, ni titulos,al siguiente mensaje hecho por un cliente,  se breve y responde de forma corta y directa , si el mensaje no esta dirigido a informacion de la empresa, niega la orden y cuando el cliente menciona planes se refiere a planes de internet, ademas si se interesa por un plan enfocate en ese plan, ten en cuenta la confusion del cliente de megas y mbps(megabits), ahora el mensaje del cliente es:"' +
-        msg_body +
-        '", la informacion de la empresa con la cual responderas es: "' +
+        'Toma el rol de asistente virtual, no respondas a nada fuera de lugar ni relacionado con la empresa, la info que necesitas de la empresa es: "' +
         info +
-        '" ';
+        ",eso es todo sobre el rol, ahora tengo la siguiente duda como cliente:";
+      msg_body + '" ';
       const chatCompletion = await client.chat.completions.create({
         messages: [
           {
