@@ -93,7 +93,7 @@ El horario de atención para un asistente humano es de 8:00 am a 1:00 pm y de 3:
       const mensaje =
         'Toma el rol de asistente virtual,trata de relacionar cualquier duda con la info de la empresa si es posible, y si no, entonces niega la pregunta, la info que necesitas de la empresa es: "' +
         info +
-        ',eso es todo sobre el rol, ahora responde al siguiente mensaje: "';
+        ',eso es todo sobre el rol, ahora responde al siguiente mensaje de un cliente segun la información proporcionada: "';
       msg_body + '"';
       const chatCompletion = await client.chat.completions.create({
         messages: [
