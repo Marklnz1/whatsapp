@@ -71,7 +71,7 @@ los planes son:
 -200 mbps a 110 soles
 -250 mbps a 140 soles
 Informacion sobre la instalacion:
-Importante: La instalación y configuración la realiza el equipo de trabajo, no el cliente.
+Importante: Si el cliente tiene el servicio contratado pero tiene problemas de conexión, decirle que realice la llamada a soporte tecnico en el horario correspondiente
 1.la instalación es completamente Gratis 100 metros, pasando de los 100 se cobrará 1 sol por metro 
 *2.Una vez contratado el plan, los técnicos se comunicarán para la instalación.
 3.pago por adelantado del primer mes de servicio* del plan contratado.
