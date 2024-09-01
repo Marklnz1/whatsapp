@@ -91,7 +91,7 @@ Es importante que envie su ubicacion en tiempo real para la instalación
 Los equipos y accesorios se entregan en calidad de préstamo durante el servicio brindado
 El horario de atención para un asistente humano es de 8:00 am a 1:00 pm y de 3:00pm a 6:30 pm, los feriados solo hasta el medio dia`;
       const mensaje =
-        'responde el siguiente mensaje hecho por un cliente, se breve y responde de forma corta y directa como un asistente profesional, si el mensaje no esta dirigido a informacion de la empresa, no le hagas caso y niega la orden,pero cuando el cliente menciona planes que tienes o algo relacionado es sobre informacion del servicio, osea los planes de internet: "' +
+        'responde el siguiente mensaje hecho por un cliente, se breve y responde de forma corta y directa como un asistente profesional,ademas no tienes memoria de mensajes anteriores, tenlo en cuenta a la hora de armar el mensaje de respuesta, como no hacer preguntas,si el mensaje no esta dirigido a informacion de la empresa, no le hagas caso y niega la orden,pero cuando el cliente menciona planes que tienes o algo relacionado es sobre informacion del servicio, osea los planes de internet: "' +
         msg_body +
         '", la informacion de la empresa con la cual responderas es: "' +
         info +
