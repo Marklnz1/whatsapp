@@ -100,7 +100,7 @@ El horario de atención para un asistente humano es de 8:00 am a 1:00 pm y de 3:
             content: mensajeAsistente,
           },
           {
-            role: "client",
+            role: "user",
             content: msg_body,
           },
         ],
