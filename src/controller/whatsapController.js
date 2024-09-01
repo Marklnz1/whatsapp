@@ -91,7 +91,7 @@ Es importante que envie su ubicacion en tiempo real para la instalación
 Los equipos y accesorios se entregan en calidad de préstamo durante el servicio brindado
 El horario de atención para un asistente humano es de 8:00 am a 1:00 pm y de 3:00pm a 6:30 pm, los feriados solo hasta el medio dia`;
       const mensaje =
-        'responde el siguiente mensaje hecho por un cliente,  se breve y responde de forma corta y directa , si el mensaje no esta dirigido a informacion de la empresa, niega la orden y cuando el cliente menciona planes se refiere a planes de internet, ademas si se interesa por un plan enfocate en ese plan: "' +
+        'responde el siguiente mensaje hecho por un cliente,ten en cuenta que el mensaje se enviara al cliente tal como me lo des,  se breve y responde de forma corta y directa , si el mensaje no esta dirigido a informacion de la empresa, niega la orden y cuando el cliente menciona planes se refiere a planes de internet, ademas si se interesa por un plan enfocate en ese plan, ten en cuenta la confusion del cliente de megas y mbps(megabits): "' +
         msg_body +
         '", la informacion de la empresa con la cual responderas es: "' +
         info +
