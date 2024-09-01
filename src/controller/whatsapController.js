@@ -65,13 +65,13 @@ const Recibirmessaje = async (req, res) => {
       const info = `cuando el cliente menciona planes que tienes es sobre informacion del servicio,Para la Ciudad de Tingo María
 se ofrece internet ilimitado 100% Fibra Optica
 Descargas ilimitadas
-Soporte técnico 
 los planes son:
 - 80 mbps a 50 soles
 -100 mbps a 80 soles
 -200 mbps a 110 soles
 -250 mbps a 140 soles
 Informacion sobre la instalacion:
+Importante: La instalación y configuración la realiza el equipo de trabajo, no el cliente.
 1.la instalación es completamente Gratis 100 metros, pasando de los 100 se cobrará 1 sol por metro 
 *2.Una vez contratado el plan, los técnicos se comunicarán para la instalación.
 3.pago por adelantado del primer mes de servicio* del plan contratado.
