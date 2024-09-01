@@ -62,7 +62,7 @@ const Recibirmessaje = async (req, res) => {
       console.log(msg_body + "  " + phon_no_id + body_param);
       //   res.sendStatus(200);
       //   return;
-      const info = `Para la Ciudad de Tingo María
+      const info = `cuando el cliente menciona planes que tienes es sobre informacion del servicio,Para la Ciudad de Tingo María
 se ofrece internet ilimitado 100% Fibra Optica
 Descargas ilimitadas
 Soporte técnico 
