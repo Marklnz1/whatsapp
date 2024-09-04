@@ -26,7 +26,7 @@ const client = new Groq({
 });
 
 const token =
-  "EAAMPlb4Dkp0BO4QW8Kq1CenbnovZBkfPzlZAFx4x9tI6Dok9Nv7Wp6dy6UZB59c1UB1Cgj0FBd1ZBWJweKRhWKuPSjkeAzQsXcHIsZAKGnlqjJxRqH4ZBvEcZAbrwuDo1kQNbGLG7BssD4OZCVw41zu2afA8ru3yXK7so7pIYopwTzvBkRG6M7kSfxUrTIBqORKZCtlc87kRh2PPoAjxPc8bjctqwpACp";
+  "EAARltufZCgw4BOyf3clXPQX9gAUZCFSw0kxDk74crhb5kvDS66UN4Rrh1csgsbCqoiuhiimXBgSbiXmgKR8FpdJpZBP1R4zLyZC06YtSG7WmPOnBa8LpF8p45MQMiverWNXZBgsOv8QBKDIU2D6vSPDSdcDRrUfuOXZBcUYd2ekDPyUGZBIl6ZB8tOJmKZAR38iaj6F9Jk8qfQXxP8ja0TjyBRIvlo2YZD";
 const myToken = "ASDADASOPKFOASFAM2314332";
 const VerificarToken = (req, res) => {
   console.log("Verificando token");
@@ -120,7 +120,8 @@ El horario de atención para un asistente humano es de 8:00 am a 1:00 pm y de 3:
         },
         headers: {
           Authorization:
-            "Bearer EAB4n17rdZBRsBOxFbRoTtAnZAZByQjp0ckHZAPXfnhOmMnFvgbtnWAm0Nz6g0D5KKh7DbMM0pTgcBOEWGIXVpNPc0juZA8JHFp6aL0DR9VSiU4QloZBUCOEYMZBx5leXvb3ZC7WfOIXfs7s1Ntko3riCrI5CZB1CCXqd2ZAa5zcLJZC3lNHeglxmpBai8wUUDg1jZAE0",
+            "Bearer EAARltufZCgw4BOyf3clXPQX9gAUZCFSw0kxDk74crhb5kvDS66UN4Rrh1csgsbCqoiuhiimXBgSbiXmgKR8FpdJpZBP1R4zLyZC06YtSG7WmPOnBa8LpF8p45MQMiverWNXZBgsOv8QBKDIU2D6vSPDSdcDRrUfuOXZBcUYd2ekDPyUGZBIl6ZB8tOJmKZAR38iaj6F9Jk8qfQXxP8ja0TjyBRIvlo2YZD",
+          // "Bearer EAB4n17rdZBRsBOxFbRoTtAnZAZByQjp0ckHZAPXfnhOmMnFvgbtnWAm0Nz6g0D5KKh7DbMM0pTgcBOEWGIXVpNPc0juZA8JHFp6aL0DR9VSiU4QloZBUCOEYMZBx5leXvb3ZC7WfOIXfs7s1Ntko3riCrI5CZB1CCXqd2ZAa5zcLJZC3lNHeglxmpBai8wUUDg1jZAE0",
           // "Bearer EAAQfxuImFUsBO7xR3hBXwjBvhcK1Es9Dyk7QAAmZChEKp1d9XBTD58em2biZBLLs7MyhxO8PNQp73mfGC2eni7L9OcgcVEPmwCKJNrtTaGguiYRhQcOBZCYIYVFvcYfWmDfCk8cWddZCVA4E0F10qm1DHZBFfauit9prs0DNOAlFnAYmY1c3rZCqvtw31Q0tuxpXBCT5wfhcFYILZAMSxOy8j8GVq8ZD",
           "Content-Type": "application/json",
         },
