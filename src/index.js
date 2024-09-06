@@ -1,7 +1,13 @@
-const express = require("express")
-const apiRoute = require("./Router/Router")
+const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
+const whatsAppController = require("./controller/whatsAppController");
+
 app.use(express.json());
-app.use("/whatsapp",apiRoute)
-app.listen(PORT,()=>{console.log("el peurto es :"+PORT)})
+router
+  .get("/", whatsAppController.verifyToken)
+  .post("/", whatsAppController.receiveMessage);
+
+app.listen(PORT, () => {
+  console.log("SERVER ACTIVO: PUERTO USADO :" + PORT);
+});
