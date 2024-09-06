@@ -5,8 +5,8 @@ const whatsAppController = require("./controller/whatsAppController");
 
 app.use(express.json());
 app
-  .get("/", whatsAppController.verifyToken)
-  .post("/", whatsAppController.receiveMessage);
+  .get("/whatsapp", whatsAppController.verifyToken)
+  .post("/whatsapp", whatsAppController.receiveMessage);
 
 app.listen(PORT, () => {
   console.log("SERVER ACTIVO: PUERTO USADO :" + PORT);
