@@ -4,7 +4,7 @@ const PORT = process.env.PORT || 3000;
 const whatsAppController = require("./controller/whatsAppController");
 
 app.use(express.json());
-router
+app
   .get("/", whatsAppController.verifyToken)
   .post("/", whatsAppController.receiveMessage);
 
