@@ -197,8 +197,8 @@ app.get("/chats", (req, res) => {
   ]);
 });
 app
-  .get("/whatsapp", whatsAppController.verifyToken)
-  .post("/whatsapp", whatsAppController.receiveMessage);
+  .post("/whatsapp", whatsAppController.verifyToken)
+  .get("/whatsapp", whatsAppController.receiveMessage);
 
 async function start() {
   await mongoose.connect(MONGODB_URL, {
@@ -213,5 +213,4 @@ async function start() {
   });
 }
 start();
-const socketIoObject = io;
-module.exports.io = socketIoObject;
+module.exports.io = io;
