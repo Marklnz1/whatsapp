@@ -36,6 +36,12 @@ module.exports.receiveMessage = async (req, res) => {
 
     if (
       !(
+        value.messages &&
+        value.messages[0] &&
+        value.contacts &&
+        value.contacts[0] &&
+        value.contacts[0].profile &&
+        value.contacts[0].profile.name &&
         body_param.object &&
         body_param.entry &&
         body_param.entry[0].changes &&
@@ -46,8 +52,8 @@ module.exports.receiveMessage = async (req, res) => {
       res.sendStatus(404);
     }
     const value = body_param.entry[0].changes[0].value;
-    let phon_no_id = value.metadata.phone_number_id;
-    console.log(phon_no_id + "  otro " + PHONE_ID);
+    // let phon_no_id = value.metadata.phone_number_id;
+    // console.log(phon_no_id + "  otro " + PHONE_ID);
     let from = value.messages[0].from;
     let contact = value.contacts[0].profile.name;
 
@@ -78,7 +84,7 @@ module.exports.receiveMessage = async (req, res) => {
     );
     //==================================================
     if (client.chatbot) {
-      sendMessageChatbot(client, from, msg_body, io, phon_no_id);
+      sendMessageChatbot(client, from, msg_body, io);
     }
     res.sendStatus(200);
     return;
@@ -87,7 +93,7 @@ module.exports.receiveMessage = async (req, res) => {
   }
 };
 
-async function sendMessageChatbot(client, from, msg, io, phone_id) {
+async function sendMessageChatbot(client, from, msg, io) {
   const system = SYSTEM_PROMPT + BUSINESS_INFO;
   const chatCompletion = await groqClient.chat.completions.create({
     messages: [
@@ -106,7 +112,7 @@ async function sendMessageChatbot(client, from, msg, io, phone_id) {
   const chatbotMsg = chatCompletion.choices[0].message.content;
   axios({
     method: "POST",
-    url: "https://graph.facebook.com/v20.0/" + phone_id + "/messages",
+    url: "https://graph.facebook.com/v20.0/" + PHONE_ID + "/messages",
     data: {
       messaging_product: "whatsapp",
       to: from,

@@ -9,6 +9,9 @@ const util = require("util");
 const whatsAppController = require("./controller/whatsAppController");
 const { Server } = require("socket.io");
 const server = http.createServer(app);
+const axios = require("axios");
+const PHONE_ID = process.env.PHONE_ID;
+
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -24,6 +27,7 @@ io.on("connection", (socket) => {
     for (let m of client.messages) {
       m.read = true;
     }
+    client.chatbot = false;
     const messageDB = {
       msg: msg,
       time: new Date(),
@@ -32,6 +36,21 @@ io.on("connection", (socket) => {
     };
     client.messages.push(messageDB);
     await client.save();
+    axios({
+      method: "POST",
+      url: "https://graph.facebook.com/v20.0/" + PHONE_ID + "/messages",
+      data: {
+        messaging_product: "whatsapp",
+        to: from,
+        text: {
+          body: chatbotMsg,
+        },
+      },
+      headers: {
+        Authorization: `Bearer ${META_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
     const lastMessage = client.messages[client.messages.length - 1];
     const savedMessage = { ...lastMessage };
     savedMessage.lid = lid;
