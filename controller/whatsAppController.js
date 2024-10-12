@@ -10,6 +10,7 @@ const GROQ_TOKEN = process.env.GROQ_TOKEN;
 const GROQ_MODEL = process.env.GROQ_MODEL;
 const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT;
 const BUSINESS_INFO = process.env.BUSINESS_INFO;
+const PHONE_ID = process.env.PHONE_ID;
 
 const groqClient = new Groq({
   apiKey: GROQ_TOKEN,
@@ -45,18 +46,17 @@ module.exports.receiveMessage = async (req, res) => {
       res.sendStatus(404);
     }
     const value = body_param.entry[0].changes[0].value;
-    let phon_no_id = value.metadata.phone_number_id;
+    // let phon_no_id = value.metadata.phone_number_id;
 
     let from = value.messages[0].from;
     let contact = value.contacts[0].profile.name;
-    let wid = value.contacts[0].wa_id;
 
     let msg_body = value.messages[0].text.body;
     //===============================================================
-    let client = await Client.findOne({ wid });
+    let client = await Client.findOne({ wid: from });
     let newClient;
     if (client == null) {
-      client = new Client({ wid, contact, chatbot: true });
+      client = new Client({ wid: from, contact, chatbot: true });
       newClient = client;
     }
     client.messages.push({
@@ -77,7 +77,7 @@ module.exports.receiveMessage = async (req, res) => {
     );
     //==================================================
     if (client.chatbot) {
-      sendMessageChatbot(client, phon_no_id, from);
+      sendMessageChatbot(client, from);
     }
     res.sendStatus(200);
     return;
@@ -86,7 +86,7 @@ module.exports.receiveMessage = async (req, res) => {
   }
 };
 
-async function sendMessageChatbot(client, phon_no_id, from) {
+async function sendMessageChatbot(client, from) {
   const system = SYSTEM_PROMPT + BUSINESS_INFO;
   const chatCompletion = await groqClient.chat.completions.create({
     messages: [
@@ -105,7 +105,7 @@ async function sendMessageChatbot(client, phon_no_id, from) {
   const chatbotMsg = chatCompletion.choices[0].message.content;
   axios({
     method: "POST",
-    url: "https://graph.facebook.com/v20.0/" + phon_no_id + "/messages",
+    url: "https://graph.facebook.com/v20.0/" + PHONE_ID + "/messages",
     data: {
       messaging_product: "whatsapp",
       to: from,
