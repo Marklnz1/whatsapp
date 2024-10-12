@@ -11,6 +11,7 @@ const { Server } = require("socket.io");
 const server = http.createServer(app);
 const axios = require("axios");
 const PHONE_ID = process.env.PHONE_ID;
+const META_TOKEN = process.env.META_TOKEN;
 
 const io = new Server(server, {
   cors: {
@@ -36,6 +37,7 @@ io.on("connection", (socket) => {
     };
     client.messages.push(messageDB);
     await client.save();
+    const from = client.wid;
     axios({
       method: "POST",
       url: "https://graph.facebook.com/v20.0/" + PHONE_ID + "/messages",
@@ -43,7 +45,7 @@ io.on("connection", (socket) => {
         messaging_product: "whatsapp",
         to: from,
         text: {
-          body: chatbotMsg,
+          body: msg,
         },
       },
       headers: {
