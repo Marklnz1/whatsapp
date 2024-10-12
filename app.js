@@ -62,19 +62,11 @@ io.on("connection", (socket) => {
     const { clientId, readAll } = JSON.parse(data);
     const client = await Client.findById(clientId);
     if (readAll) {
-      console.log(
-        "readAll active in messages after" +
-          util.inspect(client.messages, true, 10)
-      );
-
+      console.log("READ ALL IN GETMESSAGES");
       for (let m of client.messages) {
         m.read = true;
       }
-      util.inspect();
-      console.log(
-        "readAll active in messages luego" +
-          util.inspect(client.messages, true, 10)
-      );
+
       await client.save();
     }
     io.emit(
