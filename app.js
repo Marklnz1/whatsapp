@@ -113,6 +113,10 @@ io.on("connection", (socket) => {
 app.use(express.static("public"));
 app.use(express.json());
 // app.use(cookieParser());
+app.use((req, res, next) => {
+  res.locals.io = io;
+  next();
+});
 
 app.set("view engine", "ejs");
 app.set("view engine", "html");
@@ -213,4 +217,3 @@ async function start() {
   });
 }
 start();
-module.exports.io = io;

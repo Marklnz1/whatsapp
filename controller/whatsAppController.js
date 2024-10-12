@@ -1,7 +1,6 @@
 const axios = require("axios");
 const Groq = require("groq-sdk");
 const Client = require("../models/Client");
-const { io } = require("../app");
 require("dotenv").config();
 
 const MY_TOKEN = process.env.MY_TOKEN;
@@ -32,6 +31,7 @@ module.exports.verifyToken = (req, res) => {
 
 module.exports.receiveMessage = async (req, res) => {
   try {
+    const io = res.locals.io;
     let body_param = req.body;
 
     if (
@@ -78,7 +78,7 @@ module.exports.receiveMessage = async (req, res) => {
     );
     //==================================================
     if (client.chatbot) {
-      sendMessageChatbot(client, from);
+      sendMessageChatbot(client, from, io);
     }
     res.sendStatus(200);
     return;
@@ -87,7 +87,7 @@ module.exports.receiveMessage = async (req, res) => {
   }
 };
 
-async function sendMessageChatbot(client, from) {
+async function sendMessageChatbot(client, from, io) {
   const system = SYSTEM_PROMPT + BUSINESS_INFO;
   const chatCompletion = await groqClient.chat.completions.create({
     messages: [
