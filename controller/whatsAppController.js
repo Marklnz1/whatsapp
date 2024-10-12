@@ -59,7 +59,7 @@ module.exports.receiveMessage = async (req, res) => {
     let client = await Client.findOne({ wid: from });
     let newClient;
     if (client == null) {
-      client = new Client({ wid: from, contact, chatbot: true });
+      client = new Client({ wid: from, contact, chatbot: false });
       newClient = client;
     }
     client.messages.push({
