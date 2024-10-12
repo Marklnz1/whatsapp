@@ -78,7 +78,7 @@ module.exports.receiveMessage = async (req, res) => {
     );
     //==================================================
     if (client.chatbot) {
-      sendMessageChatbot(client, from, io);
+      sendMessageChatbot(client, from, msg_body, io);
     }
     res.sendStatus(200);
     return;
@@ -87,7 +87,7 @@ module.exports.receiveMessage = async (req, res) => {
   }
 };
 
-async function sendMessageChatbot(client, from, io) {
+async function sendMessageChatbot(client, from, msg, io) {
   const system = SYSTEM_PROMPT + BUSINESS_INFO;
   const chatCompletion = await groqClient.chat.completions.create({
     messages: [
@@ -97,7 +97,7 @@ async function sendMessageChatbot(client, from, io) {
       },
       {
         role: "user",
-        content: msg_body,
+        content: msg,
       },
     ],
     model: GROQ_MODEL,

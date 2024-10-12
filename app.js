@@ -51,6 +51,7 @@ io.on("connection", (socket) => {
     await client.save();
   });
   socket.on("readAll", async (clientId) => {
+    console.log("readAll active");
     const client = await Client.findById(clientId);
     for (let m of client.messages) {
       m.read = true;
