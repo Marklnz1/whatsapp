@@ -213,4 +213,5 @@ async function start() {
   });
 }
 start();
-module.exports = io;
+const socketIoObject = io;
+module.exports.io = socketIoObject;
