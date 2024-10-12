@@ -95,9 +95,7 @@ io.on("connection", (socket) => {
         },
       },
     ]).exec();
-    if (clients != null) {
-      firstClient = await Client.findById(clients[0]._id).lean().exec();
-    }
+
     io.emit(
       "getChats",
       JSON.stringify({
