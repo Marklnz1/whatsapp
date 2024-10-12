@@ -18,6 +18,7 @@
     "groq-sdk": "^0.6.1",
     "mongoose": "^8.7.1",
     "socket.io": "^4.8.0",
+    "util": "^0.12.5",
     "wasap-api": "file:",
     "ws": "^8.18.0"
   }
