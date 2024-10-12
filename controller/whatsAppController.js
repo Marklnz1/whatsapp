@@ -36,17 +36,13 @@ module.exports.receiveMessage = async (req, res) => {
 
     if (
       !(
-        value.messages &&
-        value.messages[0] &&
-        value.contacts &&
-        value.contacts[0] &&
-        value.contacts[0].profile &&
-        value.contacts[0].profile.name &&
         body_param.object &&
         body_param.entry &&
         body_param.entry[0].changes &&
         body_param.entry[0].changes[0].value.messages &&
-        body_param.entry[0].changes[0].value.messages[0]
+        body_param.entry[0].changes[0].value.messages[0] &&
+        body_param.entry[0].changes[0].value.contacts &&
+        body_param.entry[0].changes[0].value.contacts[0]
       )
     ) {
       res.sendStatus(404);
@@ -54,6 +50,7 @@ module.exports.receiveMessage = async (req, res) => {
     const value = body_param.entry[0].changes[0].value;
     // let phon_no_id = value.metadata.phone_number_id;
     // console.log(phon_no_id + "  otro " + PHONE_ID);
+    console.log(value.messages.length);
     let from = value.messages[0].from;
     let contact = value.contacts[0].profile.name;
 
@@ -73,7 +70,7 @@ module.exports.receiveMessage = async (req, res) => {
     });
     await client.save();
     let savedMessage = client.messages[client.messages.length - 1];
-    console.log("MENSAJE RECIBIDO " + msg_body);
+    // console.log("MENSAJE RECIBIDO " + msg_body);
     io.emit(
       "newMessage",
       JSON.stringify({
