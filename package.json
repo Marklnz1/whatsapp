@@ -13,8 +13,12 @@
   "dependencies": {
     "axios": "^1.7.5",
     "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
     "express": "^4.19.2",
     "groq-sdk": "^0.6.1",
-    "wasap-api": "file:"
+    "mongoose": "^8.7.1",
+    "socket.io": "^4.8.0",
+    "wasap-api": "file:",
+    "ws": "^8.18.0"
   }
 }
