@@ -67,6 +67,7 @@ module.exports.receiveMessage = async (req, res) => {
     });
     await client.save();
     let savedMessage = client.messages[client.messages.length - 1];
+    console.log("MENSAJE RECIBIDO " + msg_body);
     io.emit(
       "newMessage",
       JSON.stringify({
