@@ -46,6 +46,7 @@ module.exports.receiveMessage = async (req, res) => {
       )
     ) {
       res.sendStatus(404);
+      return;
     }
     const value = body_param.entry[0].changes[0].value;
     // let phon_no_id = value.metadata.phone_number_id;
