@@ -33,6 +33,7 @@ module.exports.receiveMessage = async (req, res) => {
   try {
     const io = res.locals.io;
     let body_param = req.body;
+    util.inspect(body_param, true, 99, true);
 
     if (
       !(
@@ -45,7 +46,6 @@ module.exports.receiveMessage = async (req, res) => {
         body_param.entry[0].changes[0].value.contacts[0]
       )
     ) {
-      util.inspect(body_param, true, 99, true);
       res.sendStatus(404);
       return;
     }
@@ -81,6 +81,7 @@ module.exports.receiveMessage = async (req, res) => {
         message: savedMessage,
       })
     );
+    console.log("enviar mensaje? " + client.chatbot);
     //==================================================
     if (client.chatbot) {
       sendMessageChatbot(client, from, msg_body, io);
