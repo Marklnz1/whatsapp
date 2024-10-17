@@ -1,8 +1,8 @@
 const axios = require("axios");
 const Groq = require("groq-sdk");
 const Client = require("../models/Client");
+const util = require("util");
 require("dotenv").config();
-
 const MY_TOKEN = process.env.MY_TOKEN;
 const META_TOKEN = process.env.META_TOKEN;
 const GROQ_TOKEN = process.env.GROQ_TOKEN;
@@ -45,6 +45,7 @@ module.exports.receiveMessage = async (req, res) => {
         body_param.entry[0].changes[0].value.contacts[0]
       )
     ) {
+      util.inspect(body_param, true, 99, true);
       res.sendStatus(404);
       return;
     }
