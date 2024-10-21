@@ -76,7 +76,7 @@ module.exports.receiveMessage = async (req, res) => {
       const mediaId = videoData.id;
       const mediaURL = await getMediaUrl(mediaId);
       videoBuffer = await getMediaToURL(mediaURL);
-      msg = imageData.caption;
+      msg = videoData.caption;
     }
     //===============================================================
     let client = await Client.findOne({ wid: from });
