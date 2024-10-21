@@ -33,7 +33,7 @@ module.exports.receiveMessage = async (req, res) => {
   try {
     const io = res.locals.io;
     let body_param = req.body;
-    util.inspect(body_param, true, 99);
+    console.log(util.inspect(body_param, true, 99));
 
     if (
       !(
