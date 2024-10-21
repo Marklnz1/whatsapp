@@ -171,6 +171,15 @@ async function getMediaUrl(mediaId) {
 }
 
 async function getImageToURL(url) {
-  const response = await axios.get(url, { responseType: "arraybuffer" });
+  console.log("Obteniendo de la url " + url);
+  const response = await axios({
+    method: "GET",
+    url,
+    responseType: "arraybuffer",
+    headers: {
+      Authorization: `Bearer ${META_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+  });
   return response.data;
 }
