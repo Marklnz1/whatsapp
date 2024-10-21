@@ -33,6 +33,7 @@ module.exports.receiveMessage = async (req, res) => {
   try {
     const io = res.locals.io;
     let body_param = req.body;
+    console.log("INSPECIONANDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
     console.log(util.inspect(body_param, true, 99));
 
     if (
@@ -47,12 +48,13 @@ module.exports.receiveMessage = async (req, res) => {
       )
     ) {
       res.sendStatus(404);
+      console.log("SALIENDOOOOOOOOOOO");
       return;
     }
     const value = body_param.entry[0].changes[0].value;
     // let phon_no_id = value.metadata.phone_number_id;
     // console.log(phon_no_id + "  otro " + PHONE_ID);
-    console.log(value.messages.length);
+    console.log("TAMAÑO DE MENSAJE :: " + value.messages.length);
     let from = value.messages[0].from;
     let contact = value.contacts[0].profile.name;
 
