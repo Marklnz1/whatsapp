@@ -65,8 +65,8 @@ module.exports.receiveMessage = async (req, res) => {
     if (typeMessage == "image") {
       const imageData = value.messages[0].image;
       const mediaId = imageData.id;
-      const mediaURL = getMediaUrl(mediaId);
-      imgBuffer = getImageToURL(mediaURL);
+      const mediaURL = await getMediaUrl(mediaId);
+      imgBuffer = await getImageToURL(mediaURL);
       msg = imageData.caption;
     } else if (typeMessage == "text") {
       msg = value.messages[0].text.body;
@@ -125,7 +125,7 @@ async function sendMessageChatbot(client, from, msg, io) {
     temperature: 0,
   });
   const chatbotMsg = chatCompletion.choices[0].message.content;
-  axios({
+  await axios({
     method: "POST",
     url: "https://graph.facebook.com/v20.0/" + PHONE_ID + "/messages",
     data: {
@@ -162,7 +162,6 @@ async function getMediaUrl(mediaId) {
     url: "https://graph.facebook.com/" + mediaId,
     headers: {
       Authorization: `Bearer ${META_TOKEN}`,
-      "Content-Type": "application/json",
     },
   });
 
@@ -178,7 +177,6 @@ async function getImageToURL(url) {
     responseType: "arraybuffer",
     headers: {
       Authorization: `Bearer ${META_TOKEN}`,
-      "Content-Type": "application/json",
     },
   });
   return response.data;
