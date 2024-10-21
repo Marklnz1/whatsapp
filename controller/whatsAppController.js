@@ -61,15 +61,22 @@ module.exports.receiveMessage = async (req, res) => {
 
     let msg;
     let imgBuffer;
+    let videoBuffer;
     //=============================================================
     if (typeMessage == "image") {
       const imageData = value.messages[0].image;
       const mediaId = imageData.id;
       const mediaURL = await getMediaUrl(mediaId);
-      imgBuffer = await getImageToURL(mediaURL);
+      imgBuffer = await getMediaToURL(mediaURL);
       msg = imageData.caption;
     } else if (typeMessage == "text") {
       msg = value.messages[0].text.body;
+    } else if (typeMessage == "video") {
+      const videoData = value.messages[0].video;
+      const mediaId = videoData.id;
+      const mediaURL = await getMediaUrl(mediaId);
+      videoBuffer = await getMediaToURL(mediaURL);
+      msg = imageData.caption;
     }
     //===============================================================
     let client = await Client.findOne({ wid: from });
@@ -84,6 +91,7 @@ module.exports.receiveMessage = async (req, res) => {
       sent: false,
       read: false,
       imgBuffer,
+      videoBuffer,
     });
     await client.save();
     let savedMessage = client.messages[client.messages.length - 1];
@@ -98,7 +106,7 @@ module.exports.receiveMessage = async (req, res) => {
     );
     // console.log("enviar mensaje? " + client.chatbot);
     //==================================================
-    if (client.chatbot) {
+    if (client.chatbot && msg) {
       sendMessageChatbot(client, from, msg, io);
     }
     res.sendStatus(200);
@@ -169,7 +177,7 @@ async function getMediaUrl(mediaId) {
   return url;
 }
 
-async function getImageToURL(url) {
+async function getMediaToURL(url) {
   console.log("Obteniendo de la url " + url);
   const response = await axios({
     method: "GET",

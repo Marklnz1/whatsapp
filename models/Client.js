@@ -7,7 +7,7 @@ const MessageSchema = new Schema(
     msg: String,
     imgBuffer: Buffer,
     audio: String,
-    video: String,
+    videoBuffer: String,
     time: Date,
     sent: Boolean,
   },
