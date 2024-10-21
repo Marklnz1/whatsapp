@@ -81,7 +81,7 @@ module.exports.receiveMessage = async (req, res) => {
         message: savedMessage,
       })
     );
-    console.log("enviar mensaje? " + client.chatbot);
+    // console.log("enviar mensaje? " + client.chatbot);
     //==================================================
     if (client.chatbot) {
       sendMessageChatbot(client, from, msg_body, io);
