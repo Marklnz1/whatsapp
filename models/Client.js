@@ -5,7 +5,7 @@ const MessageSchema = new Schema(
   {
     read: Boolean,
     msg: String,
-    img: String,
+    imgBuffer: Buffer,
     audio: String,
     video: String,
     time: Date,

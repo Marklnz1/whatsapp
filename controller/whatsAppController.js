@@ -57,8 +57,20 @@ module.exports.receiveMessage = async (req, res) => {
     console.log("TAMAÑO DE MENSAJE :: " + value.messages.length);
     let from = value.messages[0].from;
     let contact = value.contacts[0].profile.name;
+    const typeMessage = value.messages[0].type;
 
-    let msg_body = value.messages[0].text.body;
+    let msg;
+    let imgBuffer;
+    //=============================================================
+    if (typeMessage == "image") {
+      const imageData = value.messages[0].image;
+      const mediaId = imageData.id;
+      const mediaURL = getMediaUrl(mediaId);
+      imgBuffer = getImageToURL(mediaURL);
+      msg = imageData.caption;
+    } else if (typeMessage == "text") {
+      msg = value.messages[0].text.body;
+    }
     //===============================================================
     let client = await Client.findOne({ wid: from });
     let newClient;
@@ -67,10 +79,11 @@ module.exports.receiveMessage = async (req, res) => {
       newClient = client;
     }
     client.messages.push({
-      msg: msg_body,
+      msg,
       time: new Date(),
       sent: false,
       read: false,
+      imgBuffer,
     });
     await client.save();
     let savedMessage = client.messages[client.messages.length - 1];
@@ -86,7 +99,7 @@ module.exports.receiveMessage = async (req, res) => {
     // console.log("enviar mensaje? " + client.chatbot);
     //==================================================
     if (client.chatbot) {
-      sendMessageChatbot(client, from, msg_body, io);
+      sendMessageChatbot(client, from, msg, io);
     }
     res.sendStatus(200);
     return;
@@ -142,4 +155,22 @@ async function sendMessageChatbot(client, from, msg, io) {
       message: savedMessage,
     })
   );
+}
+async function getMediaUrl(mediaId) {
+  const response = await axios({
+    method: "GET",
+    url: "https://graph.facebook.com/" + mediaId,
+    headers: {
+      Authorization: `Bearer ${META_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const url = response.data.url;
+  return url;
+}
+
+async function getImageToURL(url) {
+  const response = await axios.get(url, { responseType: "arraybuffer" });
+  return response.data;
 }
