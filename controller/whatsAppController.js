@@ -76,6 +76,7 @@ module.exports.receiveMessage = async (req, res) => {
       mediaId = mediaData.id;
       msg = mediaData.caption;
       mediaName = await saveMedia(mediaId, typeMessage, mediaData.mime_type);
+      console.log("SE OBTUVO EL MEDIANAME " + mediaName);
     }
 
     //===============================================================
