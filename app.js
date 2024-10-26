@@ -3,7 +3,8 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const http = require("http");
 const https = require("https");
-
+const httpProxy = require("http-proxy");
+const proxy = httpProxy.createProxyServer({ secure: false });
 const app = express();
 const PORT = process.env.PORT || 4000;
 const MONGODB_URL = process.env.MONGODB_URL;
@@ -180,29 +181,8 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 app.get("/media/:name", async (req, res) => {
-  try {
-    const url = `https://${SERVER_SAVE}/media/${req.params.name}`;
-    console.log("GET AL SEGUNDO " + url);
-    const response = await axios({
-      method: "GET",
-      url,
-      headers: {
-        Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
-      },
-      params: {
-        mediaType: req.query.mediaType,
-      },
-      httpsAgent: agent,
-
-      responseType: "stream", // Para manejar el stream de datos
-    });
-    console.log("REPONDIO " + response.data);
-    console.log("Content-Type:", response.headers["content-type"]);
-    res.setHeader("content-type", response.headers["content-type"]);
-    response.data.pipe(res); // Redirige el stream de datos al cliente
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
+  req.headers["authorization"] = `Bearer ${SERVER_SAVE_TOKEN}`;
+  proxy.web(req, res, { target: `https://${SERVER_SAVE}` });
 });
 // app.get("/newMessage", async (req, res) => {
 //   const numeroAleatorio = Math.floor(Math.random() * 1000) + 1;

@@ -70,10 +70,8 @@ module.exports.receiveMessage = async (req, res) => {
     //=============================================================
     if (typeMessage == "text") {
       msg = value.messages[0].text.body;
-    } else if (typeMessage == "image") {
-      mediaData = value.messages[0].image;
-    } else if (typeMessage == "video") {
-      mediaData = value.messages[0].video;
+    } else {
+      mediaData = value.messages[0][typeMessage];
     }
     let mediaName;
     if (mediaData) {
