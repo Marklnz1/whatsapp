@@ -6,6 +6,7 @@ const MessageSchema = new Schema(
     read: Boolean,
     msg: String,
     type: String,
+    mimeType: String,
     mediaName: String,
     time: Date,
     sent: Boolean,

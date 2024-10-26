@@ -97,6 +97,7 @@ module.exports.receiveMessage = async (req, res) => {
       read: false,
       type: typeMessage,
       mediaName,
+      mimeType: mediaData?.mime_type,
     });
     await client.save();
     let savedMessage = client.messages[client.messages.length - 1];
@@ -158,6 +159,7 @@ async function sendMessageChatbot(client, from, msg, io) {
     time: new Date(),
     sent: true,
     read: false,
+    type: "text",
   });
   await client.save();
   savedMessage = client.messages[client.messages.length - 1];

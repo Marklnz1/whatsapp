@@ -2,6 +2,8 @@ const express = require("express");
 require("dotenv").config();
 const mongoose = require("mongoose");
 const http = require("http");
+const https = require("https");
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 const MONGODB_URL = process.env.MONGODB_URL;
@@ -12,12 +14,18 @@ const server = http.createServer(app);
 const axios = require("axios");
 const PHONE_ID = process.env.PHONE_ID;
 const META_TOKEN = process.env.META_TOKEN;
-
+const SERVER_SAVE = process.env.SERVER_SAVE;
+const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+});
 const io = new Server(server, {
   cors: {
     origin: "*",
   },
 });
+const cors = require("cors");
+app.use(cors());
 const Client = require("./models/Client");
 //===========================================
 io.on("connection", (socket) => {
@@ -99,6 +107,18 @@ io.on("connection", (socket) => {
     );
   });
   socket.on("getChats", async () => {
+    const response = await axios({
+      method: "GET",
+      url: `https://${SERVER_SAVE}/token`,
+      params: {
+        days: 2,
+      },
+      headers: {
+        Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
+      },
+      httpsAgent: agent,
+    });
+    const token_media = response.data.token;
     const clients = await Client.aggregate([
       {
         $project: {
@@ -124,6 +144,8 @@ io.on("connection", (socket) => {
       "getChats",
       JSON.stringify({
         clients,
+        token_media,
+        server_media: SERVER_SAVE,
       })
     );
   });
@@ -157,7 +179,31 @@ app.engine("html", require("ejs").renderFile);
 app.get("/", (req, res) => {
   res.render("index");
 });
+app.get("/media/:name", async (req, res) => {
+  try {
+    const url = `https://${SERVER_SAVE}/media/${req.params.name}`;
+    console.log("GET AL SEGUNDO " + url);
+    const response = await axios({
+      method: "GET",
+      url,
+      headers: {
+        Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
+      },
+      params: {
+        mediaType: req.query.mediaType,
+      },
+      httpsAgent: agent,
 
+      responseType: "stream", // Para manejar el stream de datos
+    });
+    console.log("REPONDIO " + response.data);
+    console.log("Content-Type:", response.headers["content-type"]);
+    res.setHeader("content-type", response.headers["content-type"]);
+    response.data.pipe(res); // Redirige el stream de datos al cliente
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 // app.get("/newMessage", async (req, res) => {
 //   const numeroAleatorio = Math.floor(Math.random() * 1000) + 1;
 //   const message = {
