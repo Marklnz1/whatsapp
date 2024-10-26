@@ -12,7 +12,9 @@ const BUSINESS_INFO = process.env.BUSINESS_INFO;
 const PHONE_ID = process.env.PHONE_ID;
 const SERVER_SAVE = process.env.SERVER_SAVE;
 const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
-
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+});
 const groqClient = new Groq({
   apiKey: GROQ_TOKEN,
 });
@@ -176,6 +178,7 @@ async function saveMedia(media_id, media_type, mime_type) {
     headers: {
       Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
     },
+    httpsAgent: agent,
   });
   return response.data.fileName;
 }
