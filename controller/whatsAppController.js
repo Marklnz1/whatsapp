@@ -169,13 +169,13 @@ async function sendMessageChatbot(client, from, msg, io) {
     })
   );
 }
-async function saveMedia(media_id, media_type, mime_type) {
+async function saveMedia(media_id, mediaType, mimeType) {
   const response = await axios({
     method: "POST",
     url: `https://${SERVER_SAVE}/media/${media_id}`,
     params: {
-      media_type,
-      mime_type,
+      mediaType,
+      mimeType,
     },
     headers: {
       Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
