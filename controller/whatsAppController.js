@@ -10,6 +10,8 @@ const GROQ_MODEL = process.env.GROQ_MODEL;
 const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT;
 const BUSINESS_INFO = process.env.BUSINESS_INFO;
 const PHONE_ID = process.env.PHONE_ID;
+const SERVER_SAVE = process.env.SERVER_SAVE;
+const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
 
 const groqClient = new Groq({
   apiKey: GROQ_TOKEN,
@@ -60,24 +62,22 @@ module.exports.receiveMessage = async (req, res) => {
     const typeMessage = value.messages[0].type;
 
     let msg;
-    let imgBuffer;
-    let videoBuffer;
+    let mediaData;
     //=============================================================
-    if (typeMessage == "image") {
-      const imageData = value.messages[0].image;
-      const mediaId = imageData.id;
-      const mediaURL = await getMediaUrl(mediaId);
-      imgBuffer = await getMediaToURL(mediaURL);
-      msg = imageData.caption;
-    } else if (typeMessage == "text") {
+    if (typeMessage == "text") {
       msg = value.messages[0].text.body;
+    } else if (typeMessage == "image") {
+      mediaData = value.messages[0].image;
     } else if (typeMessage == "video") {
-      const videoData = value.messages[0].video;
-      const mediaId = videoData.id;
-      const mediaURL = await getMediaUrl(mediaId);
-      videoBuffer = await getMediaToURL(mediaURL);
-      msg = videoData.caption;
+      mediaData = value.messages[0].video;
     }
+    let mediaName;
+    if (mediaData) {
+      mediaId = mediaData.id;
+      msg = mediaData.caption;
+      mediaName = await saveMedia(mediaId, typeMessage, mediaData.mime_type);
+    }
+
     //===============================================================
     let client = await Client.findOne({ wid: from });
     let newClient;
@@ -90,8 +90,8 @@ module.exports.receiveMessage = async (req, res) => {
       time: new Date(),
       sent: false,
       read: false,
-      imgBuffer,
-      videoBuffer,
+      type: typeMessage,
+      mediaName,
     });
     await client.save();
     let savedMessage = client.messages[client.messages.length - 1];
@@ -163,6 +163,20 @@ async function sendMessageChatbot(client, from, msg, io) {
       message: savedMessage,
     })
   );
+}
+async function saveMedia(media_id, media_type, mime_type) {
+  const response = await axios({
+    method: "POST",
+    url: `https://${SERVER_SAVE}/media/${media_id}`,
+    params: {
+      media_type,
+      mime_type,
+    },
+    headers: {
+      Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
+    },
+  });
+  return response.data.fileName;
 }
 async function getMediaUrl(mediaId) {
   const response = await axios({
