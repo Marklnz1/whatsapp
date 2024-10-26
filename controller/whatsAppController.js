@@ -137,7 +137,6 @@ async function sendMessageChatbot(client, from, msg, io) {
     temperature: 0,
   });
   const chatbotMsg = chatCompletion.choices[0].message.content;
-  console.log("enviando mensaje a " + from);
   await axios({
     method: "POST",
     url: "https://graph.facebook.com/v20.0/" + PHONE_ID + "/messages",

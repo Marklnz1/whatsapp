@@ -45,11 +45,9 @@ io.on("connection", (socket) => {
       read: true,
     };
     client.messages.push(messageDB);
-    // await client.save();
+    await client.save();
     const from = client.wid;
-    // console.log("para : " + from);
-    // return;
-    await axios({
+    axios({
       method: "POST",
       url: "https://graph.facebook.com/v20.0/" + PHONE_ID + "/messages",
       data: {
