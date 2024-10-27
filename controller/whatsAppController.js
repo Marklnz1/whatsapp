@@ -73,12 +73,16 @@ module.exports.receiveMessage = async (req, res) => {
     } else {
       mediaData = value.messages[0][typeMessage];
     }
-    let mediaName;
+    let metadata = {};
+    let width;
+    let height;
+    let duration;
     if (mediaData) {
       mediaId = mediaData.id;
       msg = mediaData.caption;
-      mediaName = await saveMedia(mediaId, typeMessage, mediaData.mime_type);
-      console.log("SE OBTUVO EL MEDIANAME " + mediaName);
+      metadata = await saveMedia(mediaId, typeMessage, mediaData.mime_type);
+
+      console.log("SE OBTUVO EL MEDIANAME " + metadata.mediaName);
     }
 
     //===============================================================
@@ -94,7 +98,7 @@ module.exports.receiveMessage = async (req, res) => {
       sent: false,
       read: false,
       type: typeMessage,
-      mediaName,
+      ...metadata,
       mimeType: mediaData?.mime_type,
     });
     await client.save();
@@ -182,7 +186,7 @@ async function saveMedia(media_id, mediaType, mimeType) {
     },
     httpsAgent: agent,
   });
-  return response.data.fileName;
+  return response.data;
 }
 async function getMediaUrl(mediaId) {
   const response = await axios({
