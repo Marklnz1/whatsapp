@@ -74,12 +74,13 @@ module.exports.receiveMessage = async (req, res) => {
       mediaData = value.messages[0][typeMessage];
     }
     let metadata = {};
-    let width;
-    let height;
-    let duration;
+    let metaFileName;
+
     if (mediaData) {
       mediaId = mediaData.id;
       msg = mediaData.caption;
+      metaFileName = mediaData.filename;
+
       metadata = await saveMedia(mediaId, typeMessage, mediaData.mime_type);
 
       console.log("SE OBTUVO EL MEDIANAME " + metadata.mediaName);
@@ -98,6 +99,7 @@ module.exports.receiveMessage = async (req, res) => {
       sent: false,
       read: false,
       type: typeMessage,
+      metaFileName,
       ...metadata,
       mimeType: mediaData?.mime_type,
     });

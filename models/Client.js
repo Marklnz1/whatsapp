@@ -11,6 +11,7 @@ const MessageSchema = new Schema(
     height: Number,
     duration: Number,
     fileName: String,
+    metaFileName: String,
     time: Date,
     sent: Boolean,
   },
