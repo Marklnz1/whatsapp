@@ -99,7 +99,6 @@ module.exports.receiveMessage = async (req, res) => {
       type: typeMessage,
       metaFileName,
       ...metadata,
-      mimeType: mediaData?.mime_type,
     });
     await client.save();
     let savedMessage = client.messages[client.messages.length - 1];
