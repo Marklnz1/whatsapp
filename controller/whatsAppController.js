@@ -75,13 +75,11 @@ module.exports.receiveMessage = async (req, res) => {
     }
     let metadata = {};
     let metaFileName;
-    let extension;
     if (mediaData) {
       mediaId = mediaData.id;
       msg = mediaData.caption;
       metaFileName = mediaData.filename;
-      extension = mime.extension(mediaData.mime_type);
-      metadata = await saveMedia(mediaId, typeMessage, extension);
+      metadata = await saveMedia(mediaId, typeMessage);
 
       console.log("SE OBTUVO EL MEDIANAME " + metadata.mediaName);
     }
@@ -100,7 +98,6 @@ module.exports.receiveMessage = async (req, res) => {
       read: false,
       type: typeMessage,
       metaFileName,
-      extension,
       ...metadata,
       mimeType: mediaData?.mime_type,
     });
@@ -176,13 +173,12 @@ async function sendMessageChatbot(client, from, msg, io) {
     })
   );
 }
-async function saveMedia(media_id, mediaType, extension) {
+async function saveMedia(media_id, mediaType) {
   const response = await axios({
     method: "POST",
     url: `https://${SERVER_SAVE}/media/${media_id}`,
     params: {
       mediaType,
-      extension,
     },
     headers: {
       Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
