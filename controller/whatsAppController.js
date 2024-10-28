@@ -67,6 +67,7 @@ module.exports.receiveMessage = async (req, res) => {
 
     let msg;
     let mediaData;
+    const timestamp = value.messages[0].timestamp;
     //=============================================================
     if (typeMessage == "text") {
       msg = value.messages[0].text.body;
@@ -93,7 +94,7 @@ module.exports.receiveMessage = async (req, res) => {
     }
     client.messages.push({
       msg,
-      time: new Date(),
+      time: new Date(timestamp * 1000),
       sent: false,
       read: false,
       type: typeMessage,
