@@ -81,7 +81,7 @@ module.exports.receiveMessage = async (req, res) => {
       metaFileName = mediaData.filename;
       metadata = await saveMedia(mediaId, typeMessage);
 
-      console.log("SE OBTUVO EL MEDIANAME " + metadata);
+      console.log("SE OBTUVO EL MEDIANAME " + util.inspect(metadata, true, 99));
     }
 
     //===============================================================
