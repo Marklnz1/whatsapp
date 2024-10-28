@@ -20,6 +20,12 @@ const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
 const agent = new https.Agent({
   rejectUnauthorized: false,
 });
+const mime = require("mime-types");
+console.log(
+  mime.lookup(
+    "document_1920025025185148_0192d0c2-b663-7448-9305-67702a4ee20c.docx"
+  )
+);
 const io = new Server(server, {
   cors: {
     origin: "*",

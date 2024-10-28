@@ -15,6 +15,7 @@ const MessageSchema = new Schema(
     time: Date,
     sent: Boolean,
     extension: String,
+    fileSizeBytes: String,
   },
   { timestamps: true }
 );
