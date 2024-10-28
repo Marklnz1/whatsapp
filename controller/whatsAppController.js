@@ -3,7 +3,7 @@ const Groq = require("groq-sdk");
 const Client = require("../models/Client");
 const util = require("util");
 const https = require("https");
-
+const mime = require("mime-types");
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
 const META_TOKEN = process.env.META_TOKEN;
@@ -75,13 +75,13 @@ module.exports.receiveMessage = async (req, res) => {
     }
     let metadata = {};
     let metaFileName;
-
+    let extension;
     if (mediaData) {
       mediaId = mediaData.id;
       msg = mediaData.caption;
       metaFileName = mediaData.filename;
-
-      metadata = await saveMedia(mediaId, typeMessage, mediaData.mime_type);
+      extension = mime.extension(mediaData.mime_type);
+      metadata = await saveMedia(mediaId, typeMessage, extension);
 
       console.log("SE OBTUVO EL MEDIANAME " + metadata.mediaName);
     }
@@ -100,6 +100,7 @@ module.exports.receiveMessage = async (req, res) => {
       read: false,
       type: typeMessage,
       metaFileName,
+      extension,
       ...metadata,
       mimeType: mediaData?.mime_type,
     });
@@ -175,13 +176,13 @@ async function sendMessageChatbot(client, from, msg, io) {
     })
   );
 }
-async function saveMedia(media_id, mediaType, mimeType) {
+async function saveMedia(media_id, mediaType, extension) {
   const response = await axios({
     method: "POST",
     url: `https://${SERVER_SAVE}/media/${media_id}`,
     params: {
       mediaType,
-      mimeType,
+      extension,
     },
     headers: {
       Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,

@@ -19,6 +19,7 @@
     "groq-sdk": "^0.6.1",
     "http-proxy": "^1.18.1",
     "https": "^1.0.0",
+    "mime-types": "^2.1.35",
     "mongoose": "^8.7.1",
     "socket.io": "^4.8.0",
     "util": "^0.12.5",

@@ -14,6 +14,7 @@ const MessageSchema = new Schema(
     metaFileName: String,
     time: Date,
     sent: Boolean,
+    extension: String,
   },
   { timestamps: true }
 );
