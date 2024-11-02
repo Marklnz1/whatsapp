@@ -7,6 +7,7 @@ const https = require("https");
 const mime = require("mime-types");
 const { response } = require("express");
 const MessageStatus = require("../models/MessageStatus");
+const { sendWhatsappMessage } = require("../utils/server");
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
 const META_TOKEN = process.env.META_TOKEN;
@@ -82,30 +83,7 @@ async function generateChatbotMessage(text) {
   const responseText = chatCompletion.choices[0].message.content;
   return responseText;
 }
-async function sendWhatsappMessage(
-  businessPhoneId,
-  dstPhone,
-  type,
-  messageData
-) {
-  const sendData = {
-    messaging_product: "whatsapp",
-    to: dstPhone,
-    type,
-  };
-  sendData.type = messageData;
-  const response = await axios({
-    method: "POST",
-    url: `https://graph.facebook.com/v20.0/${businessPhoneId}/messages`,
-    data: sendData,
-    headers: {
-      Authorization: `Bearer ${META_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-  });
-  const messageId = response.data.messages[0].id;
-  return messageId;
-}
+
 async function sendMessageChatbot(
   clientDB,
   text,
@@ -125,6 +103,7 @@ async function sendMessageChatbot(
   });
   await newMessage.save();
   const messageId = await sendWhatsappMessage(
+    META_TOKEN,
     businessPhoneId,
     clientDB.wid,
     "text",

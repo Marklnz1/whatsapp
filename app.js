@@ -20,10 +20,13 @@ const busboy = require("busboy");
 const FormData = require("form-data");
 const ffmpegStatic = require("ffmpeg-static");
 const ffmpeg = require("fluent-ffmpeg");
+const mime = require("mime-types");
 
 // Tell fluent-ffmpeg where it can find FFmpeg
 ffmpeg.setFfmpegPath(ffmpegStatic);
 const PHONE_ID = process.env.PHONE_ID;
+const BUSINESS_PHONE = process.env.BUSINESS_PHONE;
+
 const META_TOKEN = process.env.META_TOKEN;
 const SERVER_SAVE = process.env.SERVER_SAVE;
 const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
@@ -44,51 +47,48 @@ const cors = require("cors");
 app.use(cors());
 const Client = require("./models/Client");
 const { FORMERR } = require("dns");
+const Message = require("./models/Message");
+const { sendWhatsappMessage } = require("./utils/server");
 //===========================================
 io.on("connection", (socket) => {
   console.log("Cliente conectado");
   socket.on("sendMessage", async (data) => {
-    const { clientId, msg, lid } = JSON.parse(data);
+    const { clientId, text, lid, businessPhone, businessPhoneId } =
+      JSON.parse(data);
     const client = await Client.findById(clientId);
-    for (let m of client.messages) {
-      m.read = true;
-    }
     client.chatbot = false;
-    const messageDB = {
-      sentStatus: 1,
-      msg: msg,
-      time: new Date(),
-      sent: true,
-      read: true,
-    };
-    client.messages.push(messageDB);
     await client.save();
-    //========================================
-    const lastMessage = client.messages[client.messages.length - 1];
 
-    const savedMessage = { ...lastMessage };
-    savedMessage.lid = lid;
-    savedMessage._id = lastMessage._id;
-    //==============================================================
-    const from = client.wid;
-    const reponse = await axios({
-      method: "POST",
-      url: "https://graph.facebook.com/v20.0/" + PHONE_ID + "/messages",
-      data: {
-        messaging_product: "whatsapp",
-        to: from,
-        text: {
-          body: msg,
-        },
-      },
-      headers: {
-        Authorization: `Bearer ${META_TOKEN}`,
-        "Content-Type": "application/json",
-      },
+    await Message.updateMany({ client: clientId }, { $set: { read: true } });
+
+    const newMessage = new Message({
+      client: clientId,
+      wid: null,
+      text,
+      sent: true,
+      time: new Date(),
+      type: "text",
+      businessPhone,
+      sentStatus: "not_sent",
     });
-    lastMessage.sentStatus = 2;
-    lastMessage.wid = reponse.data.messages[0].id;
-    await client.save();
+    await newMessage.save();
+
+    const messageId = await sendWhatsappMessage(
+      META_TOKEN,
+      businessPhoneId,
+      client.wid,
+      "text",
+      {
+        body: text,
+      }
+    );
+    newMessage.wid = messageId;
+    newMessage.sentStatus = "send_requested";
+    await newMessage.save();
+    //========================================
+    const savedMessage = { ...newMessage };
+    savedMessage.lid = lid;
+
     io.emit(
       "sendMessage",
       JSON.stringify({
@@ -113,53 +113,39 @@ io.on("connection", (socket) => {
   });
   socket.on("getMessages", async (data) => {
     const { clientId, readAll } = JSON.parse(data);
-    const client = await Client.findById(clientId);
-    if (readAll) {
-      console.log("READ ALL IN GETMESSAGES");
-      for (let m of client.messages) {
-        m.read = true;
-      }
+    const messages = await Message.find({ client: clientId }).lean().exec();
 
-      await client.save();
+    if (readAll) {
+      await Message.updateMany({ client: clientId }, { $set: { read: true } });
     }
     io.emit(
       "getMessages",
       JSON.stringify({
         _id: clientId,
-        messages: client.messages,
+        messages,
       })
     );
   });
   socket.on("getChats", async () => {
-    // const response = await axios({
-    //   method: "GET",
-    //   url: `https://${SERVER_SAVE}/token`,
-    //   params: {
-    //     days: 2,
-    //   },
-    //   headers: {
-    //     Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
-    //   },
-    //   httpsAgent: agent,
-    // });
-    // const token_media = response.data.token;
     const clients = await Client.aggregate([
       {
-        $project: {
-          _id: 1,
-          contact: 1,
-          chatbot: 1,
-          messages: {
-            $slice: [
-              {
-                $sortArray: {
-                  input: "$messages",
-                  sortBy: { time: -1 },
-                },
+        $lookup: {
+          from: "message",
+          let: { clientId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$client", "$$clientId"] },
               },
-              1,
-            ],
-          },
+            },
+            {
+              $sort: { time: -1 },
+            },
+            {
+              $limit: 1,
+            },
+          ],
+          as: "messages",
         },
       },
     ]).exec();
@@ -168,8 +154,9 @@ io.on("connection", (socket) => {
       "getChats",
       JSON.stringify({
         clients,
-        // token_media,
-        // server_media: SERVER_SAVE,
+        businessProfiles: [
+          { businessPhone: BUSINESS_PHONE, businessPhoneId: PHONE_ID },
+        ],
       })
     );
   });
@@ -265,109 +252,123 @@ async function start() {
     console.log("SERVER ACTIVO: PUERTO USADO :" + PORT);
   });
 }
-app.post("/api/prueba/", (req, res) => {
-  console.log("ENTRANDOOOOOOOOOO");
+
+app.post("/api/message/media/:category", (req, res) => {
+  const category = req.params.category;
+  // Definir límite en bytes (ejemplo: 5MB = 5 * 1024 * 1024 bytes)
+  const TAMAÑO_MAXIMO = 100 * 1024 * 1024;
   const bb = busboy({
     headers: req.headers,
-    limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
+    limits: {
+      fileSize: TAMAÑO_MAXIMO, // Límite en bytes
+    },
   });
-  let responded = false; // Bandera para evitar múltiples respuestas
-  const fields = {};
-  const mediaList = [];
 
+  let fileBuffer = null;
+  let fileName = "";
+  let fileType = "";
+  let excedioLimite = false;
+  const fields = [];
   bb.on("file", (name, file, info) => {
-    console.log("filee " + file);
+    // console.log("filee " + file);
     const { filename, encoding, mimeType } = info;
-    const saveTo = path.join("", `${Date.now()}-${filename}`);
-    const writeStream = fs.createWriteStream(saveTo);
-    file.pipe(writeStream);
+    const chunks = [];
 
-    const index = mediaList.length;
+    fileName = filename;
+    fileType = mimeType;
 
-    mediaList.push({ path: saveTo, index, mimeType });
+    // Verificar tamaño mientras se reciben los chunks
+    file.on("data", (chunk) => {
+      chunks.push(chunk);
+    });
 
-    file.on("limit", () => {
-      if (!responded) {
-        responded = true;
-        res.status(413).send("Archivo demasiado grande");
-        writeStream.destroy(); // Detiene la escritura en el archivo
-        fs.unlinkSync(saveTo); // Elimina el archivo incompleto
+    file.on("end", () => {
+      if (!excedioLimite) {
+        fileBuffer = Buffer.concat(chunks);
       }
     });
-  });
 
+    // Manejar error de límite excedido
+    file.on("limit", () => {
+      excedioLimite = true;
+      // res.status(413).json({ error: "Archivo excede el límite permitido" });
+    });
+  });
   bb.on("field", (name, val) => {
-    console.log("fields[" + name + "] = " + val);
     fields[name] = val;
   });
-
   bb.on("finish", async () => {
-    if (!responded) {
-      for (let m of mediaList) {
-        m.message = fields["message" + m.index];
-        m.category = fields["category" + m.index];
-      }
-      const { clientId } = fields;
-      // const data = {
-      //   clientId,
-      //   files: mediaList,
-      // };
-
-      // console.log("Received data:", data);
-      const client = await Client.findById(clientId);
-
-      for (let m of mediaList) {
-        const form = new FormData();
-        form.append("file", fs.createReadStream(m.path), {
-          contentType: m.mimeType,
-        });
-        form.append("messaging_product", "whatsapp");
-        // await compressVideo(f.path, "nuevo archivo");
-
-        let response = await axios.post(
-          `https://graph.facebook.com/v21.0/${PHONE_ID}/media`,
-          form,
-          {
-            headers: {
-              Authorization: `Bearer ${META_TOKEN}`,
-              ...form.getHeaders(),
-            },
-          }
-        );
-        const mediaId = response.data.id;
-        console.log("MEDIAid " + mediaId);
-        // const data = {
-        //   messaging_product: "whatsapp",
-        //   recipient_type: "individual",
-        //   to: client.wid,
-        //   type: m.category,
-        // };
-        // data[m.category] = {
-        //   id: mediaId,
-        //   caption: m.message,
-        // };
-        // response = await axios({
-        //   method: "POST",
-        //   url: "https://graph.facebook.com/v20.0/" + PHONE_ID + "/messages",
-        //   data,
-        //   headers: {
-        //     Authorization: `Bearer ${META_TOKEN}`,
-        //     "Content-Type": "application/json",
-        //   },
-        // });
-        // console.log(
-        //   "response final post " + util.inspect(response.data, true, 99)
-        // );
-      }
-      res.status(200).send("Archivos subidos exitosamente");
+    if (excedioLimite) {
+      res.status(413).json({ error: "Archivo excede el límite permitido" });
+      return; // No hacer nada si ya se envió respuesta de error
     }
+
+    // Proceder con el envío si el archivo está dentro del límite
+    const axios = require("axios");
+
+    // const formData = new FormData();
+    // const file = new File([fileBuffer], "", { type: fileType });
+    var formData = {
+      name: "files",
+      file: {
+        value: fileBuffer,
+        options: {
+          //  filename: 'elemento1.pdf',
+          contentType: fileType,
+        },
+      },
+    };
+    console.log("MI MIMETYPE ES " + fileType);
+    let response = await axios.post(
+      `https://${SERVER_SAVE}/api/temp/media/${category}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        httpsAgent: agent,
+      }
+    );
+    const metadata = response.data;
+    metadata.extension = mime.extension(fileType);
+    metadata.mimeType = fileType;
+    metadata.metaFileName = fileName;
+    console.log("FILENAME ES  " + fileName);
+    //post a meta para enviar mensaje con el link temporal https://${SERVER_SAVE}/api/temp/media/${savedFileName}
+    // console.log(util.inspect(metadata));
+    const link = `https://${SERVER_SAVE}/api/temp/media/${metadata.savedFileName}`;
+    const caption = fields["message"] ?? null;
+    const businessPhoneId = fields["businessPhoneId"];
+    const businessPhone = fields["businessPhone"];
+    const dstPhone = fields["dstPhone"];
+    const newMessage = new Message({
+      client: fields["clientId"],
+      wid: null,
+      text: caption,
+      sent: true,
+      time: new Date(),
+      type: category,
+      businessPhone,
+      sentStatus: "not_sent",
+      ...metadata,
+    });
+    await newMessage.save();
+    const messageId = await sendWhatsappMessage(
+      META_TOKEN,
+      businessPhoneId,
+      dstPhone,
+      category,
+      { link, caption }
+    );
+    newMessage.sentStatus = "send_requested";
+    newMessage.wid = messageId;
+    await newMessage.save();
   });
+  // console.log("mensaje id");
 
-  bb.on("error", (error) => {
-    if (!responded) {
-      responded = true;
-      res.status(500).send("Error al subir los archivos");
-    }
+  // Manejar errores generales de Busboy
+  bb.on("error", (err) => {
+    res.status(500).json({ error: "Error al procesar el archivo" });
   });
 
   req.pipe(bb);
