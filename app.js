@@ -336,7 +336,9 @@ app.post("/api/message/media/:category", (req, res) => {
     console.log("FILENAME ES  " + fileName);
     //post a meta para enviar mensaje con el link temporal https://${SERVER_SAVE}/api/temp/media/${savedFileName}
     // console.log(util.inspect(metadata));
-    const link = `https://${SERVER_SAVE}/api/temp/media/${metadata.savedFileName}`;
+    let link = `https://${SERVER_SAVE}/api/temp/media/${metadata.savedFileName}`;
+    link =
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQ_-avx5fuVUcO4mhaRPl98c3Qzu5eFAz1xA&s";
     const caption = fields["message"] ?? null;
     const businessPhoneId = fields["businessPhoneId"];
     const businessPhone = fields["businessPhone"];
