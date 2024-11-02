@@ -1,9 +1,12 @@
 const axios = require("axios");
 const Groq = require("groq-sdk");
 const Client = require("../models/Client");
+const Message = require("../models/Message");
 const util = require("util");
 const https = require("https");
 const mime = require("mime-types");
+const { response } = require("express");
+const MessageStatus = require("../models/MessageStatus");
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
 const META_TOKEN = process.env.META_TOKEN;
@@ -30,101 +33,37 @@ module.exports.verifyToken = (req, res) => {
       return;
     }
   } catch (e) {
-    console.log(e);
-  }
-  res.sendStatus(404);
-};
-
-module.exports.receiveMessage = async (req, res) => {
-  try {
-    const io = res.locals.io;
-    let body_param = req.body;
-    console.log("INSPECIONANDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-    console.log(util.inspect(body_param, true, 99));
-
-    if (
-      !(
-        body_param.object &&
-        body_param.entry &&
-        body_param.entry[0].changes &&
-        body_param.entry[0].changes[0].value.messages &&
-        body_param.entry[0].changes[0].value.messages[0] &&
-        body_param.entry[0].changes[0].value.contacts &&
-        body_param.entry[0].changes[0].value.contacts[0]
-      )
-    ) {
-      res.sendStatus(404);
-      console.log("SALIENDOOOOOOOOOOO");
-      return;
-    }
-    const value = body_param.entry[0].changes[0].value;
-    // let phon_no_id = value.metadata.phone_number_id;
-    // console.log(phon_no_id + "  otro " + PHONE_ID);
-    console.log("TAMAÑO DE MENSAJE :: " + value.messages.length);
-    let from = value.messages[0].from;
-    let contact = value.contacts[0].profile.name;
-    const typeMessage = value.messages[0].type;
-
-    let msg;
-    let mediaData;
-    const timestamp = value.messages[0].timestamp;
-    //=============================================================
-    if (typeMessage == "text") {
-      msg = value.messages[0].text.body;
-    } else {
-      mediaData = value.messages[0][typeMessage];
-    }
-    let metadata = {};
-    let metaFileName;
-    if (mediaData) {
-      mediaId = mediaData.id;
-      msg = mediaData.caption;
-      metaFileName = mediaData.filename;
-      metadata = await saveMedia(mediaId, typeMessage);
-
-      console.log("SE OBTUVO EL MEDIANAME " + util.inspect(metadata, true, 99));
-    }
-
-    //===============================================================
-    let client = await Client.findOne({ wid: from });
-    let newClient;
-    if (client == null) {
-      client = new Client({ wid: from, contact, chatbot: true });
-      newClient = client;
-    }
-    client.messages.push({
-      msg,
-      time: new Date(timestamp * 1000),
-      sent: false,
-      read: false,
-      type: typeMessage,
-      metaFileName,
-      ...metadata,
-    });
-    await client.save();
-    let savedMessage = client.messages[client.messages.length - 1];
-    // console.log("MENSAJE RECIBIDO " + msg_body);
-    io.emit(
-      "newMessage",
-      JSON.stringify({
-        newClient,
-        clientId: client._id,
-        message: savedMessage,
-      })
-    );
-    // console.log("enviar mensaje? " + client.chatbot);
-    //==================================================
-    if (client.chatbot && msg) {
-      sendMessageChatbot(client, from, msg, io);
-    }
-    res.sendStatus(200);
-    return;
-  } catch (e) {
-    console.log(e);
+    res.sendStatus(404);
   }
 };
+const createClientMapData = async (contacts) => {
+  const clientMapDB = {};
 
-async function sendMessageChatbot(client, from, msg, io) {
+  for (const contact of contacts) {
+    const profile = contact.profile;
+
+    const username = profile.name;
+    const wid = contact.wa_id;
+    let clientDB = await Client.findOne({ wid });
+    if (clientDB == null) {
+      clientDB = new Client({ wid, username, chatbot: false });
+      await clientDB.save();
+    }
+    clientMapDB[wid] = clientDB;
+  }
+
+  return clientMapDB;
+};
+const messageTypeIsMedia = (type) => {
+  return (
+    type == "video" ||
+    type == "image" ||
+    type == "document" ||
+    type == "audio" ||
+    type == "sticker"
+  );
+};
+async function generateChatbotMessage(text) {
   const system = SYSTEM_PROMPT + BUSINESS_INFO;
   const chatCompletion = await groqClient.chat.completions.create({
     messages: [
@@ -134,45 +73,227 @@ async function sendMessageChatbot(client, from, msg, io) {
       },
       {
         role: "user",
-        content: msg,
+        content: text,
       },
     ],
     model: GROQ_MODEL,
     temperature: 0,
   });
-  const chatbotMsg = chatCompletion.choices[0].message.content;
-  await axios({
+  const responseText = chatCompletion.choices[0].message.content;
+  return responseText;
+}
+async function sendWhatsappMessage(
+  businessPhoneId,
+  dstPhone,
+  type,
+  messageData
+) {
+  const sendData = {
+    messaging_product: "whatsapp",
+    to: dstPhone,
+    type,
+  };
+  sendData.type = messageData;
+  const response = await axios({
     method: "POST",
-    url: "https://graph.facebook.com/v20.0/" + PHONE_ID + "/messages",
-    data: {
-      messaging_product: "whatsapp",
-      to: from,
-      text: {
-        body: chatbotMsg,
-      },
-    },
+    url: `https://graph.facebook.com/v20.0/${businessPhoneId}/messages`,
+    data: sendData,
     headers: {
       Authorization: `Bearer ${META_TOKEN}`,
       "Content-Type": "application/json",
     },
   });
-  client.messages.push({
-    msg: chatbotMsg,
-    time: new Date(),
+  const messageId = response.data.messages[0].id;
+  return messageId;
+}
+async function sendMessageChatbot(
+  clientDB,
+  text,
+  businessPhone,
+  businessPhoneId
+) {
+  const chatbotMessage = await generateChatbotMessage(text);
+  const newMessage = new Message({
+    client: clientDB._id,
+    messageId: null,
+    text,
     sent: true,
-    read: false,
+    time: new Date(),
     type: "text",
+    businessPhone,
+    sentStatus: "not_sent",
   });
-  await client.save();
-  savedMessage = client.messages[client.messages.length - 1];
+  await newMessage.save();
+  const messageId = await sendWhatsappMessage(
+    businessPhoneId,
+    clientDB.wid,
+    "text",
+    {
+      body: chatbotMessage,
+    }
+  );
+  newMessage.messageId = messageId;
+  newMessage.sentStatus = "send_requested";
+  await newMessage.save();
+  return newMessage;
+}
+/*
+  {
+    id
+    timestamp
+
+  }
+*/
+const receiveMessageClient = async (
+  message,
+  clientMapData,
+  recipientData,
+  io
+) => {
+  const clientDB = clientMapData[message.from];
+  const messageType = message.type;
+  const messageData = message[messageType];
+  const newMessageData = {
+    client: clientDB._id,
+    messageId: message.id,
+    sent: false,
+    time: new Date(message.timestamp * 1000),
+    type: messageType,
+    businessPhone: recipientData.phoneNumber,
+  };
+  let finalMessageData;
+  if (messageType == "text") {
+    finalMessageData = { text: messageData.body };
+  } else if (messageTypeIsMedia(messageType)) {
+    const metaFileName = messageData.filename;
+    const metadata = await saveMedia(messageData.id, messageType);
+
+    finalMessageData = {
+      text: messageData.caption,
+      metaFileName,
+      ...metadata,
+    };
+  }
+
+  const newMessage = new Message({
+    ...newMessageData,
+    ...finalMessageData,
+  });
+  await newMessage.save();
   io.emit(
     "newMessage",
     JSON.stringify({
-      clientId: client._id,
-      message: savedMessage,
+      client: clientDB,
+      message: newMessage,
     })
   );
-}
+  if (clientDB.chatbot && newMessage.text) {
+    const newMessage = await sendMessageChatbot(
+      clientDB,
+      newMessage.text,
+      recipientData.phoneNumber,
+      recipientData.phoneNumberId
+    );
+    io.emit(
+      "newMessage",
+      JSON.stringify({
+        client: clientDB,
+        message: newMessage,
+      })
+    );
+  }
+};
+const receiveListMessagesClient = async (
+  messages,
+  contacts,
+  recipientData,
+  io
+) => {
+  try {
+    const clientMapData = createClientMapData(contacts);
+
+    for (const message of messages) {
+      await receiveMessageClient(message, clientMapData, recipientData, io);
+    }
+    res.sendStatus(200);
+  } catch (error) {
+    res.sendStatus(404);
+  }
+};
+const extractRecipientData = (value) => {
+  try {
+    const phoneNumber = value.metadata.display_phone_number;
+    const phoneNumberId = value.metadata.phone_number_id;
+    return { phoneNumber, phoneNumberId };
+  } catch (error) {
+    return null;
+  }
+};
+const extractClientMessageData = (body_param) => {
+  try {
+    const value = body_param.entry[0].changes[0].value;
+    const recipientData = extractRecipientData(value);
+    const messages = value.messages;
+    const contacts = value.contacts;
+    if (messages.length > 0 && contacts.length > 0) {
+      return { messages, contacts, recipientData };
+    }
+    return null;
+  } catch (error) {
+    return null;
+  }
+};
+const extractMessageStatusData = (body_param) => {
+  try {
+    const value = body_param.entry[0].changes[0].value;
+    const recipientData = extractRecipientData(value);
+    const statuses = value.statuses;
+    if (statuses.length > 0 && contacts.length > 0) {
+      return { statuses, recipientData };
+    }
+    return null;
+  } catch (error) {
+    return null;
+  }
+};
+module.exports.receiveMessage = async (req, res) => {
+  try {
+    const io = res.locals.io;
+    console.log("INSPECIONANDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+    console.log(util.inspect(req.body, true, 99));
+    let data = extractClientMessageData(req.body);
+    if (data != null) {
+      await receiveListMessagesClient(
+        data.messages,
+        data.contacts,
+        data.recipientData,
+        io
+      );
+      return;
+    }
+    data = extractMessageStatusData(req.body);
+    if (data != null) {
+      for (const statusData of data.statuses) {
+        const message = await Message.findOne({ wid: statusData.id });
+        message.sentStatus = statusData.status;
+        await message.save();
+        const newState = new MessageStatus({
+          message: message.id,
+          status: statusData.status,
+          time: new Date(statusData.timestamp * 1000),
+        });
+        await newState.save();
+      }
+      return;
+    }
+    res.sendStatus(200);
+    return;
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(404);
+  }
+};
+
 async function saveMedia(media_id, mediaType) {
   const response = await axios({
     method: "POST",
