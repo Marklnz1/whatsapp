@@ -271,10 +271,13 @@ module.exports.receiveMessage = async (req, res) => {
     if (data != null) {
       for (const statusData of data.statuses) {
         const message = await Message.findOne({ wid: statusData.id });
-        message.sentStatus = statusData.status;
-        await message.save();
+
+        if (message) {
+          message.sentStatus = statusData.status;
+          await message.save();
+        }
         const newState = new MessageStatus({
-          message: message.id,
+          message: message?.id,
           status: statusData.status,
           time: new Date(statusData.timestamp * 1000),
         });
