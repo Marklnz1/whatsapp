@@ -209,15 +209,10 @@ const receiveListMessagesClient = async (
   recipientData,
   io
 ) => {
-  try {
-    const clientMapData = createClientMapData(contacts);
+  const clientMapData = createClientMapData(contacts);
 
-    for (const message of messages) {
-      await receiveMessageClient(message, clientMapData, recipientData, io);
-    }
-    res.sendStatus(200);
-  } catch (error) {
-    res.sendStatus(404);
+  for (const message of messages) {
+    await receiveMessageClient(message, clientMapData, recipientData, io);
   }
 };
 const extractRecipientData = (value) => {
@@ -269,6 +264,7 @@ module.exports.receiveMessage = async (req, res) => {
         data.recipientData,
         io
       );
+      res.sendStatus(200);
       return;
     }
     data = extractMessageStatusData(req.body);
@@ -284,10 +280,9 @@ module.exports.receiveMessage = async (req, res) => {
         });
         await newState.save();
       }
+      res.sendStatus(200);
       return;
     }
-    res.sendStatus(200);
-    return;
   } catch (e) {
     console.log(e);
     res.sendStatus(404);
