@@ -210,7 +210,7 @@ const receiveListMessagesClient = async (
   recipientData,
   io
 ) => {
-  const clientMapData = createClientMapData(contacts);
+  const clientMapData = await createClientMapData(contacts);
 
   for (const message of messages) {
     await receiveMessageClient(message, clientMapData, recipientData, io);
