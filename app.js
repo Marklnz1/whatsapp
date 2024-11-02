@@ -336,7 +336,7 @@ app.post("/api/message/media/:category", (req, res) => {
     console.log("FILENAME ES  " + fileName);
     //post a meta para enviar mensaje con el link temporal https://${SERVER_SAVE}/api/temp/media/${savedFileName}
     // console.log(util.inspect(metadata));
-    let link = `/api/media/${metadata.savedFileName}`;
+    let link = `https://dashboard.render.com/api/media/${metadata.savedFileName}`;
 
     const caption = fields["message"] ?? null;
     const businessPhoneId = fields["businessPhoneId"];
