@@ -286,6 +286,7 @@ module.exports.receiveMessage = async (req, res) => {
       res.sendStatus(200);
       return;
     }
+    res.sendStatus(404);
   } catch (e) {
     console.log(e);
     res.sendStatus(404);
