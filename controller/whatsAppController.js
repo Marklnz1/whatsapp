@@ -153,6 +153,7 @@ const receiveMessageClient = async (
   const clientDB = clientMapData[message.from];
   const messageType = message.type;
   const messageData = message[messageType];
+  console.log("MAPA " + util.inspect(clientMapData) + "  from " + message.from);
   const newMessageData = {
     client: clientDB._id,
     messageId: message.id,
@@ -243,7 +244,7 @@ const extractMessageStatusData = (body_param) => {
     const value = body_param.entry[0].changes[0].value;
     const recipientData = extractRecipientData(value);
     const statuses = value.statuses;
-    if (statuses.length > 0 && contacts.length > 0) {
+    if (statuses.length > 0) {
       return { statuses, recipientData };
     }
     return null;
