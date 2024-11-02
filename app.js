@@ -338,7 +338,7 @@ app.post("/api/message/media/:category", (req, res) => {
     // console.log(util.inspect(metadata));
     let link = `https://${SERVER_SAVE}/api/temp/media/${metadata.savedFileName}`;
     link =
-      "https://ec2-18-219-92-27.us-east-2.compute.amazonaws.com/api/temp/media/document_0192ee8e-d5e2-7227-8e47-ae9ec504c6e0_0192ee8e-d5e2-7227-8e47-b6875ecf5c66.jpg";
+      "https://ec2-18-219-92-27.us-east-2.compute.amazonaws.com/static/document_0192ee8e-d5e2-7227-8e47-ae9ec504c6e0_0192ee8e-d5e2-7227-8e47-b6875ecf5c66.jpg";
     // "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQ_-avx5fuVUcO4mhaRPl98c3Qzu5eFAz1xA&s";
     const caption = fields["message"] ?? null;
     const businessPhoneId = fields["businessPhoneId"];
