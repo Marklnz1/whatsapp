@@ -115,7 +115,7 @@ async function sendMessageChatbot(
   const chatbotMessage = await generateChatbotMessage(text);
   const newMessage = new Message({
     client: clientDB._id,
-    messageId: null,
+    wid: null,
     text,
     sent: true,
     time: new Date(),
@@ -132,7 +132,7 @@ async function sendMessageChatbot(
       body: chatbotMessage,
     }
   );
-  newMessage.messageId = messageId;
+  newMessage.wid = messageId;
   newMessage.sentStatus = "send_requested";
   await newMessage.save();
   return newMessage;
@@ -156,7 +156,7 @@ const receiveMessageClient = async (
   console.log("MAPA " + util.inspect(clientMapData) + "  from " + message.from);
   const newMessageData = {
     client: clientDB._id,
-    messageId: message.id,
+    wid: message.id,
     sent: false,
     time: new Date(message.timestamp * 1000),
     type: messageType,
