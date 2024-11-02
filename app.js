@@ -340,7 +340,7 @@ app.post("/api/message/media/:category", (req, res) => {
     link =
       "https://ec2-18-219-92-27.us-east-2.compute.amazonaws.com/static/document_0192ee8e-d5e2-7227-8e47-ae9ec504c6e0_0192ee8e-d5e2-7227-8e47-b6875ecf5c66.jpg";
     link =
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuydVX6D85gCJh-KE5iLYqSz4ZD9_alsytlA&s";
+      "https://chatw-hr0g.onrender.com/api/media/document_0192ee8e-d5e2-7227-8e47-ae9ec504c6e0_0192ee8e-d5e2-7227-8e47-b6875ecf5c66.jpg";
     // "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQ_-avx5fuVUcO4mhaRPl98c3Qzu5eFAz1xA&s";
     const caption = fields["message"] ?? null;
     const businessPhoneId = fields["businessPhoneId"];
