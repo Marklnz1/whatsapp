@@ -131,18 +131,18 @@ io.on("connection", (socket) => {
     );
   });
   socket.on("getChats", async () => {
-    const response = await axios({
-      method: "GET",
-      url: `https://${SERVER_SAVE}/token`,
-      params: {
-        days: 2,
-      },
-      headers: {
-        Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
-      },
-      httpsAgent: agent,
-    });
-    const token_media = response.data.token;
+    // const response = await axios({
+    //   method: "GET",
+    //   url: `https://${SERVER_SAVE}/token`,
+    //   params: {
+    //     days: 2,
+    //   },
+    //   headers: {
+    //     Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
+    //   },
+    //   httpsAgent: agent,
+    // });
+    // const token_media = response.data.token;
     const clients = await Client.aggregate([
       {
         $project: {
@@ -168,8 +168,8 @@ io.on("connection", (socket) => {
       "getChats",
       JSON.stringify({
         clients,
-        token_media,
-        server_media: SERVER_SAVE,
+        // token_media,
+        // server_media: SERVER_SAVE,
       })
     );
   });
