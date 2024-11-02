@@ -268,7 +268,9 @@ module.exports.receiveMessage = async (req, res) => {
       return;
     }
     data = extractMessageStatusData(req.body);
+
     if (data != null) {
+      console.log("ENTRANDO STATUSES " + data.statuses.length);
       for (const statusData of data.statuses) {
         const message = await Message.findOne({ wid: statusData.id });
 
@@ -285,6 +287,8 @@ module.exports.receiveMessage = async (req, res) => {
       }
       res.sendStatus(200);
       return;
+    } else {
+      console.log("no estatus");
     }
     res.sendStatus(404);
   } catch (e) {
