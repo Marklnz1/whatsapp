@@ -353,6 +353,8 @@ app.post("/api/message/media/:category", (req, res) => {
       ...metadata,
     });
     await newMessage.save();
+    console.log("El link es " + link);
+
     const messageId = await sendWhatsappMessage(
       META_TOKEN,
       businessPhoneId,
