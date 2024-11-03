@@ -20,6 +20,7 @@ const MessageSchema = new Schema(
   {
     client: { type: mongoose.Schema.Types.ObjectId, ref: "client" },
     wid: String,
+    uuid: String,
     text: String,
     sent: Boolean,
     time: Date,

@@ -8,6 +8,8 @@ const mime = require("mime-types");
 const { response } = require("express");
 const MessageStatus = require("../models/MessageStatus");
 const { sendWhatsappMessage } = require("../utils/server");
+const { v7: uuidv7 } = require("uuid");
+
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
 const META_TOKEN = process.env.META_TOKEN;
@@ -34,6 +36,52 @@ module.exports.verifyToken = (req, res) => {
       return;
     }
   } catch (e) {
+    res.sendStatus(404);
+  }
+};
+
+module.exports.receiveMessage = async (req, res) => {
+  try {
+    const io = res.locals.io;
+    console.log("INSPECIONANDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+    console.log(util.inspect(req.body, true, 99));
+    let data = extractClientMessageData(req.body);
+    if (data != null) {
+      await receiveListMessagesClient(
+        data.messages,
+        data.contacts,
+        data.recipientData,
+        io
+      );
+      res.sendStatus(200);
+      return;
+    }
+    data = extractMessageStatusData(req.body);
+
+    if (data != null) {
+      console.log("ENTRANDO STATUSES " + data.statuses.length);
+      for (const statusData of data.statuses) {
+        const message = await Message.findOne({ wid: statusData.id });
+
+        if (message) {
+          message.sentStatus = statusData.status;
+          await message.save();
+        }
+        const newState = new MessageStatus({
+          message: message?.id,
+          status: statusData.status,
+          time: new Date(statusData.timestamp * 1000),
+        });
+        await newState.save();
+      }
+      res.sendStatus(200);
+      return;
+    } else {
+      console.log("no estatus");
+    }
+    res.sendStatus(404);
+  } catch (e) {
+    console.log(e);
     res.sendStatus(404);
   }
 };
@@ -83,7 +131,6 @@ async function generateChatbotMessage(text) {
   const responseText = chatCompletion.choices[0].message.content;
   return responseText;
 }
-
 async function sendMessageChatbot(
   clientDB,
   text,
@@ -94,6 +141,7 @@ async function sendMessageChatbot(
   const newMessage = new Message({
     client: clientDB._id,
     wid: null,
+    uuid: uuidv7(),
     text,
     sent: true,
     time: new Date(),
@@ -116,13 +164,21 @@ async function sendMessageChatbot(
   await newMessage.save();
   return newMessage;
 }
-/*
-  {
-    id
-    timestamp
+async function saveMedia(media_id, mediaType) {
+  const response = await axios({
+    method: "POST",
+    url: `https://${SERVER_SAVE}/media/${media_id}`,
+    params: {
+      mediaType,
+    },
+    headers: {
+      Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
+    },
+    httpsAgent: agent,
+  });
+  return response.data;
+}
 
-  }
-*/
 const receiveMessageClient = async (
   message,
   clientMapData,
@@ -136,6 +192,7 @@ const receiveMessageClient = async (
   const newMessageData = {
     client: clientDB._id,
     wid: message.id,
+    uuid: uuidv7(),
     sent: false,
     time: new Date(message.timestamp * 1000),
     type: messageType,
@@ -231,88 +288,3 @@ const extractMessageStatusData = (body_param) => {
     return null;
   }
 };
-module.exports.receiveMessage = async (req, res) => {
-  try {
-    const io = res.locals.io;
-    console.log("INSPECIONANDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-    console.log(util.inspect(req.body, true, 99));
-    let data = extractClientMessageData(req.body);
-    if (data != null) {
-      await receiveListMessagesClient(
-        data.messages,
-        data.contacts,
-        data.recipientData,
-        io
-      );
-      res.sendStatus(200);
-      return;
-    }
-    data = extractMessageStatusData(req.body);
-
-    if (data != null) {
-      console.log("ENTRANDO STATUSES " + data.statuses.length);
-      for (const statusData of data.statuses) {
-        const message = await Message.findOne({ wid: statusData.id });
-
-        if (message) {
-          message.sentStatus = statusData.status;
-          await message.save();
-        }
-        const newState = new MessageStatus({
-          message: message?.id,
-          status: statusData.status,
-          time: new Date(statusData.timestamp * 1000),
-        });
-        await newState.save();
-      }
-      res.sendStatus(200);
-      return;
-    } else {
-      console.log("no estatus");
-    }
-    res.sendStatus(404);
-  } catch (e) {
-    console.log(e);
-    res.sendStatus(404);
-  }
-};
-
-async function saveMedia(media_id, mediaType) {
-  const response = await axios({
-    method: "POST",
-    url: `https://${SERVER_SAVE}/media/${media_id}`,
-    params: {
-      mediaType,
-    },
-    headers: {
-      Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
-    },
-    httpsAgent: agent,
-  });
-  return response.data;
-}
-async function getMediaUrl(mediaId) {
-  const response = await axios({
-    method: "GET",
-    url: "https://graph.facebook.com/" + mediaId,
-    headers: {
-      Authorization: `Bearer ${META_TOKEN}`,
-    },
-  });
-
-  const url = response.data.url;
-  return url;
-}
-
-async function getMediaToURL(url) {
-  console.log("Obteniendo de la url " + url);
-  const response = await axios({
-    method: "GET",
-    url,
-    responseType: "arraybuffer",
-    headers: {
-      Authorization: `Bearer ${META_TOKEN}`,
-    },
-  });
-  return response.data;
-}
