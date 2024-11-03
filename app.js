@@ -355,7 +355,7 @@ app.post("/api/message/media/:category", (req, res) => {
     });
     await newMessage.save();
     console.log("El link es " + link);
-
+    console.log("la categoria es " + category);
     const messageId = await sendWhatsappMessage(
       META_TOKEN,
       businessPhoneId,
