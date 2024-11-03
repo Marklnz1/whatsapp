@@ -36,6 +36,7 @@ module.exports.sendTextMessage = async (req, res) => {
     uuid,
     text,
     sent: true,
+    read: true,
     time: new Date(),
     type: "text",
     businessPhone,
