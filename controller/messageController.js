@@ -61,6 +61,9 @@ module.exports.sendTextMessage = async (req, res) => {
 };
 
 module.exports.sendMediaMessage = (req, res) => {
+  console.log(
+    "RECIBIENDO SOLICITUD DE ENVIOOOOOOOOO =========================== MEDIAAAAAAAAAAAAAAAAA"
+  );
   const category = req.params.category;
   // Definir límite en bytes (ejemplo: 5MB = 5 * 1024 * 1024 bytes)
   const TAMAÑO_MAXIMO = 100 * 1024 * 1024;
@@ -77,6 +80,7 @@ module.exports.sendMediaMessage = (req, res) => {
   let excedioLimite = false;
   const fields = [];
   bb.on("file", (name, file, info) => {
+    console.log("LEYENDO FILES");
     // console.log("filee " + file);
     const { filename, encoding, mimeType } = info;
     const chunks = [];
