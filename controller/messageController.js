@@ -146,7 +146,7 @@ module.exports.sendMediaMessage = (req, res) => {
     console.log("FILENAME ES  " + fileName);
     //post a meta para enviar mensaje con el link temporal https://${SERVER_SAVE}/api/temp/media/${savedFileName}
     // console.log(util.inspect(metadata));
-    let link = `https://chatw-hr0g.onrender.com/api/media/${metadata.savedFileName}`;
+    let link = `https://chatw-hr0g.onrender.com/api/temp/media/${metadata.savedFileName}`;
 
     const caption = fields["message"] ?? null;
     const businessPhoneId = fields["businessPhoneId"];
@@ -175,16 +175,16 @@ module.exports.sendMediaMessage = (req, res) => {
     if (category == "document") {
       messageData.filename = fileName;
     }
-    // const messageId = await sendWhatsappMessage(
-    //   META_TOKEN,
-    //   businessPhoneId,
-    //   dstPhone,
-    //   category,
-    //   messageData
-    // );
-    // newMessage.sentStatus = "send_requested";
-    // newMessage.wid = messageId;
-    // await newMessage.save();
+    const messageId = await sendWhatsappMessage(
+      META_TOKEN,
+      businessPhoneId,
+      dstPhone,
+      category,
+      messageData
+    );
+    newMessage.sentStatus = "send_requested";
+    newMessage.wid = messageId;
+    await newMessage.save();
   });
   // console.log("mensaje id");
 
