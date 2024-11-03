@@ -356,12 +356,19 @@ app.post("/api/message/media/:category", (req, res) => {
     await newMessage.save();
     console.log("El link es " + link);
     console.log("la categoria es " + category);
+    const messageData = { link };
+    if (category != "audio" && category != "sticker") {
+      messageData.caption = caption;
+    }
+    if (category == "document") {
+      messageData.filename = fileName;
+    }
     const messageId = await sendWhatsappMessage(
       META_TOKEN,
       businessPhoneId,
       dstPhone,
       category,
-      { link, caption }
+      messageData
     );
     newMessage.sentStatus = "send_requested";
     newMessage.wid = messageId;
