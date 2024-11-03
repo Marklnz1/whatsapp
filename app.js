@@ -361,7 +361,7 @@ app.post("/api/message/media/:category", (req, res) => {
       businessPhoneId,
       dstPhone,
       category,
-      { link, caption, filename: category == "document" ? fileName : null }
+      { link, caption }
     );
     newMessage.sentStatus = "send_requested";
     newMessage.wid = messageId;
