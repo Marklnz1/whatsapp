@@ -195,6 +195,7 @@ module.exports.sendMediaMessage = (req, res) => {
     if (category == "document") {
       messageData.filename = fileName;
     }
+    console.log("ID DEL MENSAJE CREADO => " + newMessage._id);
     const messageId = await sendWhatsappMessage(
       META_TOKEN,
       businessPhoneId,

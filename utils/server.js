@@ -8,9 +8,12 @@ module.exports.sendWhatsappMessage = async (
   messageData,
   biz_opaque_callback_data
 ) => {
+  console.log("lo recibido " + biz_opaque_callback_data);
   biz_opaque_callback_data ??= "";
+  console.log("lo recibido posible cambio????? " + biz_opaque_callback_data);
+
   const sendData = {
-    biz_opaque_callback_data: "QUE PASAAAAAAAAAAAAAAAAAAAAAAAA",
+    biz_opaque_callback_data,
     messaging_product: "whatsapp",
     to: dstPhone,
     type,
