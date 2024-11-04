@@ -8,6 +8,7 @@ const SERVER_SAVE = process.env.SERVER_SAVE;
 const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
 const https = require("https");
 const mime = require("mime-types");
+const messagesSet = new Set();
 const agent = new https.Agent({
   rejectUnauthorized: false,
 });
@@ -23,41 +24,50 @@ module.exports.readAllMessage = async (req, res) => {
   );
 };
 module.exports.sendTextMessage = async (req, res) => {
-  const { clientId, text, uuid, businessPhone, businessPhoneId } = req.body;
-  const client = await Client.findById(clientId);
-  client.chatbot = false;
-  await client.save();
-
-  await Message.updateMany({ client: clientId }, { $set: { read: true } });
-
-  const newMessage = new Message({
-    client: clientId,
-    wid: null,
-    uuid,
-    text,
-    sent: true,
-    read: true,
-    time: new Date(),
-    type: "text",
-    businessPhone,
-    sentStatus: "not_sent",
-  });
-  await newMessage.save();
-
-  const messageId = await sendWhatsappMessage(
-    META_TOKEN,
-    businessPhoneId,
-    client.wid,
-    "text",
-    {
-      body: text,
+  try {
+    const { clientId, text, uuid, businessPhone, businessPhoneId } = req.body;
+    if (messagesSet.has(uuid)) {
+      messagesSet.delete(uuid);
+      return res.status(200).json({ error: "Solicitud duplicada" });
     }
-  );
-  newMessage.wid = messageId;
-  newMessage.sentStatus = "send_requested";
-  await newMessage.save();
+    messagesSet.add(uuid);
+    const client = await Client.findById(clientId);
+    client.chatbot = false;
+    await client.save();
 
-  res.sendStatus(200);
+    await Message.updateMany({ client: clientId }, { $set: { read: true } });
+
+    const newMessage = new Message({
+      client: clientId,
+      wid: null,
+      uuid,
+      text,
+      sent: true,
+      read: true,
+      time: new Date(),
+      type: "text",
+      businessPhone,
+      sentStatus: "not_sent",
+    });
+    await newMessage.save();
+
+    const messageId = await sendWhatsappMessage(
+      META_TOKEN,
+      businessPhoneId,
+      client.wid,
+      "text",
+      {
+        body: text,
+      }
+    );
+    newMessage.wid = messageId;
+    newMessage.sentStatus = "send_requested";
+    await newMessage.save();
+
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 module.exports.sendMediaMessage = (req, res) => {
@@ -109,10 +119,21 @@ module.exports.sendMediaMessage = (req, res) => {
     fields[name] = val;
   });
   bb.on("finish", async () => {
+    const messageUuid = fields["messageUuid"];
+    if (messagesSet.has(messageUuid)) {
+      messagesSet.delete(messageUuid);
+      return res.status(200).json({ error: "Solicitud duplicada" });
+    }
+    messagesSet.add(messageUuid);
+
     if (excedioLimite) {
       res.status(413).json({ error: "Archivo excede el límite permitido" });
       return; // No hacer nada si ya se envió respuesta de error
     }
+    const caption = fields["message"] ?? null;
+    const businessPhoneId = fields["businessPhoneId"];
+    const businessPhone = fields["businessPhone"];
+    const dstPhone = fields["dstPhone"];
     console.log("ENTRANDOOOOOOOOO222222S");
     // Proceder con el envío si el archivo está dentro del límite
 
@@ -152,11 +173,6 @@ module.exports.sendMediaMessage = (req, res) => {
     // console.log(util.inspect(metadata));
     let link = `https://chatw-hr0g.onrender.com/api/temp/media/${metadata.savedFileName}`;
 
-    const caption = fields["message"] ?? null;
-    const businessPhoneId = fields["businessPhoneId"];
-    const businessPhone = fields["businessPhone"];
-    const dstPhone = fields["dstPhone"];
-    const messageUuid = fields["messageUuid"];
     const newMessage = new Message({
       client: fields["clientId"],
       wid: null,
@@ -189,10 +205,10 @@ module.exports.sendMediaMessage = (req, res) => {
     newMessage.sentStatus = "send_requested";
     newMessage.wid = messageId;
     await newMessage.save();
-  });
-  // console.log("mensaje id");
 
-  // Manejar errores generales de Busboy
+    res.sendStatus(200);
+  });
+
   bb.on("error", (err) => {
     res.status(500).json({ error: "Error al procesar el archivo" });
   });
