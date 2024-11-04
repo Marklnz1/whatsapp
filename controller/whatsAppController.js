@@ -61,20 +61,21 @@ module.exports.receiveMessage = async (req, res) => {
     if (data != null) {
       console.log("ENTRANDO STATUSES " + data.statuses.length);
       for (const statusData of data.statuses) {
-        const message = await Message.findOne({ wid: statusData.id });
+        const biz_opaque_callback_data = statusData.biz_opaque_callback_data;
+        const message = await Message.findById(biz_opaque_callback_data);
 
         if (message) {
           message.sentStatus = statusData.status;
-          if (message.uuid) {
-            io.emit(
-              "newStatus",
-              JSON.stringify({
-                uuid: message.uuid,
-                status: statusData.status,
-                clientId: message.client,
-              })
-            );
-          }
+
+          io.emit(
+            "newStatus",
+            JSON.stringify({
+              uuid: message.uuid,
+              status: statusData.status,
+              clientId: message.client,
+            })
+          );
+
           await message.save();
         }
         const newState = new MessageStatus({

@@ -50,6 +50,7 @@ module.exports.sendTextMessage = async (req, res) => {
       sentStatus: "not_sent",
     });
     await newMessage.save();
+    console.log("ID DEL MENSAJE CREADO => " + newMessage._id);
 
     const messageId = await sendWhatsappMessage(
       META_TOKEN,
@@ -58,7 +59,8 @@ module.exports.sendTextMessage = async (req, res) => {
       "text",
       {
         body: text,
-      }
+      },
+      newMessage._id
     );
     newMessage.wid = messageId;
     newMessage.sentStatus = "send_requested";
@@ -195,7 +197,6 @@ module.exports.sendMediaMessage = (req, res) => {
     if (category == "document") {
       messageData.filename = fileName;
     }
-    console.log("ID DEL MENSAJE CREADO => " + newMessage._id);
     const messageId = await sendWhatsappMessage(
       META_TOKEN,
       businessPhoneId,
