@@ -27,7 +27,7 @@ app.use(cors());
 io.on("connection", (socket) => {
   console.log("Cliente conectado");
   socket.on("setChatbotState", socketController.setChatbotState);
-  socket.on("readAll", socketController.setChatbotState);
+  socket.on("readAll", socketController.readAll);
   socket.on("getMessages", (data) => socketController.getMessages(data, io));
   socket.on("getChats", (data) => socketController.getChats(data, io));
   socket.on("disconnect", () => {
