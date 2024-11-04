@@ -5,9 +5,12 @@ module.exports.sendWhatsappMessage = async (
   businessPhoneId,
   dstPhone,
   type,
-  messageData
+  messageData,
+  biz_opaque_callback_data
 ) => {
+  biz_opaque_callback_data ??= "";
   const sendData = {
+    biz_opaque_callback_data,
     messaging_product: "whatsapp",
     to: dstPhone,
     type,

@@ -200,7 +200,8 @@ module.exports.sendMediaMessage = (req, res) => {
       businessPhoneId,
       dstPhone,
       category,
-      messageData
+      messageData,
+      newMessage._id
     );
     newMessage.sentStatus = "send_requested";
     newMessage.wid = messageId;

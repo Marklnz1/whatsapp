@@ -44,7 +44,7 @@ module.exports.receiveMessage = async (req, res) => {
   try {
     const io = res.locals.io;
     console.log("INSPECIONANDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-    // console.log(util.inspect(req.body, true, 99));
+    console.log(util.inspect(req.body, true, 99));
     let data = extractClientMessageData(req.body);
     if (data != null) {
       await receiveListMessagesClient(
