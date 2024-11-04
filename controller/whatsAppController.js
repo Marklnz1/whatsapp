@@ -175,13 +175,10 @@ async function sendMessageChatbot(
   await newMessage.save();
   return newMessage;
 }
-async function saveMedia(media_id, mediaType) {
+async function saveMedia(media_id, category) {
   const response = await axios({
     method: "POST",
-    url: `https://${SERVER_SAVE}/media/${media_id}`,
-    params: {
-      mediaType,
-    },
+    url: `https://${SERVER_SAVE}"/api/client/media/${category}/${media_id}"`,
     headers: {
       Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
     },
