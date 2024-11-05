@@ -141,6 +141,7 @@ module.exports.sendMediaMessage = (req, res) => {
 
     // const formData = new FormData();
     // const file = new File([fileBuffer], "", { type: fileType });
+    // return;
     var formData = {
       name: "files",
       file: {
