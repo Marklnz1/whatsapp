@@ -126,7 +126,7 @@ module.exports.sendMediaMessage = (req, res) => {
       // return;
       await newMessage.save();
       console.log("ENTRANDOOOOOOOOO222222S");
-      console.log("MI MIMETYPE ES " + fileType);
+      console.log("MI MIMETYPE ES " + fields.mimetype);
       console.log("FILENAME ES  " + orgFilename);
       //post a meta para enviar mensaje con el link temporal https://${SERVER_SAVE}/api/temp/media/${savedFileName}
       // console.log(util.inspect(metadata));
