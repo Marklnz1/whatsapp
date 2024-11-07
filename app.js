@@ -71,16 +71,18 @@ app.get("/api/temp/media/:name", (req, res) => {
   const mediaName = req.params.name;
   const timeLimit = mapLinkTemp.get(mediaName);
   const currentTime = new Date();
+  const stat = fs.statSync(filePath);
+  const fileSize = stat.size;
   // console.log("ENTRANDO NAME " + mediaName);
   // if (timeLimit) {
   //   if (currentTime < timeLimit) {
   const dirMain = process.cwd();
   const mediaType = mediaName.split("_")[0];
   const mediaPath = path.resolve(dirMain, mediaType, mediaName);
-  // const head = {
-  //   "Content-Length": fileSize,
-  //   "Content-Type": "audio/ogg; codecs=opus",
-  // };
+  const head = {
+    "Content-Length": fileSize,
+    // "Content-Type": "audio/ogg; codecs=opus",
+  };
   // res.writeHead(200, head);
   fs.createReadStream(mediaPath).pipe(res);
   // } else {
