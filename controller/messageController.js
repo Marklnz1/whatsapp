@@ -30,6 +30,7 @@ module.exports.sendTextMessage = async (req, res) => {
     const { clientId, text, uuid, businessPhone, businessPhoneId } = req.body;
     if (messagesSet.has(uuid)) {
       messagesSet.delete(uuid);
+      console.log("RESPONDIENDO SOLICITUD REPETITIVAAAAAAA ");
       return res.status(200).json({ error: "Solicitud duplicada" });
     }
     messagesSet.add(uuid);
@@ -67,7 +68,7 @@ module.exports.sendTextMessage = async (req, res) => {
     newMessage.wid = messageId;
     newMessage.sentStatus = "send_requested";
     await newMessage.save();
-
+    console.log("TERMINANDOOOOOOOOOOOO FUNCION  ");
     res.sendStatus(200);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -129,7 +130,7 @@ module.exports.sendMediaMessage = (req, res) => {
       // return;
       await newMessage.save();
       console.log("ENTRANDOOOOOOOOO222222S");
-      console.log("MI MIMETYPE ES " + fields.mimetype);
+      console.log("MI MIMETYPE ES " + mimeType);
       console.log("FILENAME ES  " + orgFilename);
       //post a meta para enviar mensaje con el link temporal https://${SERVER_SAVE}/api/temp/media/${savedFileName}
       // console.log(util.inspect(metadata));

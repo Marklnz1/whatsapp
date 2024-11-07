@@ -78,18 +78,15 @@ app.get("/api/temp/media/:name", (req, res) => {
   const dirMain = process.cwd();
   const split = mediaName.split("_");
   const category = split[0];
-  const subtype = split[1];
+  const type = split[1];
+  const subtype = split[2];
   const mediaPath = path.resolve(dirMain, category, mediaName);
   // const stat = fs.statSync(mediaPath);
-  if (category == "document") {
-    res.sendFile(mediaPath);
-  } else {
-    res.sendFile(mediaPath, {
-      headers: {
-        "Content-Type": `${category}/${subtype}`,
-      },
-    });
-  }
+  res.sendFile(mediaPath, {
+    headers: {
+      "Content-Type": `${type}/${subtype}`,
+    },
+  });
 
   // const fileSize = stat.size;
   // const head = {

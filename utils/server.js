@@ -95,6 +95,7 @@ module.exports.sendWhatsappMessage = async (
 module.exports.saveMediaBusiness = (req, onFinish, onError) => {
   try {
     const category = req.params.category;
+    const type = req.params.subtype;
     const subtype = req.params.subtype;
 
     const bb = busboy({
@@ -118,7 +119,7 @@ module.exports.saveMediaBusiness = (req, onFinish, onError) => {
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir);
       }
-      savedFileName = `${category}_${subtype}_${uuidv7()}_${uuidv7()}`;
+      savedFileName = `${category}_${type}_${subtype}_${uuidv7()}_${uuidv7()}`;
       outputPath = path.join(dirMain, category, savedFileName);
       const writeStream = fs.createWriteStream(outputPath);
       file.pipe(writeStream);
