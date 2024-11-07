@@ -123,7 +123,7 @@ module.exports.sendMediaMessage = (req, res) => {
         savedFileName,
         metaFileName: orgFilename,
       });
-      console.log("la categoria es " + category);
+      console.log("la categoria es " + category + " filename " + savedFileName);
 
       // return;
       await newMessage.save();
