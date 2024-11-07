@@ -3,7 +3,10 @@ const fs = require("fs");
 module.exports.getMedia = async (req, res) => {
   try {
     const mediaName = req.params.name;
-    const category = mediaName.split("_")[0];
+    const split = mediaName.split("_");
+    const category = split[0];
+    const type = split[1];
+    const subtype = split[2];
     const dirMain = process.cwd();
     const filePath = path.resolve(dirMain, category, mediaName);
     if (fs.existsSync(filePath)) {
@@ -31,7 +34,7 @@ module.exports.getMedia = async (req, res) => {
           "Content-Range": `bytes ${start}-${end}/${fileSize}`,
           "Accept-Ranges": "bytes",
           "Content-Length": chunksize,
-          // "Content-Type": "audio/ogg; codecs=opus",
+          "Content-Type": `${type}/${subtype}`,
         };
 
         res.writeHead(206, head);
@@ -39,7 +42,7 @@ module.exports.getMedia = async (req, res) => {
       } else {
         const head = {
           "Content-Length": fileSize,
-          // "Content-Type": "audio/ogg; codecs=opus",
+          "Content-Type": `${type}/${subtype}`,
         };
         res.writeHead(200, head);
         fs.createReadStream(filePath).pipe(res);
