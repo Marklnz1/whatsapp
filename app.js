@@ -79,13 +79,14 @@ app.get("/api/temp/media/:name", (req, res) => {
   const mediaType = mediaName.split("_")[0];
   const mediaPath = path.resolve(dirMain, mediaType, mediaName);
   const stat = fs.statSync(mediaPath);
+  res.sendFile(mediaPath);
   const fileSize = stat.size;
   // const head = {
   //   "Content-Length": fileSize,
   //   "Content-Type": "audio/ogg",
   // };
   // res.writeHead(200, head);
-  fs.createReadStream(mediaPath).pipe(res);
+  // fs.createReadStream(mediaPath).pipe(res);
   // } else {
   //   mapLinkTemp.delete(mediaName);
   //   return res.json({ error: "404" });
