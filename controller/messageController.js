@@ -125,7 +125,7 @@ module.exports.sendMediaMessage = (req, res) => {
       });
       console.log("la categoria es " + category);
 
-      return;
+      // return;
       await newMessage.save();
       console.log("ENTRANDOOOOOOOOO222222S");
       console.log("MI MIMETYPE ES " + fields.mimetype);
