@@ -2,6 +2,7 @@ const express = require("express");
 require("dotenv").config();
 const mongoose = require("mongoose");
 const http = require("http");
+
 const httpProxy = require("http-proxy");
 const proxy = httpProxy.createProxyServer({ secure: false });
 const app = express();
@@ -53,6 +54,9 @@ app.engine("html", require("ejs").renderFile);
 
 app.get("/", (req, res) => {
   res.render("index");
+});
+app.get("/whatsapp-api", (req, res) => {
+  res.render("whatsapp-api/index");
 });
 app.get("/api/media/:name", async (req, res) => {
   req.headers["authorization"] = `Bearer ${SERVER_SAVE_TOKEN}`;

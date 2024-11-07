@@ -5,6 +5,8 @@ const { sendWhatsappMessage } = require("../utils/server");
 const { default: axios } = require("axios");
 const META_TOKEN = process.env.META_TOKEN;
 const SERVER_SAVE = process.env.SERVER_SAVE;
+const DOMAIN = process.env.DOMAIN;
+
 const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
 const https = require("https");
 const mime = require("mime-types");
@@ -90,7 +92,7 @@ module.exports.sendMediaMessage = (req, res) => {
   let fileName = "";
   let fileType = "";
   let excedioLimite = false;
-  const fields = [];
+  const fields = {};
   bb.on("file", (name, file, info) => {
     console.log("LEYENDO FILES");
     // console.log("filee " + file);
@@ -121,27 +123,50 @@ module.exports.sendMediaMessage = (req, res) => {
     fields[name] = val;
   });
   bb.on("finish", async () => {
-    const messageUuid = fields["messageUuid"];
-    if (messagesSet.has(messageUuid)) {
-      messagesSet.delete(messageUuid);
+    const uuid = fields["uuid"];
+    if (messagesSet.has(uuid)) {
+      messagesSet.delete(uuid);
       return res.status(200).json({ error: "Solicitud duplicada" });
     }
-    messagesSet.add(messageUuid);
+    messagesSet.add(uuid);
 
     if (excedioLimite) {
       res.status(413).json({ error: "Archivo excede el límite permitido" });
       return; // No hacer nada si ya se envió respuesta de error
     }
-    const caption = fields["message"] ?? null;
+    const clientId = fields["clientId"];
+    const text = fields["text"];
+    const width = fields["width"];
+    const height = fields["height"];
+    const duration = fields["duration"];
+    const extension = fields["extension"];
+    const fileSizeBytes = fields["fileSizeBytes"];
+    const mimeType = fields["mimeType"];
     const businessPhoneId = fields["businessPhoneId"];
     const businessPhone = fields["businessPhone"];
     const dstPhone = fields["dstPhone"];
-    console.log("ENTRANDOOOOOOOOO222222S");
-    // Proceder con el envío si el archivo está dentro del límite
-
-    // const formData = new FormData();
-    // const file = new File([fileBuffer], "", { type: fileType });
     // return;
+    const newMessage = new Message({
+      client: clientId,
+      wid: null,
+      uuid,
+      text,
+      sent: true,
+      time: new Date(),
+      type: category,
+      businessPhone,
+      sentStatus: "not_sent",
+      width,
+      height,
+      duration,
+      extension,
+      fileSizeBytes,
+      mimeType,
+      metaFileName: fileName,
+    });
+
+    await newMessage.save();
+    console.log("ENTRANDOOOOOOOOO222222S");
     var formData = {
       name: "files",
       file: {
@@ -166,34 +191,20 @@ module.exports.sendMediaMessage = (req, res) => {
         httpsAgent: agent,
       }
     );
+    const savedFileName = response.data.savedFileName;
+    newMessage.savedFileName = savedFileName;
+    await newMessage.save();
 
-    const metadata = response.data;
-    metadata.extension = mime.extension(fileType);
-    metadata.mimeType = fileType;
-    metadata.metaFileName = fileName;
     console.log("FILENAME ES  " + fileName);
     //post a meta para enviar mensaje con el link temporal https://${SERVER_SAVE}/api/temp/media/${savedFileName}
     // console.log(util.inspect(metadata));
-    let link = `https://chatw-hr0g.onrender.com/api/temp/media/${metadata.savedFileName}`;
+    let link = `https://${DOMAIN}/api/temp/media/${savedFileName}`;
 
-    const newMessage = new Message({
-      client: fields["clientId"],
-      wid: null,
-      uuid: messageUuid,
-      text: caption,
-      sent: true,
-      time: new Date(),
-      type: category,
-      businessPhone,
-      sentStatus: "not_sent",
-      ...metadata,
-    });
-    await newMessage.save();
     console.log("El link es " + link);
     console.log("la categoria es " + category);
     const messageData = { link };
     if (category != "audio" && category != "sticker") {
-      messageData.caption = caption;
+      messageData.caption = text;
     }
     if (category == "document") {
       messageData.filename = fileName;
