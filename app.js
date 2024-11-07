@@ -62,13 +62,6 @@ app.get("/", (req, res) => {
 app.get("/whatsapp-api", (req, res) => {
   res.render("whatsapp-api/index");
 });
-app.get("/api/media/:name", async (req, res) => {
-  req.headers["authorization"] = `Bearer ${SERVER_SAVE_TOKEN}`;
-  proxy.web(req, res, { target: `https://${SERVER_SAVE}/` });
-});
-app.get("/api/temp/media/:name", async (req, res) => {
-  proxy.web(req, res, { target: `https://${SERVER_SAVE}/` });
-});
 app
   .get("/whatsapp", whatsAppController.verifyToken)
   .post("/whatsapp", whatsAppController.receiveMessage);
