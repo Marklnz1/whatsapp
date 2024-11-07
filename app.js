@@ -76,11 +76,22 @@ app.get("/api/temp/media/:name", (req, res) => {
   // if (timeLimit) {
   //   if (currentTime < timeLimit) {
   const dirMain = process.cwd();
-  const mediaType = mediaName.split("_")[0];
-  const mediaPath = path.resolve(dirMain, mediaType, mediaName);
-  const stat = fs.statSync(mediaPath);
-  res.sendFile(mediaPath);
-  const fileSize = stat.size;
+  const split = mediaName.split("_");
+  const category = split[0];
+  const subtype = split[1];
+  const mediaPath = path.resolve(dirMain, category, mediaName);
+  // const stat = fs.statSync(mediaPath);
+  if (category == "document") {
+    res.sendFile(mediaPath);
+  } else {
+    res.sendFile(mediaPath, {
+      headers: {
+        "Content-Type": `${category}/${subtype}`,
+      },
+    });
+  }
+
+  // const fileSize = stat.size;
   // const head = {
   //   "Content-Length": fileSize,
   //   "Content-Type": "audio/ogg",
@@ -98,7 +109,10 @@ app.get("/api/temp/media/:name", (req, res) => {
 app.get("/api/media/:name", mediaController.getMedia);
 app.post("/api/message/read", messageController.readMessage);
 app.post("/api/message/read/all", messageController.readAllMessage);
-app.post("/api/message/media/:category", messageController.sendMediaMessage);
+app.post(
+  "/api/message/media/:category/:subtype",
+  messageController.sendMediaMessage
+);
 app.post("/api/message/text/", messageController.sendTextMessage);
 async function start() {
   await mongoose.connect(MONGODB_URL, {
