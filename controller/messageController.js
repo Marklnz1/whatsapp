@@ -111,7 +111,7 @@ module.exports.sendMediaMessage = (req, res) => {
         text,
         sent: true,
         time: new Date(),
-        type: category,
+        category,
         businessPhone,
         sentStatus: "not_sent",
         width,
@@ -123,7 +123,9 @@ module.exports.sendMediaMessage = (req, res) => {
         savedFileName,
         metaFileName: orgFilename,
       });
-      // return;
+      console.log("la categoria es " + category);
+
+      return;
       await newMessage.save();
       console.log("ENTRANDOOOOOOOOO222222S");
       console.log("MI MIMETYPE ES " + fields.mimetype);
