@@ -66,7 +66,7 @@ module.exports.sendWhatsappMessage = async (
   metaToken,
   businessPhoneId,
   dstPhone,
-  type,
+  category,
   messageData,
   biz_opaque_callback_data
 ) => {
@@ -78,9 +78,9 @@ module.exports.sendWhatsappMessage = async (
     biz_opaque_callback_data,
     messaging_product: "whatsapp",
     to: dstPhone,
-    type,
+    type: category,
   };
-  sendData[type] = messageData;
+  sendData[category] = messageData;
   const response = await axios({
     method: "POST",
     url: `https://graph.facebook.com/v20.0/${businessPhoneId}/messages`,

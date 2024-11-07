@@ -155,7 +155,7 @@ async function sendMessageChatbot(
     text,
     sent: true,
     time: new Date(),
-    type: "text",
+    category: "text",
     businessPhone,
     sentStatus: "not_sent",
   });
@@ -182,8 +182,8 @@ const receiveMessageClient = async (
   io
 ) => {
   const clientDB = clientMapData[message.from];
-  const messageType = message.type;
-  const messageData = message[messageType];
+  const category = message.category;
+  const messageData = message[category];
   console.log("MAPA " + util.inspect(clientMapData) + "  from " + message.from);
   const newMessageData = {
     client: clientDB._id,
@@ -191,15 +191,15 @@ const receiveMessageClient = async (
     uuid: uuidv7(),
     sent: false,
     time: new Date(message.timestamp * 1000),
-    type: messageType,
+    category,
     businessPhone: recipientData.phoneNumber,
   };
   let finalMessageData;
-  if (messageType == "text") {
+  if (category == "text") {
     finalMessageData = { text: messageData.body };
-  } else if (messageTypeIsMedia(messageType)) {
+  } else if (messageTypeIsMedia(category)) {
     const metaFileName = messageData.filename;
-    const metadata = await saveMediaClient(messageData.id, messageType);
+    const metadata = await saveMediaClient(messageData.id, category);
 
     finalMessageData = {
       text: messageData.caption,

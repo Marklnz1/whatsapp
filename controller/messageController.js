@@ -48,7 +48,7 @@ module.exports.sendTextMessage = async (req, res) => {
       sent: true,
       read: true,
       time: new Date(),
-      type: "text",
+      category: "text",
       businessPhone,
       sentStatus: "not_sent",
     });
