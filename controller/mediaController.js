@@ -31,7 +31,7 @@ module.exports.getMedia = async (req, res) => {
           "Content-Range": `bytes ${start}-${end}/${fileSize}`,
           "Accept-Ranges": "bytes",
           "Content-Length": chunksize,
-          // "Content-Type": mimeType,
+          "Content-Type": "audio/ogg; codecs=opus",
         };
 
         res.writeHead(206, head);
@@ -39,7 +39,7 @@ module.exports.getMedia = async (req, res) => {
       } else {
         const head = {
           "Content-Length": fileSize,
-          // "Content-Type": mimeType,
+          "Content-Type": "audio/ogg; codecs=opus",
         };
         res.writeHead(200, head);
         fs.createReadStream(filePath).pipe(res);
