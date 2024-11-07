@@ -182,7 +182,7 @@ const receiveMessageClient = async (
   io
 ) => {
   const clientDB = clientMapData[message.from];
-  const category = message.category;
+  const category = message.type;
   const messageData = message[category];
   console.log("MAPA " + util.inspect(clientMapData) + "  from " + message.from);
   const newMessageData = {
