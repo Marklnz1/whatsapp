@@ -79,6 +79,7 @@ module.exports.sendMediaMessage = (req, res) => {
     req,
     async (orgFilename, savedFileName, fields) => {
       const uuid = fields.uuid;
+      console.log("ingreso el uuid " + uuid);
       if (messagesSet.has(uuid)) {
         messagesSet.delete(uuid);
         return res.status(200).json({ error: "Solicitud duplicada" });
