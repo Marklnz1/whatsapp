@@ -107,7 +107,7 @@ app.get("/api/media/:name", mediaController.getMedia);
 app.post("/api/message/read", messageController.readMessage);
 app.post("/api/message/read/all", messageController.readAllMessage);
 app.post(
-  "/api/message/media/:category/:subtype",
+  "/api/message/media/:category/:type/:subtype",
   messageController.sendMediaMessage
 );
 app.post("/api/message/text/", messageController.sendTextMessage);
