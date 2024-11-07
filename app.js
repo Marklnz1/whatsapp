@@ -12,21 +12,24 @@ const util = require("util");
 const whatsAppController = require("./controller/whatsAppController");
 const { Server } = require("socket.io");
 const server = http.createServer(app);
+const mediaController = require("./controller/mediaController");
+
 const socketController = require("./controller/socketController");
 const messageController = require("./controller/messageController");
 const SERVER_SAVE = process.env.SERVER_SAVE;
 const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
+const mapLinkTemp = new Map();
 
 const io = new Server(server);
 
 app.use(express.json({ limit: "50mb" }));
 // app.use(express.urlencoded({ limit: "50mb", extended: true }));
-const cors = require("cors");
-app.use(cors());
-app.options("/", (req, res) => {
-  console.log("CULPA DEL CORS?????????????????");
-  res.send();
-});
+// const cors = require("cors");
+// app.use(cors());
+// app.options("/", (req, res) => {
+//   console.log("CULPA DEL CORS?????????????????");
+//   res.send();
+// });
 //===========================================
 io.on("connection", (socket) => {
   console.log("Cliente conectado");
@@ -45,9 +48,10 @@ app.use(express.json());
 // app.use(cookieParser());
 app.use((req, res, next) => {
   res.locals.io = io;
+  res.locals.mapLinkTemp = mapLinkTemp;
+
   next();
 });
-
 app.set("view engine", "ejs");
 app.set("view engine", "html");
 app.engine("html", require("ejs").renderFile);
@@ -68,7 +72,30 @@ app.get("/api/temp/media/:name", async (req, res) => {
 app
   .get("/whatsapp", whatsAppController.verifyToken)
   .post("/whatsapp", whatsAppController.receiveMessage);
-
+app.get("/api/temp/media/:name", (req, res) => {
+  const mediaName = req.params.name;
+  const timeLimit = mapLinkTemp.get(mediaName);
+  const currentTime = new Date();
+  // console.log("ENTRANDO NAME " + mediaName);
+  if (timeLimit) {
+    if (currentTime < timeLimit) {
+      const dirMain = process.cwd();
+      const mediaType = mediaName.split("_")[0];
+      const mediaPath = path.resolve(dirMain, mediaType, mediaName);
+      fs.createReadStream(mediaPath).pipe(res);
+    } else {
+      mapLinkTemp.delete(mediaName);
+      return res.json({ error: "404" });
+    }
+  } else {
+    return res.json({ error: "404" });
+  }
+});
+app.get("/api/media/:name", mediaController.getMedia);
+app.post("/api/message/read", messageController.readMessage);
+app.post("/api/message/read/all", messageController.readAllMessage);
+app.post("/api/message/media/:category", messageController.sendMediaMessage);
+app.post("/api/message/text/", messageController.sendTextMessage);
 async function start() {
   await mongoose.connect(MONGODB_URL, {
     autoIndex: true,
@@ -81,9 +108,5 @@ async function start() {
     console.log("SERVER ACTIVO: PUERTO USADO :" + PORT);
   });
 }
-app.post("/api/message/read", messageController.readMessage);
-app.post("/api/message/read/all", messageController.readAllMessage);
-app.post("/api/message/media/:category", messageController.sendMediaMessage);
-app.post("/api/message/text/", messageController.sendTextMessage);
 
 start();

@@ -7,7 +7,7 @@ const https = require("https");
 const mime = require("mime-types");
 const { response } = require("express");
 const MessageStatus = require("../models/MessageStatus");
-const { sendWhatsappMessage } = require("../utils/server");
+const { sendWhatsappMessage, saveMediaClient } = require("../utils/server");
 const { v7: uuidv7 } = require("uuid");
 
 require("dotenv").config();
@@ -175,17 +175,6 @@ async function sendMessageChatbot(
   await newMessage.save();
   return newMessage;
 }
-async function saveMedia(media_id, category) {
-  const response = await axios({
-    method: "POST",
-    url: `https://${SERVER_SAVE}/api/client/media/${category}/${media_id}`,
-    headers: {
-      Authorization: `Bearer ${SERVER_SAVE_TOKEN}`,
-    },
-    httpsAgent: agent,
-  });
-  return response.data;
-}
 
 const receiveMessageClient = async (
   message,
@@ -211,7 +200,7 @@ const receiveMessageClient = async (
     finalMessageData = { text: messageData.body };
   } else if (messageTypeIsMedia(messageType)) {
     const metaFileName = messageData.filename;
-    const metadata = await saveMedia(messageData.id, messageType);
+    const metadata = await saveMediaClient(messageData.id, messageType);
 
     finalMessageData = {
       text: messageData.caption,
