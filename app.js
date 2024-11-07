@@ -84,7 +84,7 @@ app.get("/api/temp/media/:name", (req, res) => {
   //   "Content-Length": fileSize,
   //   "Content-Type": "audio/ogg",
   // };
-  res.writeHead(200, head);
+  // res.writeHead(200, head);
   fs.createReadStream(mediaPath).pipe(res);
   // } else {
   //   mapLinkTemp.delete(mediaName);
