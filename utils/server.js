@@ -7,6 +7,7 @@ const busboy = require("busboy");
 var ffprobe = require("ffprobe-static");
 const ffmpeg = require("fluent-ffmpeg");
 const fs = require("fs");
+const mime = require("mime-types");
 
 const path = require("path");
 ffmpeg.setFfprobePath(ffprobe.path);
@@ -14,7 +15,7 @@ const ffprobeAsync = promisify(ffmpeg.ffprobe);
 const pipelineAsync = promisify(pipeline);
 const META_TOKEN = process.env.META_TOKEN;
 
-module.exports.getMediaMetadata = async (filePath, mediaType) => {
+const getMediaMetadata = async (filePath, mediaType) => {
   const metadata = await ffprobeAsync(filePath);
 
   const { format, streams } = metadata;
@@ -41,7 +42,7 @@ module.exports.getMediaMetadata = async (filePath, mediaType) => {
   }
 };
 
-module.exports.getMediaToURL = async (url) => {
+const getMediaToURL = async (url) => {
   const response = await axios({
     method: "GET",
     url,
@@ -176,11 +177,14 @@ module.exports.saveMediaClient = async (mediaId, category) => {
       Authorization: `Bearer ${META_TOKEN}`,
     },
   });
-  const mimeType = response.data.mime_type;
-  const extension = mime.extension(mimeType);
+  const mimetype = response.data.mime_type;
+  const split = mimetype.split(";")[0].trim().split("/");
+  const type = split[0];
+  const subtype = split[1];
+  const extension = mime.extension(mimetype);
   const fileSizeBytes = response.data.file_size;
   const dirMain = process.cwd();
-  const savedFileName = `${category}_${mediaId}_${uuidv7()}.${extension}`;
+  const savedFileName = `${category}_${type}_${subtype}_${uuidv7()}_${uuidv7()}`;
   const outputPath = path.resolve(dirMain, category, savedFileName);
 
   const outputDir = path.resolve(dirMain, category);
@@ -191,7 +195,7 @@ module.exports.saveMediaClient = async (mediaId, category) => {
   const data = await getMediaToURL(response.data.url, category);
 
   await pipelineAsync(data, fs.createWriteStream(outputPath));
-  let metadata = { mimeType, extension, fileSizeBytes };
+  let metadata = { mimeType: mimetype, extension, fileSizeBytes };
   if (category == "audio" || category == "video" || category == "image") {
     metadata = {
       ...metadata,

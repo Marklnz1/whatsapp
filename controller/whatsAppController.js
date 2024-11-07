@@ -4,7 +4,6 @@ const Client = require("../models/Client");
 const Message = require("../models/Message");
 const util = require("util");
 const https = require("https");
-const mime = require("mime-types");
 const { response } = require("express");
 const MessageStatus = require("../models/MessageStatus");
 const { sendWhatsappMessage, saveMediaClient } = require("../utils/server");
