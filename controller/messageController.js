@@ -80,8 +80,9 @@ module.exports.sendMediaMessage = (req, res) => {
     req,
     async (orgFilename, savedFileName, fields) => {
       const uuid = fields.uuid;
-      console.log("ingreso el uuid " + uuid);
+      // console.log("ingreso el uuid " + uuid);
       if (messagesSet.has(uuid)) {
+        console.log("INGRESOOOOOOO CON EL UUID " + uuid);
         messagesSet.delete(uuid);
         return res.status(200).json({ error: "Solicitud duplicada" });
       }
@@ -156,7 +157,7 @@ module.exports.sendMediaMessage = (req, res) => {
       newMessage.sentStatus = "send_requested";
       newMessage.wid = messageId;
       await newMessage.save();
-
+      console.log("SE TERMINOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOASDASD");
       res.sendStatus(200);
     },
     (error) => {

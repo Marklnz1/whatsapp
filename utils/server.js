@@ -95,7 +95,7 @@ module.exports.sendWhatsappMessage = async (
 module.exports.saveMediaBusiness = (req, onFinish, onError) => {
   try {
     const category = req.params.category;
-    const type = req.params.subtype;
+    const type = req.params.type;
     const subtype = req.params.subtype;
 
     const bb = busboy({
