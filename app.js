@@ -82,7 +82,7 @@ app.get("/api/temp/media/:name", (req, res) => {
   const fileSize = stat.size;
   const head = {
     "Content-Length": fileSize,
-    // "Content-Type": "audio/ogg; codecs=opus",
+    "Content-Type": "audio/ogg; codecs=opus",
   };
   res.writeHead(200, head);
   fs.createReadStream(mediaPath).pipe(res);
