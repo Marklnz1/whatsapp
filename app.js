@@ -72,19 +72,24 @@ app.get("/api/temp/media/:name", (req, res) => {
   const timeLimit = mapLinkTemp.get(mediaName);
   const currentTime = new Date();
   // console.log("ENTRANDO NAME " + mediaName);
-  if (timeLimit) {
-    if (currentTime < timeLimit) {
-      const dirMain = process.cwd();
-      const mediaType = mediaName.split("_")[0];
-      const mediaPath = path.resolve(dirMain, mediaType, mediaName);
-      fs.createReadStream(mediaPath).pipe(res);
-    } else {
-      mapLinkTemp.delete(mediaName);
-      return res.json({ error: "404" });
-    }
-  } else {
-    return res.json({ error: "404" });
-  }
+  // if (timeLimit) {
+  //   if (currentTime < timeLimit) {
+  const dirMain = process.cwd();
+  const mediaType = mediaName.split("_")[0];
+  const mediaPath = path.resolve(dirMain, mediaType, mediaName);
+  // const head = {
+  //   "Content-Length": fileSize,
+  //   "Content-Type": "audio/ogg; codecs=opus",
+  // };
+  // res.writeHead(200, head);
+  fs.createReadStream(mediaPath).pipe(res);
+  // } else {
+  //   mapLinkTemp.delete(mediaName);
+  //   return res.json({ error: "404" });
+  // }
+  // } else {
+  //   return res.json({ error: "404" });
+  // }
 });
 app.get("/api/media/:name", mediaController.getMedia);
 app.post("/api/message/read", messageController.readMessage);
