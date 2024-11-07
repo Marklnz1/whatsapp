@@ -80,10 +80,10 @@ app.get("/api/temp/media/:name", (req, res) => {
   const mediaPath = path.resolve(dirMain, mediaType, mediaName);
   const stat = fs.statSync(mediaPath);
   const fileSize = stat.size;
-  const head = {
-    "Content-Length": fileSize,
-    "Content-Type": "audio/ogg",
-  };
+  // const head = {
+  //   "Content-Length": fileSize,
+  //   "Content-Type": "audio/ogg",
+  // };
   res.writeHead(200, head);
   fs.createReadStream(mediaPath).pipe(res);
   // } else {
