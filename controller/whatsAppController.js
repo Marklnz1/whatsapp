@@ -40,14 +40,20 @@ module.exports.verifyToken = (req, res) => {
 };
 const getPriorityStatus = (state) => {
   switch (state) {
-    case "sent":
+    case "not_sent":
       return 0;
-    case "delivered":
+    case "send_requested":
       return 1;
-    case "read":
+    case "sent":
       return 2;
-    default:
+    case "delivered":
       return 3;
+    case "read":
+      return 4;
+    case "failed":
+      return 5;
+    default:
+      return -1;
   }
 };
 module.exports.receiveMessage = async (req, res) => {
