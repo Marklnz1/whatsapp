@@ -67,6 +67,7 @@ app.get("/whatsapp-api", (req, res) => {
 app
   .get("/whatsapp", whatsAppController.verifyToken)
   .post("/whatsapp", whatsAppController.receiveMessage);
+
 app.get("/api/temp/media/:name", (req, res) => {
   const mediaName = req.params.name;
   const timeLimit = mapLinkTemp.get(mediaName);
@@ -103,6 +104,7 @@ app.get("/api/temp/media/:name", (req, res) => {
   //   return res.json({ error: "404" });
   // }
 });
+app.post("/api/message/location", messageController.sendLocationMessage);
 app.get("/api/media/:name", mediaController.getMedia);
 app.post("/api/message/read", messageController.readMessage);
 app.post("/api/message/read/all", messageController.readAllMessage);

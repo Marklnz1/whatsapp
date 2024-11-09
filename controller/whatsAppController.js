@@ -38,7 +38,18 @@ module.exports.verifyToken = (req, res) => {
     res.sendStatus(404);
   }
 };
-
+const getPriorityStatus = (state) => {
+  switch (state) {
+    case "sent":
+      return 0;
+    case "delivered":
+      return 1;
+    case "read":
+      return 2;
+    default:
+      return 3;
+  }
+};
 module.exports.receiveMessage = async (req, res) => {
   try {
     const io = res.locals.io;
@@ -64,7 +75,13 @@ module.exports.receiveMessage = async (req, res) => {
         const message = await Message.findById(biz_opaque_callback_data);
 
         if (message) {
-          message.sentStatus = statusData.status;
+          const currentStatus = message.sentStatus;
+          const futureStatus = statusData.status;
+          if (
+            getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
+          ) {
+            message.sentStatus = statusData.status;
+          }
 
           io.emit(
             "newStatus",

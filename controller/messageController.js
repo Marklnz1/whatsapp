@@ -14,6 +14,49 @@ const messagesSet = new Set();
 const agent = new https.Agent({
   rejectUnauthorized: false,
 });
+module.exports.sendLocationMessage = async (req, res) => {
+  const { clientId, text, uuid, businessPhone, businessPhoneId } = req.body;
+  if (messagesSet.has(uuid)) {
+    messagesSet.delete(uuid);
+    return res.status(200).json({ error: "Solicitud duplicada" });
+  }
+  messagesSet.add(uuid);
+
+  const client = await Client.findById(clientId);
+
+  const newMessage = new Message({
+    client: clientId,
+    wid: null,
+    uuid,
+    text,
+    sent: true,
+    read: true,
+    time: new Date(),
+    category: "location",
+    businessPhone,
+    sentStatus: "not_sent",
+  });
+  await newMessage.save();
+  const messageId = await sendWhatsappMessage(
+    META_TOKEN,
+    businessPhoneId,
+    client.wid,
+    "interactive",
+    {
+      type: "location_request_message",
+      body: {
+        text,
+      },
+      action: {
+        name: "send_location",
+      },
+    },
+    newMessage._id
+  );
+  newMessage.wid = messageId;
+  newMessage.sentStatus = "send_requested";
+  await newMessage.save();
+};
 module.exports.readMessage = async (req, res) => {
   const { messageId } = req.body;
   await Message.findByIdAndUpdate(messageId, { read: true });
@@ -30,7 +73,6 @@ module.exports.sendTextMessage = async (req, res) => {
     const { clientId, text, uuid, businessPhone, businessPhoneId } = req.body;
     if (messagesSet.has(uuid)) {
       messagesSet.delete(uuid);
-      console.log("RESPONDIENDO SOLICITUD REPETITIVAAAAAAA ");
       return res.status(200).json({ error: "Solicitud duplicada" });
     }
     messagesSet.add(uuid);
