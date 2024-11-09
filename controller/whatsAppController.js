@@ -244,7 +244,7 @@ const receiveMessageClient = async (
     })
   );
   if (clientDB.chatbot && newMessage.text) {
-    const newMessage = await sendMessageChatbot(
+    const newBotMessage = await sendMessageChatbot(
       clientDB,
       newMessage.text,
       recipientData.phoneNumber,
@@ -254,7 +254,7 @@ const receiveMessageClient = async (
       "newMessage",
       JSON.stringify({
         client: clientDB,
-        message: newMessage,
+        message: newBotMessage,
       })
     );
   }
