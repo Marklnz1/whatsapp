@@ -277,7 +277,8 @@ const receiveMessageClient = async (
       {
         "intencion":"string(elemento de la lista de intenciones)"
       }
-      `
+      `,
+      true
     );
     // const intencion = JSON.parse(intencionData).intencion;
     console.log("LA INTENCIONA ES %" + intencionData + "%");
