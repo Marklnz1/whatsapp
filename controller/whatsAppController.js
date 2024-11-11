@@ -63,12 +63,17 @@ module.exports.receiveMessage = async (req, res) => {
     console.log(util.inspect(req.body, true, 99));
     let data = extractClientMessageData(req.body);
     if (data != null) {
-      await receiveListMessagesClient(
-        data.messages,
-        data.contacts,
-        data.recipientData,
-        io
-      );
+      const clientMapData = await createClientMapData(contacts);
+
+      for (const message of data.messages) {
+        await receiveMessageClient(
+          message,
+          clientMapData,
+          data.recipientData,
+          io
+        );
+      }
+
       res.sendStatus(200);
       return;
     }
@@ -145,8 +150,7 @@ const messageTypeIsMedia = (type) => {
     type == "sticker"
   );
 };
-async function generateChatbotMessage(text) {
-  const system = SYSTEM_PROMPT + BUSINESS_INFO;
+async function generateChatBotMessage(system, text) {
   const chatCompletion = await groqClient.chat.completions.create({
     messages: [
       {
@@ -161,8 +165,11 @@ async function generateChatbotMessage(text) {
     model: GROQ_MODEL,
     temperature: 0,
   });
-  const responseText = chatCompletion.choices[0].message.content;
-  return responseText;
+  return chatCompletion.choices[0].message.content;
+}
+async function generateChatbotMessageWithSystemPrompt(text) {
+  const system = SYSTEM_PROMPT + BUSINESS_INFO;
+  return await generateChatBotMessage(system, text);
 }
 async function sendMessageChatbot(
   clientDB,
@@ -170,7 +177,7 @@ async function sendMessageChatbot(
   businessPhone,
   businessPhoneId
 ) {
-  const chatbotMessage = await generateChatbotMessage(text);
+  const chatbotMessage = await generateChatbotMessageWithSystemPrompt(text);
   const newMessage = new Message({
     client: clientDB._id,
     wid: null,
@@ -209,7 +216,7 @@ const receiveMessageClient = async (
   const clientDB = clientMapData[message.from];
   const category = message.type;
   const messageData = message[category];
-  console.log("MAPA " + util.inspect(clientMapData) + "  from " + message.from);
+  // console.log("MAPA " + util.inspect(clientMapData) + "  from " + message.from);
   const newMessageData = {
     client: clientDB._id,
     wid: message.id,
@@ -247,33 +254,45 @@ const receiveMessageClient = async (
     })
   );
   if (clientDB.chatbot && newMessage.text) {
-    const newBotMessage = await sendMessageChatbot(
-      clientDB,
-      newMessage.text,
-      recipientData.phoneNumber,
-      recipientData.phoneNumberId
+    const intencionData = generateChatBotMessage(
+      BUSINESS_INFO,
+      `De acuerdo a la siguiente lista de intenciones: 
+      1.Información del negocio
+      2.Solicitar Instalación
+      3.Reclamos
+      4.Pagos
+      5.Otros pero relacionado al negocio
+      6.Ninguna de las anteriores
+      A cual pertenece el siguiente mensaje:
+      "${newMessage}"
+      Respondeme con el siguiente formato json sin comentarios adicionales:
+      {
+        "intencion":"elemento_de_la_lista"
+      }
+      Un ejemplo de respuesta si el usuario dice "quiero pagar mi factura":
+      {
+        "intencion":"Pagos"
+      }
+      `
     );
-    io.emit(
-      "newMessage",
-      JSON.stringify({
-        client: clientDB,
-        message: newBotMessage,
-      })
-    );
+    const intencion = JSON.parse(intencionData).intencion;
+    console.log("LA INTENCIONA ES %" + intencion + "%");
+    // const newBotMessage = await sendMessageChatbot(
+    //   clientDB,
+    //   newMessage.text,
+    //   recipientData.phoneNumber,
+    //   recipientData.phoneNumberId
+    // );
+    // io.emit(
+    //   "newMessage",
+    //   JSON.stringify({
+    //     client: clientDB,
+    //     message: newBotMessage,
+    //   })
+    // );
   }
 };
-const receiveListMessagesClient = async (
-  messages,
-  contacts,
-  recipientData,
-  io
-) => {
-  const clientMapData = await createClientMapData(contacts);
 
-  for (const message of messages) {
-    await receiveMessageClient(message, clientMapData, recipientData, io);
-  }
-};
 const extractRecipientData = (value) => {
   try {
     const phoneNumber = value.metadata.display_phone_number;
