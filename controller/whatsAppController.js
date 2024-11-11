@@ -257,20 +257,16 @@ const receiveMessageClient = async (
     const intencionData = await generateChatBotMessage(
       BUSINESS_INFO,
       `*De acuerdo a la siguiente lista de intenciones: 
-      1.Información del negocio
-      2.Solicitar Instalación
-      3.Reclamos
-      4.Pagos
-      5.Otros pero relacionado al negocio
-      6.Ninguna de las anteriores
+      Información del negocio
+      Solicitar Instalación
+      Reclamos
+      Pagos
+      Otros pero relacionado al negocio
+      Ninguna de las anteriores
       A cual pertenece el siguiente mensaje:
       ${newMessage}
     
-      *Respondeme con el siguiente formato json sin comentarios adicionales:
-      {
-        "intencion":"elemento_de_la_lista"
-      }
-      *Un ejemplo de respuesta si el usuario dice "quiero pagar mi factura":
+      *Respondeme en formato json tomando el siguiente ejemplo de referencia, cuando el usuario dice "quiero pagar mi factura":
       {
         "intencion":"Pagos"
       }
