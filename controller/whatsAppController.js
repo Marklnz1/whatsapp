@@ -150,8 +150,8 @@ const messageTypeIsMedia = (type) => {
     type == "sticker"
   );
 };
-async function generateChatBotMessage(system, text) {
-  const chatCompletion = await groqClient.chat.completions.create({
+async function generateChatBotMessage(system, text, json) {
+  const dataConfig = {
     messages: [
       {
         role: "system",
@@ -162,9 +162,15 @@ async function generateChatBotMessage(system, text) {
         content: text,
       },
     ],
+
     model: GROQ_MODEL,
     temperature: 0,
-  });
+  };
+  if (json) {
+    dataConfig.stream = false;
+    dataConfig.response_format = { type: "json_object" };
+  }
+  const chatCompletion = await groqClient.chat.completions.create(dataConfig);
   return chatCompletion.choices[0].message.content;
 }
 async function generateChatbotMessageWithSystemPrompt(text) {
@@ -255,7 +261,8 @@ const receiveMessageClient = async (
   );
   if (clientDB.chatbot && newMessage.text) {
     const intencionData = await generateChatBotMessage(
-      BUSINESS_INFO,
+      "Eres un asistente de un negocio que responde en JSON, tienes la siguiente informacion:\n" +
+        BUSINESS_INFO,
       `*De acuerdo a la siguiente lista de intenciones: 
       Información del negocio
       Solicitar Instalación
@@ -266,9 +273,9 @@ const receiveMessageClient = async (
       A cual pertenece el siguiente mensaje:
       ${newMessage}
     
-      *Respondeme en formato json tomando el siguiente ejemplo de referencia, cuando el usuario dice "quiero pagar mi factura":
+      *EL esquema de JSON debe incluir":
       {
-        "intencion":"Pagos"
+        "intencion":"string(elemento de la lista de intenciones)"
       }
       `
     );
