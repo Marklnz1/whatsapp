@@ -63,7 +63,7 @@ module.exports.receiveMessage = async (req, res) => {
     console.log(util.inspect(req.body, true, 99));
     let data = extractClientMessageData(req.body);
     if (data != null) {
-      const clientMapData = await createClientMapData(contacts);
+      const clientMapData = await createClientMapData(data.contacts);
 
       for (const message of data.messages) {
         await receiveMessageClient(
@@ -256,7 +256,7 @@ const receiveMessageClient = async (
   if (clientDB.chatbot && newMessage.text) {
     const intencionData = generateChatBotMessage(
       BUSINESS_INFO,
-      `De acuerdo a la siguiente lista de intenciones: 
+      `*De acuerdo a la siguiente lista de intenciones: 
       1.Información del negocio
       2.Solicitar Instalación
       3.Reclamos
@@ -264,12 +264,13 @@ const receiveMessageClient = async (
       5.Otros pero relacionado al negocio
       6.Ninguna de las anteriores
       A cual pertenece el siguiente mensaje:
-      "${newMessage}"
-      Respondeme con el siguiente formato json sin comentarios adicionales:
+      ${newMessage}
+    
+      *Respondeme con el siguiente formato json sin comentarios adicionales:
       {
         "intencion":"elemento_de_la_lista"
       }
-      Un ejemplo de respuesta si el usuario dice "quiero pagar mi factura":
+      *Un ejemplo de respuesta si el usuario dice "quiero pagar mi factura":
       {
         "intencion":"Pagos"
       }
