@@ -254,7 +254,7 @@ const receiveMessageClient = async (
     })
   );
   if (clientDB.chatbot && newMessage.text) {
-    const intencionData = generateChatBotMessage(
+    const intencionData = await generateChatBotMessage(
       BUSINESS_INFO,
       `*De acuerdo a la siguiente lista de intenciones: 
       1.Información del negocio
@@ -276,8 +276,8 @@ const receiveMessageClient = async (
       }
       `
     );
-    const intencion = JSON.parse(intencionData).intencion;
-    console.log("LA INTENCIONA ES %" + intencion + "%");
+    // const intencion = JSON.parse(intencionData).intencion;
+    console.log("LA INTENCIONA ES %" + intencionData + "%");
     // const newBotMessage = await sendMessageChatbot(
     //   clientDB,
     //   newMessage.text,
