@@ -269,6 +269,7 @@ const receiveMessageClient = async (
       Reclamos
       Pagos
       Otros pero relacionado al negocio
+      Groserias o Ofensas
       Ninguna de las anteriores
       A cual pertenece el siguiente mensaje:
       ${newMessage}
