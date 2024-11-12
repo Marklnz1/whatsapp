@@ -267,13 +267,10 @@ const receiveMessageClient = async (
       ${newMessage.text}
       *EL esquema de JSON debe incluir":
       {
-        "respuesta":"string(respuesta para el cliente)"
-        "acciones":[
-          {
-            "nombre":"string(guardar_dni,guardar_direccion_instalacion,guardar_plan_internet, solo si existe algun valor para guardar de la lista del mensaje del cliente)"
-            "valor":"string(el valor que se almacenara de la accion)"
-          }
-        ]
+        "respuesta":"string(respuesta para el cliente)",
+        "guardar_dni":"string(dni extraido del mensaje del cliente solo si lo manda con intenciones de contratar el servicio)",
+        "guardar_plan_internet":"string(plan de internet extraido del mensaje del cliente solo si lo manda con intenciones de contratar el servicio)"
+
       }
       `,
       true
