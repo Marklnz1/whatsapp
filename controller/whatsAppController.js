@@ -261,28 +261,28 @@ const receiveMessageClient = async (
   );
   if (clientDB.chatbot && newMessage.text) {
     const intencionData = await generateChatBotMessage(
-      "Eres un asistente de un negocio que responde en JSON, tienes la siguiente informacion:\n" +
+      "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
         BUSINESS_INFO,
-      `*De acuerdo a la siguiente lista de intenciones: 
-      Información del negocio
-      Solicitar Instalación
-      Reclamos
-      Pagos
-      Otros pero relacionado al negocio
-      Groserias o Ofensas
-      Ninguna de las anteriores
-      A cual pertenece el siguiente mensaje:
-      ${newMessage}
-    
+      `*Aparte tienes opcion de llamar a funciones que manipularan los datos de solicitud del cliente, tienes las siguiente:
+       1.guardar_dni
+       2.guardar_direccion_instalacion
+       3.guardar_plan_contratado
+       
       *EL esquema de JSON debe incluir":
       {
-        "intencion":"string(elemento de la lista de intenciones)"
+        "respuesta":"string(respuesta para el cliente)"
+        "acciones":[
+          {
+            "nombre":"string(una nombre accion de la lista de acciones)"
+            "valor":"string(el valor que se almacenara de la accion)"
+          }
+        ]
       }
       `,
       true
     );
     // const intencion = JSON.parse(intencionData).intencion;
-    console.log("LA INTENCIONA ES %" + intencionData + "%");
+    console.log("LA RESPUESTA ES %" + intencionData + "%");
     // const newBotMessage = await sendMessageChatbot(
     //   clientDB,
     //   newMessage.text,
