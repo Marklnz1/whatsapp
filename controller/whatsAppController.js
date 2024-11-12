@@ -263,17 +263,12 @@ const receiveMessageClient = async (
     const intencionData = await generateChatBotMessage(
       "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
         BUSINESS_INFO,
-      `*Aparte tienes opcion de llamar a funciones que manipularan los datos de solicitud del cliente, tienes las siguiente:
-       1.guardar_dni
-       2.guardar_direccion_instalacion
-       3.guardar_plan_contratado
-       
-      *EL esquema de JSON debe incluir":
+      `*EL esquema de JSON debe incluir":
       {
         "respuesta":"string(respuesta para el cliente)"
         "acciones":[
           {
-            "nombre":"string(una nombre accion de la lista de acciones)"
+            "nombre":"string(guardar_dni,guardar_direccion_instalacion,guardar_plan_internet, solo si existe algun valor para guardar de la lista)"
             "valor":"string(el valor que se almacenara de la accion)"
           }
         ]
