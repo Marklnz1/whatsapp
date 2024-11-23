@@ -185,11 +185,39 @@ async function generateChatbotMessageWithSystemPrompt(text) {
 
 async function sendMessageChatbot(
   clientDB,
-  text,
+  clientMessage,
+  clientMessageId,
   businessPhone,
   businessPhoneId
 ) {
-  const chatbotMessage = await generateChatbotMessageWithSystemPrompt(text);
+  const emojiResponse = await generateChatBotMessage(
+    "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
+      BUSINESS_INFO,
+    `*El mensaje del cliente es:
+      ${clientMessage}
+      *EL esquema de JSON debe incluir":
+      {
+        "message":"string(respuesta al mensaje segun la información del negocio)",
+        "emoji_message":"string emoji unicode(ejemplo:😄,🤚,😠, poner un emoji de acuerdo al mensaje del cliente, para expresar alguna emocion, solo si lo amerita, para que el cliente tenga mejor compresion del sentimiento de la respuesta, no responder por ejemplo siempre una cara feliz para cualquier mensaje porque no es necesario",
+
+      }
+      `,
+    true
+  );
+  const responseBot = JSON.parse(emojiResponse);
+  const emoji = responseBot.emoji_message;
+  const chatbotMessage = responseBot.message;
+  console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
+
+  if (emoji) {
+    sendReaction(
+      META_TOKEN,
+      recipientData.phoneNumberId,
+      clientDB.wid,
+      clientMessageId,
+      emoji
+    );
+  }
   const newMessage = new Message({
     client: clientDB._id,
     wid: null,
@@ -218,6 +246,41 @@ async function sendMessageChatbot(
   await newMessage.save();
   return newMessage;
 }
+// async function sendMessageChatbot2(
+//   clientDB,
+//   text,
+//   businessPhone,
+//   businessPhoneId
+// ) {
+//   const chatbotMessage = await generateChatbotMessageWithSystemPrompt(text);
+//   const newMessage = new Message({
+//     client: clientDB._id,
+//     wid: null,
+//     uuid: uuidv7(),
+//     text: chatbotMessage,
+//     sent: true,
+//     read: false,
+//     time: new Date(),
+//     category: "text",
+//     businessPhone,
+//     sentStatus: "not_sent",
+//   });
+//   await newMessage.save();
+//   const messageId = await sendWhatsappMessage(
+//     META_TOKEN,
+//     businessPhoneId,
+//     clientDB.wid,
+//     "text",
+//     {
+//       body: chatbotMessage,
+//     },
+//     newMessage._id
+//   );
+//   newMessage.wid = messageId;
+//   newMessage.sentStatus = "send_requested";
+//   await newMessage.save();
+//   return newMessage;
+// }
 
 const receiveMessageClient = async (
   message,
@@ -254,34 +317,6 @@ const receiveMessageClient = async (
   }
   sendConfirmationMessage(META_TOKEN, recipientData.phoneNumberId, message.id);
 
-  if (finalMessageData.text) {
-    const emojiResponse = await generateChatBotMessage(
-      "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
-        BUSINESS_INFO,
-      `*El mensaje del cliente es:
-        ${finalMessageData.text}
-        *EL esquema de JSON debe incluir":
-        {
-          "message":"string(respuesta al mensaje segun la información del negocio)",
-          "emoji_message":"string emoji unicode(ejemplo:😄,🤚,😠, poner un emoji de acuerdo al mensaje del cliente, para expresar alguna emocion, solo si lo amerita, para que el cliente tenga mejor compresion del sentimiento de la respuesta, no responder por ejemplo siempre una cara feliz para cualquier mensaje porque no es necesario",
-
-        }
-        `,
-      true
-    );
-    const emoji = JSON.parse(emojiResponse).emoji_message;
-    console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
-
-    if (emoji) {
-      sendReaction(
-        META_TOKEN,
-        recipientData.phoneNumberId,
-        clientDB.wid,
-        message.id,
-        emoji
-      );
-    }
-  }
   const newMessage = new Message({
     ...newMessageData,
     ...finalMessageData,
@@ -311,9 +346,11 @@ const receiveMessageClient = async (
     // );
     // const intencion = JSON.parse(intencionData).intencion;
     // console.log("LA RESPUESTA ES %" + intencionData + "%");
+
     const newBotMessage = await sendMessageChatbot(
       clientDB,
       newMessage.text,
+      newMessage.wid,
       recipientData.phoneNumber,
       recipientData.phoneNumberId
     );
