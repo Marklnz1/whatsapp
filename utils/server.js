@@ -81,9 +81,9 @@ module.exports.sendConfirmationMessage = async (
         "Content-Type": "application/json",
       },
     });
-    console.log(inspect(response));
+    console.log("id", messageId, inspect(response));
   } catch (error) {
-    console.log(error.message);
+    console.log("ERROR::" + error.message);
   }
 };
 module.exports.sendReaction = async (
