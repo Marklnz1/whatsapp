@@ -261,7 +261,12 @@ const receiveMessageClient = async (
       `*El mensaje del cliente es:
         ${finalMessageData.text}
         *Elije uno de estos emojis para ponerlo en el mensaje, solo si el mensaje coincide con dicho emoji:
-        😄,🤚,😠,✍️,😓,👍
+        1.(sonrisa,😄),
+        2.(saludo,🤚)
+        3.(enojo,😠)
+        4.(anotando o escribiendo,✍️)
+        5.(lamento o confundido,😓),
+        6.(okey o esta bien,👍)
         *Si el mensaje no amerita un emoji, entonces no pongas nada
         *EL esquema de JSON debe incluir":
         {
