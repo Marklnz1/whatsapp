@@ -254,28 +254,30 @@ const receiveMessageClient = async (
   }
   sendConfirmationMessage(META_TOKEN, recipientData.phoneNumberId, message.id);
 
-  const emojiResponse = await generateChatBotMessage(
-    "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
-      BUSINESS_INFO,
-    `*El mensaje del cliente es:
-      ${newMessage.text}
-      *EL esquema de JSON debe incluir":
-      {
-        "emoji":"emoji(un emoji si es que el mensaje se lo merece, de lo contrario que este vacio)",
-      }
-      `,
-    true
-  );
-  const emoji = JSON.parse(emojiResponse).emoji;
-  if (emoji) {
-    console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
-    // sendReaction(
-    //   META_TOKEN,
-    //   recipientData.phoneNumberId,
-    //   clientDB.wid,
-    //   message.id,
-    //   emoji
-    // );
+  if (finalMessageData.text) {
+    const emojiResponse = await generateChatBotMessage(
+      "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
+        BUSINESS_INFO,
+      `*El mensaje del cliente es:
+        ${finalMessageData.text}
+        *EL esquema de JSON debe incluir":
+        {
+          "emoji":"emoji(un emoji si es que el mensaje se lo merece, de lo contrario que este vacio)",
+        }
+        `,
+      true
+    );
+    const emoji = JSON.parse(emojiResponse).emoji;
+    if (emoji) {
+      console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
+      // sendReaction(
+      //   META_TOKEN,
+      //   recipientData.phoneNumberId,
+      //   clientDB.wid,
+      //   message.id,
+      //   emoji
+      // );
+    }
   }
   const newMessage = new Message({
     ...newMessageData,
