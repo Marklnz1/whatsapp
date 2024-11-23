@@ -258,7 +258,7 @@ const receiveMessageClient = async (
     recipientData.phoneNumberId,
     clientDB.wid,
     message.id,
-    "\uD83D\uDE20"
+    😠
   );
   const newMessage = new Message({
     ...newMessageData,
