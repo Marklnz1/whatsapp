@@ -190,7 +190,6 @@ async function sendMessageChatbot(
   businessPhone,
   businessPhoneId
 ) {
-  console.log("ENTRANDOOOOOOOOOOOOASD ASD AS");
   const emojiResponse = await generateChatBotMessage(
     "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
       BUSINESS_INFO,
@@ -213,7 +212,7 @@ async function sendMessageChatbot(
   if (emoji) {
     sendReaction(
       META_TOKEN,
-      recipientData.phoneNumberId,
+      businessPhoneId,
       clientDB.wid,
       clientMessageId,
       emoji
@@ -330,6 +329,7 @@ const receiveMessageClient = async (
       message: newMessage,
     })
   );
+
   if (clientDB.chatbot && newMessage.text) {
     // const intencionData = await generateChatBotMessage(
     //   "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
