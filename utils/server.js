@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { v7: uuidv7 } = require("uuid");
 
-const { promisify } = require("util");
+const { promisify, inspect } = require("util");
 const { pipeline } = require("stream");
 const busboy = require("busboy");
 var ffprobe = require("ffprobe-static");
@@ -81,7 +81,10 @@ module.exports.sendConfirmationMessage = async (
         "Content-Type": "application/json",
       },
     });
-  } catch (error) {}
+    console.log(inspect(response));
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 module.exports.sendReaction = async (
   metaToken,
