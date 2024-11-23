@@ -66,7 +66,7 @@ module.exports.sendConfirmationMessage = async (
   businessPhoneId,
   messageId
 ) => {
-  console.log("el id CONFIRMATION", messageId, businessPhoneId);
+  // console.log("el id CONFIRMATION", messageId, businessPhoneId);
   try {
     const sendData = {
       messaging_product: "whatsapp",
@@ -83,7 +83,7 @@ module.exports.sendConfirmationMessage = async (
         "Content-Type": "application/json",
       },
     });
-    console.log(inspect(response));
+    // console.log(inspect(response));
   } catch (error) {
     console.log("ERROR::" + error.message);
   }
