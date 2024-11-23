@@ -6,7 +6,12 @@ const util = require("util");
 const https = require("https");
 const { response } = require("express");
 const MessageStatus = require("../models/MessageStatus");
-const { sendWhatsappMessage, saveMediaClient } = require("../utils/server");
+const {
+  sendWhatsappMessage,
+  saveMediaClient,
+  sendConfirmationMessage,
+  sendReaction,
+} = require("../utils/server");
 const { v7: uuidv7 } = require("uuid");
 
 require("dotenv").config();
@@ -177,6 +182,7 @@ async function generateChatbotMessageWithSystemPrompt(text) {
   const system = SYSTEM_PROMPT + BUSINESS_INFO;
   return await generateChatBotMessage(system, text);
 }
+
 async function sendMessageChatbot(
   clientDB,
   text,
@@ -246,7 +252,14 @@ const receiveMessageClient = async (
       ...metadata,
     };
   }
-
+  sendConfirmationMessage(META_TOKEN, recipientData.phoneNumber, message.id);
+  sendReaction(
+    META_TOKEN,
+    recipientData.phoneNumber,
+    recipientData.phoneNumberId,
+    message.id,
+    "\uD83D\uDE20"
+  );
   const newMessage = new Message({
     ...newMessageData,
     ...finalMessageData,
@@ -260,36 +273,35 @@ const receiveMessageClient = async (
     })
   );
   if (clientDB.chatbot && newMessage.text) {
-    const intencionData = await generateChatBotMessage(
-      "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
-        BUSINESS_INFO,
-      `*El mensaje del cliente es:
-      ${newMessage.text}
-      *EL esquema de JSON debe incluir":
-      {
-        "respuesta":"string(respuesta para el cliente)",
-        "guardar_dni":"string(dni extraido del mensaje del cliente solo si lo manda con intenciones de contratar el servicio)",
-        "guardar_plan_internet":"string(plan de internet extraido del mensaje del cliente solo si lo manda con intenciones de contratar el servicio)"
-
-      }
-      `,
-      true
-    );
+    // const intencionData = await generateChatBotMessage(
+    //   "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
+    //     BUSINESS_INFO,
+    //   `*El mensaje del cliente es:
+    //   ${newMessage.text}
+    //   *EL esquema de JSON debe incluir":
+    //   {
+    //     "respuesta":"string(respuesta para el cliente)",
+    //     "guardar_dni":"string(dni extraido del mensaje del cliente)",
+    //     "guardar_plan_internet":"string(plan de internet extraido del mensaje del cliente)"
+    //   }
+    //   `,
+    //   true
+    // );
     // const intencion = JSON.parse(intencionData).intencion;
-    console.log("LA RESPUESTA ES %" + intencionData + "%");
-    // const newBotMessage = await sendMessageChatbot(
-    //   clientDB,
-    //   newMessage.text,
-    //   recipientData.phoneNumber,
-    //   recipientData.phoneNumberId
-    // );
-    // io.emit(
-    //   "newMessage",
-    //   JSON.stringify({
-    //     client: clientDB,
-    //     message: newBotMessage,
-    //   })
-    // );
+    // console.log("LA RESPUESTA ES %" + intencionData + "%");
+    const newBotMessage = await sendMessageChatbot(
+      clientDB,
+      newMessage.text,
+      recipientData.phoneNumber,
+      recipientData.phoneNumberId
+    );
+    io.emit(
+      "newMessage",
+      JSON.stringify({
+        client: clientDB,
+        message: newBotMessage,
+      })
+    );
   }
 };
 

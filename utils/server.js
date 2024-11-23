@@ -61,7 +61,57 @@ module.exports.validateToken = (token) => {
     return false;
   }
 };
-
+module.exports.sendConfirmationMessage = async (
+  metaToken,
+  businessPhoneId,
+  messageId
+) => {
+  try {
+    const sendData = {
+      messaging_product: "whatsapp",
+      status: "read",
+      message_id: messageId,
+    };
+    const response = await axios({
+      method: "POST",
+      url: `https://graph.facebook.com/v20.0/${businessPhoneId}/messages`,
+      data: sendData,
+      headers: {
+        Authorization: `Bearer ${metaToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error) {}
+};
+module.exports.sendReaction = async (
+  metaToken,
+  businessPhoneId,
+  dstPhone,
+  messageId,
+  emoji
+) => {
+  const sendData = {
+    messaging_product: "whatsapp",
+    recipient_type: "individual",
+    to: dstPhone,
+    type: "reaction",
+    reaction: {
+      message_id: messageId,
+      emoji,
+    },
+  };
+  const response = await axios({
+    method: "POST",
+    url: `https://graph.facebook.com/v20.0/${businessPhoneId}/messages`,
+    data: sendData,
+    headers: {
+      Authorization: `Bearer ${metaToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+  const messageId = response.data.messages[0].id;
+  return messageId;
+};
 module.exports.sendWhatsappMessage = async (
   metaToken,
   businessPhoneId,
