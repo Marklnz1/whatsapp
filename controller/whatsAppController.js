@@ -155,13 +155,14 @@ const messageTypeIsMedia = (type) => {
     type == "sticker"
   );
 };
-async function generateChatBotMessage(system, text, json) {
+async function generateChatBotMessage(historial, system, text, json) {
   const dataConfig = {
     messages: [
       {
         role: "system",
         content: system,
       },
+      ...historial,
       {
         role: "user",
         content: text,
@@ -178,27 +179,21 @@ async function generateChatBotMessage(system, text, json) {
   const chatCompletion = await groqClient.chat.completions.create(dataConfig);
   return chatCompletion.choices[0].message.content;
 }
-async function generateChatbotMessageWithSystemPrompt(text) {
-  const system = SYSTEM_PROMPT + BUSINESS_INFO;
-  return await generateChatBotMessage(system, text);
-}
+// async function generateChatbotMessageWithSystemPrompt(text) {
+//   const system = SYSTEM_PROMPT + BUSINESS_INFO;
+//   return await generateChatBotMessage(system, text);
+// }
 
 async function sendMessageChatbot(
+  historial,
   clientDB,
   clientMessage,
   clientMessageId,
   businessPhone,
   businessPhoneId
 ) {
-  const mensajes = await Message.find(
-    { client: clientDB._id },
-    { sent: 1, text: 1 }
-  )
-    .sort({ time: -1 })
-    .limit(10)
-    .exec();
-  console.log(mensajes);
   const emojiResponse = await generateChatBotMessage(
+    historial,
     "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
       BUSINESS_INFO,
     `*El mensaje del cliente es:
@@ -329,6 +324,24 @@ const receiveMessageClient = async (
     ...newMessageData,
     ...finalMessageData,
   });
+  let messagesHistorial = [];
+  if (clientDB.chatbot && newMessage.text) {
+    const list = await Message.find(
+      { client: clientDB._id },
+      { sent: 1, text: 1 }
+    )
+      .sort({ time: -1 })
+      .limit(10)
+      .exec();
+    for (let m of list) {
+      messagesHistorial.push({
+        role: m.sent ? "assistant" : "user",
+        content: m.text,
+      });
+    }
+    console.log(mensajes);
+  }
+
   await newMessage.save();
   io.emit(
     "newMessage",
@@ -357,6 +370,7 @@ const receiveMessageClient = async (
     // console.log("LA RESPUESTA ES %" + intencionData + "%");
 
     const newBotMessage = await sendMessageChatbot(
+      messagesHistorial,
       clientDB,
       newMessage.text,
       newMessage.wid,
