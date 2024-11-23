@@ -190,7 +190,10 @@ async function sendMessageChatbot(
   businessPhone,
   businessPhoneId
 ) {
-  const mensajes = await Message.find({}, { sent: 1, text: 1 })
+  const mensajes = await Message.find(
+    { client: clientDB._id },
+    { sent: 1, text: 1 }
+  )
     .sort({ time: -1 })
     .limit(10)
     .exec();
