@@ -270,7 +270,7 @@ const receiveMessageClient = async (
         6.ninguno, no coincide ningun emoji
         *EL esquema de JSON debe incluir":
         {
-          "emoji":"string(emoji)",
+          "emoji":"string(emoji de la lista anterior)",
           "message":"string(respuesta al mensaje segun la información del negocio)"
         }
         `,
