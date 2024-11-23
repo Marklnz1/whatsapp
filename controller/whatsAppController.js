@@ -190,6 +190,11 @@ async function sendMessageChatbot(
   businessPhone,
   businessPhoneId
 ) {
+  const mensajes = await Message.find({}, { sent: 1, text: 1 })
+    .sort({ time: -1 })
+    .limit(10)
+    .exec();
+  console.log(mensajes);
   const emojiResponse = await generateChatBotMessage(
     "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
       BUSINESS_INFO,
