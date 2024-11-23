@@ -262,9 +262,10 @@ const receiveMessageClient = async (
         ${finalMessageData.text}
         *Generaras un emoji para dicho mensaje, como por ejemplo:
         😀
+        *Si el mensaje no amerita un emoji, entonces no pongas nada
         *EL esquema de JSON debe incluir":
         {
-          "emoji":"emoji(un emoji que vaya de acuerdo al mensaje)",
+          "emoji":"emoji(un emoji que vaya de acuerdo al mensaje si lo amerita)",
         }
         `,
       true
@@ -273,13 +274,13 @@ const receiveMessageClient = async (
     console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
 
     if (emoji) {
-      // sendReaction(
-      //   META_TOKEN,
-      //   recipientData.phoneNumberId,
-      //   clientDB.wid,
-      //   message.id,
-      //   emoji
-      // );
+      sendReaction(
+        META_TOKEN,
+        recipientData.phoneNumberId,
+        clientDB.wid,
+        message.id,
+        emoji
+      );
     }
   }
   const newMessage = new Message({
