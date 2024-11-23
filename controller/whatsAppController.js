@@ -263,7 +263,7 @@ const receiveMessageClient = async (
         *EL esquema de JSON debe incluir":
         {
           "message":"string(respuesta al mensaje segun la información del negocio)",
-          "emoji_message":"string((sonrisa,😄),(saludo,🤚),(enojo,😠),(escribiendo,✍️),(confuso,😓),(okey,👍), ninguna de las anteriores)",
+          "emoji_message":"string(😄,🤚,😠 un emoji opcional, como si tu amigo te respondiera el emoji",
 
         }
         `,
