@@ -198,7 +198,7 @@ async function sendMessageChatbot(
       *EL esquema de JSON debe incluir":
       {
         "message":"string(respuesta al mensaje segun la información del negocio)",
-        "emoji_message":"string emoji unicode(ejemplo:😄,🤚,😠, poner un emoji de acuerdo al mensaje del cliente, para expresar alguna emocion, solo si lo amerita, para que el cliente tenga mejor compresion del sentimiento de la respuesta, no responder por ejemplo siempre una cara feliz para cualquier mensaje porque no es necesario",
+        "emoji_message":"string emoji unicode(ejemplo:😄,🤚,😠, poner un emoji de acuerdo al mensaje del cliente, para que el cliente tenga mejor compresion del sentimiento de la respuesta, solo si se requiere minimamente",
 
       }
       `,
