@@ -339,6 +339,7 @@ const receiveMessageClient = async (
         content: m.text,
       });
     }
+    messagesHistorial = messagesHistorial.reverse();
     console.log(messagesHistorial);
   }
 
