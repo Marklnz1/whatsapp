@@ -269,7 +269,7 @@ const receiveMessageClient = async (
         `,
       true
     );
-    const emoji = JSON.parse(emojiResponse).emoji;
+    const emoji = JSON.parse(emojiResponse).emoji_message;
     console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
 
     if (emoji) {
