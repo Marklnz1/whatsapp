@@ -268,8 +268,9 @@ const receiveMessageClient = async (
       true
     );
     const emoji = JSON.parse(emojiResponse).emoji;
+    console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
+
     if (emoji) {
-      console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
       // sendReaction(
       //   META_TOKEN,
       //   recipientData.phoneNumberId,
