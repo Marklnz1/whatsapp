@@ -66,7 +66,7 @@ module.exports.sendConfirmationMessage = async (
   businessPhoneId,
   messageId
 ) => {
-  console.log("el id CONFIRMATION", messageId);
+  console.log("el id CONFIRMATION", messageId, businessPhoneId);
   try {
     const sendData = {
       messaging_product: "whatsapp",
