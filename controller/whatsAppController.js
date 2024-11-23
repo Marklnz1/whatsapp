@@ -252,11 +252,11 @@ const receiveMessageClient = async (
       ...metadata,
     };
   }
-  sendConfirmationMessage(META_TOKEN, recipientData.phoneNumber, message.id);
+  sendConfirmationMessage(META_TOKEN, recipientData.phoneNumberId, message.id);
   sendReaction(
     META_TOKEN,
-    recipientData.phoneNumber,
     recipientData.phoneNumberId,
+    clientDB.wid,
     message.id,
     "\uD83D\uDE20"
   );
