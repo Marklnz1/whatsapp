@@ -190,6 +190,7 @@ async function sendMessageChatbot(
   businessPhone,
   businessPhoneId
 ) {
+  console.log("ENTRANDOOOOOOOOOOOOASD ASD AS");
   const emojiResponse = await generateChatBotMessage(
     "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
       BUSINESS_INFO,
