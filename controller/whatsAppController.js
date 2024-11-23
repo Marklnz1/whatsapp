@@ -194,7 +194,7 @@ async function sendMessageChatbot(
     "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
       BUSINESS_INFO,
     `*El mensaje del cliente es:
-      ${clientMessage}
+      ${finalMessageData.text}
       *EL esquema de JSON debe incluir":
       {
         "message":"string(respuesta al mensaje segun la información del negocio)",
