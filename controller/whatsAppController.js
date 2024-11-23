@@ -339,7 +339,7 @@ const receiveMessageClient = async (
         content: m.text,
       });
     }
-    console.log(mensajes);
+    console.log(messagesHistorial);
   }
 
   await newMessage.save();
