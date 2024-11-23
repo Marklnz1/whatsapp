@@ -262,7 +262,8 @@ const receiveMessageClient = async (
         ${finalMessageData.text}
         *EL esquema de JSON debe incluir":
         {
-          "emoji":"emoji(un emoji si es que el mensaje se lo merece, de lo contrario que este vacio)",
+          "emoji":"emoji(un emoji si es que el mensaje se lo merece, de lo contrario que este vacio,
+          Ejemplo de secuencia de escape Unicode:\uD83D\uDE00,Ejemplo de emoticono:😀)",
         }
         `,
       true
