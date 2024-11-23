@@ -138,7 +138,7 @@ const createClientMapData = async (contacts) => {
     const wid = contact.wa_id;
     let clientDB = await Client.findOne({ wid });
     if (clientDB == null) {
-      clientDB = new Client({ wid, username, chatbot: false });
+      clientDB = new Client({ wid, username, chatbot: true });
       await clientDB.save();
     }
     clientMapDB[wid] = clientDB;
