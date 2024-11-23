@@ -268,13 +268,14 @@ const receiveMessageClient = async (
   );
   const emoji = JSON.parse(emojiResponse).emoji;
   if (emoji) {
-    sendReaction(
-      META_TOKEN,
-      recipientData.phoneNumberId,
-      clientDB.wid,
-      message.id,
-      emoji
-    );
+    console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
+    // sendReaction(
+    //   META_TOKEN,
+    //   recipientData.phoneNumberId,
+    //   clientDB.wid,
+    //   message.id,
+    //   emoji
+    // );
   }
   const newMessage = new Message({
     ...newMessageData,
