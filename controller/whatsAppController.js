@@ -260,7 +260,7 @@ const receiveMessageClient = async (
         BUSINESS_INFO,
       `*El mensaje del cliente es:
         ${finalMessageData.text}
-        *Elije un elemento de la lista que se adecue mejor como reaccion al mensaje:
+        *Elije un elemento de la lista que se adecue mejor como reaccion al mensaje tomando en cuenta la información del negocio:
         1.(el mensaje amerita una cara sonriente?,😄),
         2.(el mensaje amerita un saludo?,🤚)
         3.(el mensaje amerita una cara de enojo?,😠)
