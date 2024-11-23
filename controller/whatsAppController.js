@@ -260,7 +260,7 @@ const receiveMessageClient = async (
         BUSINESS_INFO,
       `*El mensaje del cliente es:
         ${finalMessageData.text}
-        *Elije uno de estos emojis para poner en el mensaje del cliente, solo si el contexto del mensaje corresponde al emoji:
+        *Elije un elemento de la lista que se adecue mejor como reaccion al mensaje:
         1.(sonrisa,😄),
         2.(saludo,🤚)
         3.(enojo,😠)
