@@ -267,10 +267,10 @@ const receiveMessageClient = async (
         4.(anotando o escribiendo,✍️)
         5.(lamento o confundido,😓),
         6.(okey o esta bien,👍)
-        *Si el mensaje no amerita un emoji, entonces no pongas nada
+        6.ninguno
         *EL esquema de JSON debe incluir":
         {
-          "emoji":"emoji(un emoji que vaya de acuerdo al mensaje si lo amerita)",
+          "emoji":"string(emoji)",
         }
         `,
       true
