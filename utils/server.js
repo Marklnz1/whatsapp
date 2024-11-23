@@ -70,6 +70,7 @@ module.exports.sendConfirmationMessage = async (
   try {
     const sendData = {
       messaging_product: "whatsapp",
+      recipient_type: "individual",
       status: "read",
       message_id: messageId,
     };
