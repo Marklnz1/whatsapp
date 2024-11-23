@@ -260,18 +260,11 @@ const receiveMessageClient = async (
         BUSINESS_INFO,
       `*El mensaje del cliente es:
         ${finalMessageData.text}
-        *Elije un elemento de la lista que se adecue mejor como reaccion al mensaje tomando en cuenta la información del negocio:
-        1.(el mensaje amerita una cara sonriente?,😄),
-        2.(el mensaje amerita un saludo?,🤚)
-        3.(el mensaje amerita una cara de enojo?,😠)
-        4.(el mensaje amerita una reaccion de escribiendo o anotando?,✍️)
-        5.(el mensaje amerita una reaccion de confundido o disculpas?,😓),
-        6.(el mensaje amerita una reaccion de esta bien o okey?,👍)
-        6.ninguno, no coincide ningun emoji
         *EL esquema de JSON debe incluir":
         {
-          "emoji":"string(emoji de la lista anterior)",
-          "message":"string(respuesta al mensaje segun la información del negocio)"
+          "message":"string(respuesta al mensaje segun la información del negocio)",
+          "emoji_message":"string((sonrisa,😄),(saludo,🤚),(enojo,😠),(escribiendo,✍️),(confuso,😓),(okey,👍), ninguna de las anteriores)",
+
         }
         `,
       true
