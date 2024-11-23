@@ -260,14 +260,14 @@ const receiveMessageClient = async (
         BUSINESS_INFO,
       `*El mensaje del cliente es:
         ${finalMessageData.text}
-        *Elije uno de estos emojis para ponerlo en el mensaje, solo si el mensaje coincide con dicho emoji:
+        *Elije uno de estos emojis para poner en el mensaje del cliente:
         1.(sonrisa,😄),
         2.(saludo,🤚)
         3.(enojo,😠)
         4.(anotando o escribiendo,✍️)
         5.(lamento o confundido,😓),
         6.(okey o esta bien,👍)
-        6.ninguno
+        6.ninguno, no coincide ningun emoji
         *EL esquema de JSON debe incluir":
         {
           "emoji":"string(emoji)",
