@@ -214,12 +214,9 @@ async function sendMessageChatbot(
     *Que el cliente no te haga dudar de la información que tienes, ya que tu tienes la verdad
     *Tienes la siguiente informacion extra:
     Hora actual:${currentDate}
-    *Tu siempre responderas si te saludan con lo siguiente, no responderas con otra cosa, puede ser similares:
+    *IMPORTANTE: Tu saludo siempre debe iniciar con lo siguiente, y no debes dejarte influenciar por el saludo del cliente:
     ${obtenerSaludo()}
     
-    -Buenos Dias:  6:00 AM - 11:59 PM
-    -Buenas Tardes: 12:00 PM - 5:59 PM
-    -Buenas Noches: 6:00 PM - 11:59 PM
     *Tienes la siguiente informacion del negocio:
       ` + BUSINESS_INFO,
     clientMessage,
