@@ -246,31 +246,64 @@ async function getChatbotForm(historial, clientMessage) {
   );
   const chatbotMessage = await generateChatBotMessage(
     [],
+    ``,
     `Eres un analizador de mensajes que responderá exclusivamente en formato JSON.
-      **Reglas clave**:
-      1. **Los nombres de los procesos válidos son los siguientes:** ${forms}.
-      2. **Un mensaje válido de afirmación del último mensaje del cliente puede contener lo siguiente o similares:**
-        - "Sí quiero"
-        - "Claro"
-        - "Procede"
-        - "Por supuesto"
-        - "Ok"
-        - Otros similares que indiquen afirmación explícita.
-      3. Si el mensaje del cliente **pide más información** o **no contiene una afirmación explícita sobre iniciar un proceso válido**, entonces debes devolver un proceso "null".
-      4. Solo analizarás el **último mensaje del cliente** para determinar si es una afirmación válida para iniciar un proceso.
 
-      **Formato del cuerpo del mensaje JSON:**
-      json
-      {
-        "ultimo_mensaje_usuario": string, 
-        "name": string, 
-        "razon": string
-      }
-   `,
-    `*Analizaras tomando en cuenta el ultimo mensaje del cliente, el cual es este:
-    ${clientMessage}    
-    El historial de la conversación para darte mas contexto es la siguiente, tambien contiene el ultimo mensaje del cliente que ya te menciones:
-     ${conversationString}
+    Reglas clave:
+
+    Los nombres de los procesos válidos son los siguientes: ${forms}.
+    Un mensaje válido de afirmación para iniciar un proceso debe contener explícitamente palabras o frases como:
+    "Sí quiero"
+    "Claro"
+    "Procede"
+    "Por supuesto"
+    "Ok"
+    Otras similares que expresen afirmación explícita.
+    Si el mensaje del cliente pide más información (por ejemplo, "Dame la lista de planes") o no contiene una afirmación explícita sobre iniciar un proceso válido, entonces:
+    El campo "name" debe ser null.
+    El campo "razon" debe explicar que el mensaje no contiene una afirmación válida para iniciar un proceso.
+    Solo analizarás el último mensaje del cliente para determinar si hay una afirmación válida. No harás inferencias basadas en el historial de la conversación.
+    Formato del cuerpo del mensaje JSON:
+    {
+    "ultimo_mensaje_usuario": string,
+    "name": string,
+    "razon": string
+    }
+
+    Comportamiento esperado:
+    El campo "ultimo_mensaje_usuario" contiene el último mensaje del cliente, sin modificaciones.
+    El campo "name" será el nombre del proceso válido (si y solo si el último mensaje es una afirmación explícita para iniciar el proceso). Si no hay afirmación explícita, este campo será null.
+    El campo "razon" explicará por qué elegiste un proceso o por qué devolviste null, y debe ser claro.
+    IMPORTANTE:
+
+    Solo tomarás en cuenta el último mensaje del cliente para determinar si hay una afirmación válida. Ignorarás cualquier inferencia del historial.
+    Un mensaje como "Dame la lista de planes" NO es una afirmación explícita. En este caso, el campo "name" debe ser null.
+    Ejemplo:
+    Historial de la conversación (JSON):
+    {
+    "conversation": [
+    {"usuario": "Quiero saber los planes de internet."},
+    {"sistema": "¿Deseas iniciar la solicitud para instalación de internet?"},
+    {"usuario": "Dame la lista de planes"}
+    ]
+    }
+
+    Último mensaje del cliente:
+    "Dame la lista de planes"
+
+    Respuesta JSON esperada:
+    {
+    "ultimo_mensaje_usuario": "Dame la lista de planes",
+    "name": null,
+    "razon": "El último mensaje del cliente ('Dame la lista de planes') no contiene una afirmación explícita para iniciar un proceso válido, sino que solicita más información."
+    }
+
+    Ahora analiza la siguiente conversación:
+    Historial de la conversación (JSON):
+    ${conversationString}
+
+    Último mensaje del cliente:
+    ${clientMessage}
    `,
     true
   );
