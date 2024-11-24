@@ -283,7 +283,8 @@ async function sendMessageChatbot(
     Hora actual:${currentHour}
     Fecha actual:${currentDate}
     *Tienes la siguiente informacion del negocio:
-    *IMPORTANTE:Si hay intencion de inciar algun proceso, pregunta si quiere realizarlo, o solo quiere informacion nomas. Si el cliente afirma que quiere iniciar algun proceso,tienes que especificar que iniciaras el proceso de forma breve sin detalles, solo nombrando el proceso, es mas no menciones la palabra proceso en tu respuesta, se mas humano:
+    *IMPORTANTE:Si hay intencion de inciar algun proceso, pregunta si quiere realizarlo, o solo quiere informacion nomas, siempre mencionando el nombre del proceso que esta en la siguiente lista. 
+    Si el cliente afirma que quiere iniciar algun proceso de la lista,tienes que especificar que iniciaras el proceso junto a su nombre declarado en la siguiente lista de forma breve sin detalles, solo nombrando el proceso, es mas no menciones la palabra proceso en tu respuesta, se mas humano:
     *IMPORTANTE: LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
     ${forms}
 
