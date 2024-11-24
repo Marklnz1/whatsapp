@@ -220,7 +220,7 @@ function obtenerSaludo() {
 async function getChatbotForm(historial, clientMessage) {
   let forms = "";
   let count = 0;
-  let conversation = [...historial];
+  let conversation = JSON.stringify([...historial]);
   conversation.push({ role: "user", content: clientMessage });
   for (const clave in chatbotForms) {
     if (chatbotForms.hasOwnProperty(clave)) {
