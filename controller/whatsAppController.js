@@ -7,10 +7,8 @@ const https = require("https");
 const { response } = require("express");
 const MessageStatus = require("../models/MessageStatus");
 const moment = require("moment-timezone");
-const chatbotForms = [
-  {
-    id: 0,
-    name: "Solicitud para instalación de internet",
+const chatbotForms = {
+  "Solicitud para instalación de internet": {
     fields: [
       {
         name: "DNI",
@@ -26,7 +24,7 @@ const chatbotForms = [
       },
     ],
   },
-];
+};
 const {
   sendWhatsappMessage,
   saveMediaClient,
@@ -221,9 +219,14 @@ function obtenerSaludo() {
 }
 async function getChatbotForm(historial, clientMessage) {
   let forms = "";
-  for (const f of chatbotForms) {
-    forms += "- id:" + f.id + ", nombre:" + f.name + "\n";
+  let count = 0;
+  for (const clave in chatbotForms) {
+    if (chatbotForms.hasOwnProperty(clave)) {
+      count++;
+      forms += `${count}.${clave}\n`;
+    }
   }
+
   console.log("Lista de forms ", forms);
   const chatbotMessage = await generateChatBotMessage(
     historial,
@@ -240,7 +243,7 @@ async function getChatbotForm(historial, clientMessage) {
     `${clientMessage}`,
     true
   );
-  return chatbotMessage;
+  return chatbotMessage.name;
 }
 async function sendMessageChatbot(
   historial,
@@ -255,89 +258,144 @@ async function sendMessageChatbot(
   // console.log("ES ", obtenerSaludo(), " español");
   let forms = "";
   let count = 0;
-  for (const f of chatbotForms) {
-    count++;
-    forms += `${count}. ${f.name}\n`;
-  }
-
-  const chatbotMessage = await generateChatBotMessage(
-    historial,
-    ` *Eres un asistente que a pesar que te hablen en otro idioma o pidan otro idioma, responderas en español, cada respuesta tuya sera en español,
-    atiende a un cliente de un negocio y respondes educadamente, si no hay nada para responder al cliente, solo finaliza la conversacion cordialmente
-    *Responderas de forma breve y concisa, para no abrumar de información al cliente
-    *Responderas solo en español
-    *Responderas solo en un formato de texto plano normal, nada de JSON,html u otros formatos.
-    *No respondas en formato tipo canciones,etc, que sea un mensaje de texto normal
-    *No respondas temas que estan fuera a la información del negocio, corta dichos temas de forma educada
-    *Que el cliente no te haga dudar de la información que tienes, ya que tu tienes la verdad
-    *Tienes la siguiente informacion extra:
-    Hora actual:${currentHour}
-    Fecha actual:${currentDate}
-    *IMPORTANTE:Si el cliente tiene intencion de iniciar algun proceso, pregunta si quiere realizarlo mencionando el nombre formal del proceso, no te inventes un nombre, ya que los nombres se especifican mas adelante, o solo quiere informacion nomas, siempre mencionando el nombre del proceso que esta en la siguiente lista. 
-    *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
-    ${forms}
-    *IMPORTANTE: Recharzar el inicio de cualquiero proceso que no este en la lista de procesos validos
-    *Tienes la siguiente informacion del negocio:   
-      ` + BUSINESS_INFO,
-    clientMessage,
-    false
-  );
-  const ress = await getChatbotForm(historial, clientMessage);
-  console.log("EL ID ES ", ress);
-  if (Math.random() < 0.5) {
-    const emoji = await generateChatBotMessage(
-      [],
-      ` *Eres un asistente que responde con un emoji unicode,
-      lo que haces es analizar un mensaje de usuario y un mensaje de respuesta, luego asignaras un emoji que aporte mayor emoción al mensaje de respuesta de acuerdo al mensaje de usuario,
-      la respuesta sera directa sin texto extra
-      usa emojis que no sean la tipica cara de siempre, sino varia como emojis de personas, etc, pero que vayan de acuerdo al analisis, no pongas cualquier cosa
-      `,
-      `mensaje de usuario:${clientMessage}
-        mensaje de respuesta: ${chatbotMessage}
-        ahora dame un emoji de acuerdo a tu analisis, pero solo dame 1, no mas`,
-
-      false
-    );
-
-    if (emoji || emoji != "void") {
-      sendReaction(
-        META_TOKEN,
-        businessPhoneId,
-        clientDB.wid,
-        clientMessageId,
-        emoji
-      );
+  for (const clave in chatbotForms) {
+    if (chatbotForms.hasOwnProperty(clave)) {
+      count++;
+      forms += `${count}.${clave}\n`;
     }
   }
+  const formName = await getChatbotForm(historial, clientMessage);
+  if (formName) {
+    clientDB.formProcess = formName;
+    await clientDB.save();
+    const currentForm = chatbotForms[formName];
 
-  const newMessage = new Message({
-    client: clientDB._id,
-    wid: null,
-    uuid: uuidv7(),
-    text: chatbotMessage,
-    sent: true,
-    read: false,
-    time: new Date(),
-    category: "text",
-    businessPhone,
-    sentStatus: "not_sent",
-  });
-  await newMessage.save();
-  const messageId = await sendWhatsappMessage(
-    META_TOKEN,
-    businessPhoneId,
-    clientDB.wid,
-    "text",
-    {
-      body: chatbotMessage,
-    },
-    newMessage._id,
-    clientMessageId
-  );
-  newMessage.wid = messageId;
-  newMessage.sentStatus = "send_requested";
-  await newMessage.save();
-  return newMessage;
+    const chatbotMessage = await generateChatBotMessage(
+      historial,
+      ` *Eres un asistente que a pesar que te hablen en otro idioma o pidan otro idioma, responderas en español, cada respuesta tuya sera en español,
+      atiende a un cliente de un negocio y respondes educadamente, si no hay nada para responder al cliente, solo finaliza la conversacion cordialmente
+      *Responderas de forma breve y concisa, para no abrumar de información al cliente
+      *Responderas solo en español
+      *Responderas solo en un formato de texto plano normal, nada de JSON,html u otros formatos.
+      *No respondas en formato tipo canciones,etc, que sea un mensaje de texto normal
+      *No respondas temas que estan fuera a la información del negocio, corta dichos temas de forma educada
+      *Que el cliente no te haga dudar de la información que tienes, ya que tu tienes la verdad
+      *Tienes la siguiente informacion extra:
+      Hora actual:${currentHour}
+      Fecha actual:${currentDate}
+      *IMPORTANTE:actualmente estas en un proceso de solicitud, en el cual pediras cordialmente la siguiente informacion:
+      nombre de campo: ${currentForm[0].name}
+      descripción: ${currentForm[0].description}
+      *Tienes la siguiente informacion del negocio:   
+        ` + BUSINESS_INFO,
+      clientMessage,
+      false
+    );
+    const newMessage = new Message({
+      client: clientDB._id,
+      wid: null,
+      uuid: uuidv7(),
+      text: chatbotMessage,
+      sent: true,
+      read: false,
+      time: new Date(),
+      category: "text",
+      businessPhone,
+      sentStatus: "not_sent",
+    });
+    await newMessage.save();
+    const messageId = await sendWhatsappMessage(
+      META_TOKEN,
+      businessPhoneId,
+      clientDB.wid,
+      "text",
+      {
+        body: chatbotMessage,
+      },
+      newMessage._id,
+      clientMessageId
+    );
+    newMessage.wid = messageId;
+    newMessage.sentStatus = "send_requested";
+    await newMessage.save();
+    return newMessage;
+  } else {
+    const chatbotMessage = await generateChatBotMessage(
+      historial,
+      ` *Eres un asistente que a pesar que te hablen en otro idioma o pidan otro idioma, responderas en español, cada respuesta tuya sera en español,
+      atiende a un cliente de un negocio y respondes educadamente, si no hay nada para responder al cliente, solo finaliza la conversacion cordialmente
+      *Responderas de forma breve y concisa, para no abrumar de información al cliente
+      *Responderas solo en español
+      *Responderas solo en un formato de texto plano normal, nada de JSON,html u otros formatos.
+      *No respondas en formato tipo canciones,etc, que sea un mensaje de texto normal
+      *No respondas temas que estan fuera a la información del negocio, corta dichos temas de forma educada
+      *Que el cliente no te haga dudar de la información que tienes, ya que tu tienes la verdad
+      *Tienes la siguiente informacion extra:
+      Hora actual:${currentHour}
+      Fecha actual:${currentDate}
+      *IMPORTANTE:Si el cliente tiene intencion de iniciar algun proceso, pregunta si quiere realizarlo mencionando el nombre formal del proceso, no te inventes un nombre, ya que los nombres se especifican mas adelante, o solo quiere informacion nomas, siempre mencionando el nombre del proceso que esta en la siguiente lista. 
+      *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
+      ${forms}
+      *IMPORTANTE: Recharzar el inicio de cualquiero proceso que no este en la lista de procesos validos
+      *Tienes la siguiente informacion del negocio:   
+        ` + BUSINESS_INFO,
+      clientMessage,
+      false
+    );
+    if (Math.random() < 0.5) {
+      const emoji = await generateChatBotMessage(
+        [],
+        ` *Eres un asistente que responde con un emoji unicode,
+        lo que haces es analizar un mensaje de usuario y un mensaje de respuesta, luego asignaras un emoji que aporte mayor emoción al mensaje de respuesta de acuerdo al mensaje de usuario,
+        la respuesta sera directa sin texto extra
+        usa emojis que no sean la tipica cara de siempre, sino varia como emojis de personas, etc, pero que vayan de acuerdo al analisis, no pongas cualquier cosa
+        `,
+        `mensaje de usuario:${clientMessage}
+          mensaje de respuesta: ${chatbotMessage}
+          ahora dame un emoji de acuerdo a tu analisis, pero solo dame 1, no mas`,
+
+        false
+      );
+
+      if (emoji || emoji != "void") {
+        sendReaction(
+          META_TOKEN,
+          businessPhoneId,
+          clientDB.wid,
+          clientMessageId,
+          emoji
+        );
+      }
+    }
+    const newMessage = new Message({
+      client: clientDB._id,
+      wid: null,
+      uuid: uuidv7(),
+      text: chatbotMessage,
+      sent: true,
+      read: false,
+      time: new Date(),
+      category: "text",
+      businessPhone,
+      sentStatus: "not_sent",
+    });
+    await newMessage.save();
+    const messageId = await sendWhatsappMessage(
+      META_TOKEN,
+      businessPhoneId,
+      clientDB.wid,
+      "text",
+      {
+        body: chatbotMessage,
+      },
+      newMessage._id,
+      clientMessageId
+    );
+    newMessage.wid = messageId;
+    newMessage.sentStatus = "send_requested";
+    await newMessage.save();
+    return newMessage;
+  }
 }
 // async function sendMessageChatbot2(
 //   clientDB,
@@ -467,13 +525,15 @@ const receiveMessageClient = async (
       recipientData.phoneNumber,
       recipientData.phoneNumberId
     );
-    io.emit(
-      "newMessage",
-      JSON.stringify({
-        client: clientDB,
-        message: newBotMessage,
-      })
-    );
+    if (newBotMessage) {
+      io.emit(
+        "newMessage",
+        JSON.stringify({
+          client: clientDB,
+          message: newBotMessage,
+        })
+      );
+    }
   }
 };
 

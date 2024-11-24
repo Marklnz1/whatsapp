@@ -15,7 +15,7 @@ const ClientSchema = new Schema(
     chatbot: Boolean,
     base64Profile: String,
     username: String,
-    conversationMode: String,
+    formProcess: { type: String, default: null },
   },
   { timestamps: true }
 );
