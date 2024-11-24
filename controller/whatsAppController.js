@@ -256,6 +256,10 @@ async function sendMessageChatbot(
   const currentHour = moment().tz("America/Lima").format("hh:mm A");
   const currentDate = moment().tz("America/Lima").format("DD/MM/YYYY");
   // console.log("ES ", obtenerSaludo(), " español");
+  let forms = "";
+  for (const f of chatbotForms) {
+    forms += `- ${f.activation}\n`;
+  }
 
   const chatbotMessage = await generateChatBotMessage(
     historial,
@@ -271,7 +275,14 @@ async function sendMessageChatbot(
     Hora actual:${currentHour}
     Fecha actual:${currentDate}
     *Tienes la siguiente informacion del negocio:
-      ` + BUSINESS_INFO,
+      ` +
+      BUSINESS_INFO +
+      `
+      Si el cliente quiere iniciar algun proceso, ya sea de instalacion, apreciacion, de cualquier tipo, tiene que encontrarse dentro de lo siguiente:
+      ${forms}
+      *si el cliente quiere iniciar un proceso que no existe en la lista, rechazar la solicitud cordialmente
+      *si el cliente quiere iniciar un proceso que existe, responder algo corto sin mayor informacion diciendole que se iniciara tal proceso o lo que sea que pida
+      `,
     clientMessage,
     false
   );
