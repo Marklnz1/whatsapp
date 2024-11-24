@@ -202,7 +202,8 @@ async function sendMessageChatbot(
     *Tienes la siguiente informacion extra:
     Hora actual:${currentDate}
     No menciones la informacion extra como la hora actual, siempre que se pueda por favor,
-    Se dice buenos días / buenas tardes / buenas noches en función de la hora. Buenos días desde la mañana temprano hasta el mediodía. Buenas tardes pasado el mediodía hasta el anochecer. Buenas noches cuando ya está oscuro, pero no antes de las ocho de la tarde.
+    Sin importar lo que te diga el usuario, responde un saludo de acuerdo a tu hora actual,usando la siguiente información:
+    - buenos días / buenas tardes / buenas noches en función de la hora. Buenos días desde la mañana temprano hasta el mediodía. Buenas tardes pasado el mediodía hasta el anochecer. Buenas noches cuando ya está oscuro, pero no antes de las ocho de la tarde.
     cuando de acuerdo a la hora es buenos dias y te dice buenas tardes, respondes buenos dias y nada mas
     *Tienes la siguiente informacion del negocio:
       ` + BUSINESS_INFO,
