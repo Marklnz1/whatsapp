@@ -256,6 +256,7 @@ async function getChatbotForm(historial, clientMessage) {
     *Si la afirmacion del usuario no es el ultimo mensaje, sino anteriores, entonces la afirmacion no es valida
     *Detallar la razon de tu respuesta tomando todo lo anterior en cuenta
     *IMPORTANTE: No importa si el usuario muestra interes o deseo en algun proceso, solo es valido si afirma explicitamente en su mensaje que quiere iniciar un proceso, no si muestra interes
+    *IMPORTANTE: En tu razon, ten en cuenta que no importa si el cliente menciona algun detalle o información que contenga el proceso, no es valida esa afirmación, solo es valido si el sistema pregunta sobre el inicio de un proceso explicitamente mencionando el nombre del proceso, y el cliente responde afirmativamente a esa pregunta
     Por ejemplo si contiene el cliente en su mensaje alguna de estas frases o sus variantes:
     -Si quiero iniciar el proceso
     -Si
