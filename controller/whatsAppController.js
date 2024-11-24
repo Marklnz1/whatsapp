@@ -200,8 +200,10 @@ async function sendMessageChatbot(
     *No respondas temas que estan fuera a la información del negocio, corta dichos temas de forma educada
     *Que el cliente no te haga dudar de la información que tienes, ya que tu tienes la verdad
     *Tienes la siguiente informacion extra:
-    Hora actual:${currentDate}  
-    La información extra se usa para mejorar tu respuesta, por ejemplo si te diche buenas noches y es tarde, tu respondes buenas tardes, y alguna frase encantador
+    Hora actual:${currentDate}
+    No menciones la informacion extra como la hora actual, siempre que se pueda por favor,
+    solo usala para mejorar tu respuesta, como cuando el cliente de dice buenas noches y es segun la hora de noche, tu respondes buenas tardes y nada mas
+    cuando de acuerdo a la hora es buenos dias y te dice buenas tardes, respondes buenos dias y nada mas
     *Tienes la siguiente informacion del negocio:
       ` + BUSINESS_INFO,
     clientMessage,
