@@ -241,7 +241,7 @@ async function sendMessageChatbot(
       `,
     `mensaje de usuario:${clientMessage}
         mensaje de respuesta: ${chatbotMessage}
-        ahora dame un emoji de acuerdo a tu analisis`,
+        ahora dame un emoji de acuerdo a tu analisis, pero solo dame 1, no mas`,
 
     false
   );
