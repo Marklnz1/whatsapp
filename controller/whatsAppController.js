@@ -223,7 +223,7 @@ async function getChatbotForm(responseMessage) {
   let forms =
     "id:-1,activacion:cuando no se cumple con ningun otra activacion devolver este";
   for (const f of chatbotForms) {
-    forms += `id:${f.id}, activación:${f.activation}\n`;
+    forms += "id:" + f.id + ", descripción:" + f.activation + "\n";
   }
   console.log(
     "Lista de forms ",
@@ -242,7 +242,7 @@ async function getChatbotForm(responseMessage) {
     Y similares
     *Si en el mensaje no indica el inicio de ningun proceso o formulario, devolver -1
     *Solo responderas con el id del formulario, sin texto extra de forma directa y junto al porque de esa decision
-    *La list de formularios es la siguiente con su nombre y descripcion
+    *La list de formularios es la siguiente con su id y descripcion
     ${forms}`,
     `*El mensaje que dio el sistema como respuesta que tienes que analizar es el siguiente:
     ${responseMessage}
