@@ -219,7 +219,7 @@ function obtenerSaludo() {
     return "Buenas Noches";
   }
 }
-async function getChatbotForm(responseMessage, historial, clientMessage) {
+async function getChatbotForm(historial, clientMessage) {
   let forms = "";
   for (const f of chatbotForms) {
     forms += "- id:" + f.id + ", nombre:" + f.name + "\n";
@@ -231,7 +231,7 @@ async function getChatbotForm(responseMessage, historial, clientMessage) {
     responseMessage
   );
   const chatbotMessage = await generateChatBotMessage(
-    [],
+    historial,
     `Eres un asistente que respondera en formato JSON
     Analizaras el mensaje del cliente, y si este afirma explicitamente el inicio de un proceso,devolveras lo siguiente:
     {
@@ -239,7 +239,7 @@ async function getChatbotForm(responseMessage, historial, clientMessage) {
     }
     *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
     ${forms}`,
-    `${responseMessage}`,
+    `${clientMessage}`,
     true
   );
   return chatbotMessage;
@@ -284,7 +284,7 @@ async function sendMessageChatbot(
     clientMessage,
     false
   );
-  const ress = await getChatbotForm(chatbotMessage, historial, clientMessage);
+  const ress = await getChatbotForm(historial, clientMessage);
   console.log("EL ID ES ", ress);
   if (Math.random() < 0.5) {
     const emoji = await generateChatBotMessage(
