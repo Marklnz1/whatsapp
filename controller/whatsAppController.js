@@ -220,6 +220,8 @@ function obtenerSaludo() {
 async function getChatbotForm(historial, clientMessage) {
   let forms = "";
   let count = 0;
+  let conversation = [...historial];
+  conversation.push({ role: "user", content: clientMessage });
   for (const clave in chatbotForms) {
     if (chatbotForms.hasOwnProperty(clave)) {
       count++;
@@ -229,23 +231,22 @@ async function getChatbotForm(historial, clientMessage) {
 
   console.log("Lista de forms ", forms);
   const chatbotMessage = await generateChatBotMessage(
-    historial,
-    `Eres un asistente que respondera en formato JSON
+    [],
+    `Eres un analizador de mensajes que respondera en formato JSON
      *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
     ${forms}
-    Analizaras el mensaje del cliente, y si este afirma explicitamente el inicio de un proceso , despues de que tu le preguntaras si quiere iniciar,devolveras lo siguiente:
-    *IMPORTANTE: Solo se analiza el ultimo mensaje del cliente, y que en ese ultima mensaje contenga afirmacion de inicio de algun proceso, 
-    no cuenta como razón si el cliente quiere solo preguntar, o si quiere mayor información, o pide información
-    Solo cuenta si el cliente esta afirmando que quiere iniciar el proceso
-
-    El cuerpo del mensaje json es el siguiente:
+    *Analizaras un historial de mensajes que se te brindara, es una conversación
+    *Analizaras si en el ultimo mensaje del sistema se tiene la pregunta de inicio de algun proceso que esta en la lista de procesos validos.
+    *Analizaras si los ultimos mensajes del usuario es un afirmación explicita al mensaje del sistema anterior
+    *Analizaras que si no cumple extrictamente lo anterior modificaras tu respuesta
+    *El cuerpo del mensaje json es el siguiente:
     {
-      message:string(respuesta para el cliente)
-      name:string(nombre de un proceso valido, si no hay entonces es null)
+      name:string(nombre del proceso valido al cual se hace referencia en el mensaje del sistema, si no hay entonces es null)
       razon:string(razon de porque elegiste algun proceso o porque pusiste null, este campo es obligatorio y diferente de null)
     }
    `,
-    `${clientMessage}`,
+    `Analizame la siguiente conversación que esta en formato JSON y dame la respuesta en JSON segun tus parametros:
+    ${conversation}`,
     true
   );
   return chatbotMessage.name;
