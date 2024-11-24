@@ -10,7 +10,7 @@ const moment = require("moment-timezone");
 const chatbotForms = [
   {
     id: 0,
-    activation: "Solicitud para instalación de internet",
+    name: "Solicitud para instalación de internet",
     fields: [
       {
         name: "DNI",
@@ -223,7 +223,7 @@ async function getChatbotForm(responseMessage) {
   let forms =
     "- id:-1,activacion:cuando no se cumple con ningun otra activacion devolver este\n";
   for (const f of chatbotForms) {
-    forms += "- id:" + f.id + ", nombre:" + f.activation + "\n";
+    forms += "- id:" + f.id + ", nombre:" + f.name + "\n";
   }
   console.log(
     "Lista de forms ",
@@ -263,8 +263,10 @@ async function sendMessageChatbot(
   const currentDate = moment().tz("America/Lima").format("DD/MM/YYYY");
   // console.log("ES ", obtenerSaludo(), " español");
   let forms = "";
+  let count = 0;
   for (const f of chatbotForms) {
-    forms += `- ${f.activation}\n`;
+    count++;
+    forms += `${count}. ${f.name}\n`;
   }
 
   const chatbotMessage = await generateChatBotMessage(
@@ -281,11 +283,11 @@ async function sendMessageChatbot(
     Hora actual:${currentHour}
     Fecha actual:${currentDate}
     *Tienes la siguiente informacion del negocio:
-    *IMPORTANTE: Si el cliente afirma que quiere iniciar algun proceso,tiene que especificar que iniciaras el proceso que correspondera a alguno de la siguiente lista, pero primero pregunta si quiere realizarlo, o solo quiere informacion nomas:
-      ${forms}
-      *IMPORTANTE: Una vez que el cliente confirma el inicio de proceso, responder de forma corta que tu iniciar dicho proceso y nada mas, un mensaje corto indicando lo que iniciaras y no des mas detalles de los pasos ni nada
-      *si el cliente quiere iniciar un proceso que no existe en la lista, rechazar la solicitud cordialmente
-      
+    *IMPORTANTE:Si hay intencion de inciar algun proceso, pregunta si quiere realizarlo, o solo quiere informacion nomas. Si el cliente afirma que quiere iniciar algun proceso,tienes que especificar que iniciaras el proceso de forma breve sin detalles, solo nombrando el proceso, es mas no menciones la palabra proceso en tu respuesta, se mas humano:
+    *IMPORTANTE: LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
+    ${forms}
+
+      *IMPORTANTE: Recharzar el inicio de cualquiero proceso que no este en la lista de procesos validos
       
       ` + BUSINESS_INFO,
     clientMessage,
