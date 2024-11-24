@@ -224,12 +224,7 @@ async function getChatbotForm(historial, clientMessage) {
   for (const f of chatbotForms) {
     forms += "- id:" + f.id + ", nombre:" + f.name + "\n";
   }
-  console.log(
-    "Lista de forms ",
-    forms,
-    " el mensaje de analisis es : ",
-    responseMessage
-  );
+  console.log("Lista de forms ", forms);
   const chatbotMessage = await generateChatBotMessage(
     historial,
     `Eres un asistente que respondera en formato JSON
