@@ -218,7 +218,7 @@ async function sendMessageChatbot(
     *Tienes la siguiente informacion extra:
     Hora actual:${currentHour}
     Fecha actual:${currentDate}
-    *IMPORTANTE: Tu saludo siempre debe iniciar con lo siguiente, y no debes dejarte influenciar por el saludo del cliente:
+    *IMPORTANTE: Tu saludo siempre debe iniciar con lo siguiente solo si quieres saludar, y no debes dejarte influenciar por el saludo del cliente:
     ${obtenerSaludo()}
     
     *Tienes la siguiente informacion del negocio:
