@@ -243,6 +243,9 @@ async function getChatbotForm(historial, clientMessage) {
     *Analizaras que si no cumple extrictamente lo anterior modificaras tu respuesta
     *El proceso no es valido si el usuario solo quiere información
     *El proceso no es valido si el sistema solo le esta ofreciendo información
+    *Incluso si en la conversacion el usuario afirmo el inicio de un proceso, solo toma en cuenta el ultimo mensaje del usuario, el cual si o si debe tener la afirmacion
+    *Si la afirmacion del usuario no es el ultimo mensaje, sino anteriores, entonces la afirmacion no es valida
+    *Detallar la razon de tu respuesta tomando todo lo anterior en cuenta
     *IMPORTANTE: No importa si el usuario muestra interes o deseo en algun proceso, solo es valido si afirma explicitamente en su mensaje que quiere iniciar un proceso, no si muestra interes
     Por ejemplo si contiene el cliente en su mensaje alguna de estas frases o sus variantes:
     -Si quiero iniciar el proceso
