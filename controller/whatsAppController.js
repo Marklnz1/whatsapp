@@ -235,6 +235,7 @@ async function getChatbotForm(responseMessage) {
     [],
     `*Eres un analisador de mensajes de respuesta que me devolvera un id o -1
     *IMPORTANTE: El mensaje debe decir claramente que iniciara alguno proceso o formulario
+    *IMPORTANTE: El mensaje tiene que ser una afirmacion de inicio de proceso, no una pregunta
     Ejemplos de que debe contener el mensaje:
     - Esta bien, iniciare con el proceso de ....
     - con gusto, rellene el formulario de ...
