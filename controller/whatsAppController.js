@@ -280,10 +280,10 @@ async function sendMessageChatbot(
     Hora actual:${currentHour}
     Fecha actual:${currentDate}
     *Tienes la siguiente informacion del negocio:
-    *IMPORTANTE: Si el cliente quiere iniciar algun proceso, ya sea contrarar u otros debes iniciar formalmente dicho proceso, especificando que iniciaras el proceso que correspondera a alguno de la siguiente lista:
+    *IMPORTANTE: Si el cliente quiere iniciar algun proceso,tiene que especificar que iniciaras el proceso que correspondera a alguno de la siguiente lista, pero primero pregunta si quiere realizarlo, o solo quiere informacion nomas:
       ${forms}
       *si el cliente quiere iniciar un proceso que no existe en la lista, rechazar la solicitud cordialmente
-      *si el cliente quiere iniciar un proceso que existe, responder algo corto sin mayor informacion diciendole que se iniciara tal proceso o lo que sea que pida
+      
       
       ` + BUSINESS_INFO,
     clientMessage,
