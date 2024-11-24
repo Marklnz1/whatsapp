@@ -224,12 +224,13 @@ async function getChatbotForm(responseMessage) {
   for (const f of chatbotForms) {
     forms += `id:${f.id}, activación:${f.activation}\n`;
   }
+  console.log("Lista de forms ", forms);
   const chatbotMessage = await generateChatBotMessage(
     [],
-    ` *Eres un asistente que me devolvera de la siguiente lista de formularios, un id de formulario
-    *Para que un formulario sea valido de elegir, el mensaje del usuario debe tener intenciones de iniciar dicho formulario de acuerdo al mensaje de activación de dicho formulario
+    ` *Eres un analisador de mensajes que me devolvera de la siguiente lista de formularios, un id de formulario
+    *Para que un formulario sea valido de elegir, el mensaje del sistema debe tener intenciones de iniciar dicho formulario de acuerdo al mensaje de activación de dicho formulario
     *Si ningun formulario cumple con la activación, responde con el numero negativo -1
-    *Solo responderas con el id del formulario, sin texto extra de forma directa
+    *Solo responderas con el id del formulario, sin texto extra de forma directa y junto al porque de esa decision
     La list de formularios es la siguiente con su nombre y descripcion
     ${forms}`,
     `*El mensaje de respuesta que tienes que analizar es el siguiente:
