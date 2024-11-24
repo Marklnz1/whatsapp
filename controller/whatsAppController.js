@@ -236,8 +236,9 @@ async function getChatbotForm(responseMessage) {
     ` *Eres un analisador de mensajes que me devolvera de la siguiente lista de formularios, un id de formulario
     *Para que un formulario sea valido de elegir, el mensaje del sistema debe tener intenciones de iniciar dicho formulario de acuerdo al mensaje de activación de dicho formulario
     *Si ningun formulario cumple con la activación, responde con el numero negativo -1
-    *Solo entrara en el formulario si explicitamente en el mensaje dice que iniciara dicho proceso, no si tene intenciones poco claras
     *Solo responderas con el id del formulario, sin texto extra de forma directa y junto al porque de esa decision
+    *IMPORTANTE: El mensaje debe decir claramente que iniciara alguno proceso o formulario, no vale si solo es intencional o mostrar informacion
+    tiene que ser explicito el mensaje de respuesta donde indica que iniciara dicho proceso, si no cumple eso, no cuenta
     La list de formularios es la siguiente con su nombre y descripcion
     ${forms}`,
     `*El mensaje que dio el sistema como respuesta que tienes que analizar es el siguiente:
