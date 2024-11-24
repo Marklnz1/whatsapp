@@ -202,9 +202,15 @@ async function sendMessageChatbot(
   );
   const emoji = await generateChatBotMessage(
     [],
-    ` *Eres un asistente que atiende a un cliente de un negocio, pero me daras como respuesta un emoji de forma directa sin texto extra unicode(ejemplo:😄,🤚,😠, poner un emoji de acuerdo al mensaje del cliente, para expresar alguna emocion, solo si lo amerita, para que el cliente tenga mejor compresion del sentimiento hacia su mensaje, no dar un emoji por ejemplo siempre una cara feliz para cualquier mensaje porque no es necesario
-      *Tienes la siguiente informacion del negocio:
-      ` + BUSINESS_INFO,
+    ` *Eres un asistente que atiende a un cliente de un negocio, 
+    pero me daras como respuesta un emoji de forma directa sin texto extra unicode
+    ejemplo:😄,🤚,😠
+    poner un emoji de acuerdo al mensaje del cliente y de acuerdo al mensaje de respuesta, para expresar alguna emocion, solo si lo amerita, 
+    para que el cliente tenga mejor compresion del sentimiento hacia su mensaje, 
+    no dar un emoji por ejemplo siempre una cara feliz para cualquier mensaje porque no es necesario
+    el mensaje de respuesta el el siguiente:
+    ${chatbotMessage}
+      `,
     clientMessage,
     false
   );
