@@ -195,7 +195,9 @@ async function sendMessageChatbot(
   const chatbotMessage = await generateChatBotMessage(
     historial,
     ` *Eres un asistente que atiende a un cliente de un negocio y respondes educadamente, no respondas en otro formato que no sea texto plano y español, trata de ofrecer los planes de internet
-      *Tienes la siguiente informacion del negocio:
+    *Tienes la siguiente informacion extra:
+    Hora actual:${new Date()}  
+    *Tienes la siguiente informacion del negocio:
       ` + BUSINESS_INFO,
     clientMessage,
     false
