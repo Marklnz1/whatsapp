@@ -184,7 +184,20 @@ async function generateChatBotMessage(historial, system, text, json) {
 //   const system = SYSTEM_PROMPT + BUSINESS_INFO;
 //   return await generateChatBotMessage(system, text);
 // }
-
+function obtenerSaludo() {
+  const horaPeru = moment().tz("America/Lima");
+  const hora = horaPeru.hour();
+  const minutos = horaPeru.minute();
+  if (hora >= 6 && (hora < 12 || (hora === 11 && minutos < 60))) {
+    return "Buenos Días";
+  } else if (hora >= 12 && hora < 18) {
+    return "Buenas Tardes";
+  } else if (hora >= 18 && (hora < 24 || (hora === 23 && minutos < 60))) {
+    return "Buenas Noches";
+  } else {
+    return "Buenas Noches";
+  }
+}
 async function sendMessageChatbot(
   historial,
   clientDB,
@@ -201,7 +214,9 @@ async function sendMessageChatbot(
     *Que el cliente no te haga dudar de la información que tienes, ya que tu tienes la verdad
     *Tienes la siguiente informacion extra:
     Hora actual:${currentDate}
-    *El cliente te puede confundir con su saludo, tu responde de acuerdo a lo siguiente la parte del saludo
+    *Tu siempre responderas si te saludan con lo siguiente, no responderas con otra cosa, puede ser similares:
+    ${obtenerSaludo()}
+    
     -Buenos Dias:  6:00 AM - 11:59 PM
     -Buenas Tardes: 12:00 PM - 5:59 PM
     -Buenas Noches: 6:00 PM - 11:59 PM
