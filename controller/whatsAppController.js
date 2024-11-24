@@ -220,7 +220,7 @@ function obtenerSaludo() {
   }
 }
 async function getChatbotForm(historial) {
-  const forms = "";
+  let forms = "";
   for (const f of chatbotForms) {
     forms += `id:${f.id}, activación:${f.activation}\n`;
   }
