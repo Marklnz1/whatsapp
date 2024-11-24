@@ -225,7 +225,7 @@ async function getChatbotForm(historial, clientMessage) {
   let conversationString = "Conversación que se tuvo:";
 
   for (const v of conversation) {
-    if (v.role == "assitant") {
+    if (v.role == "assistant") {
       conversationString += "-Sistema:\n";
       conversationString += " Mensaje:" + v.content + "\n";
     } else {
