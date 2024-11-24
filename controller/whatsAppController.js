@@ -219,7 +219,7 @@ function obtenerSaludo() {
     return "Buenas Noches";
   }
 }
-async function getChatbotForm(historial) {
+async function getChatbotForm(historial, clientMessage) {
   let forms = "";
   for (const f of chatbotForms) {
     forms += `id:${f.id}, activación:${f.activation}\n`;
@@ -251,7 +251,7 @@ async function sendMessageChatbot(
   const currentHour = moment().tz("America/Lima").format("hh:mm A");
   const currentDate = moment().tz("America/Lima").format("DD/MM/YYYY");
   console.log("ES ", obtenerSaludo(), " español");
-  const ress = await getChatbotForm(historial);
+  const ress = await getChatbotForm(historial, clientMessage);
   console.log("EL ID ES ", ress);
   const chatbotMessage = await generateChatBotMessage(
     historial,
