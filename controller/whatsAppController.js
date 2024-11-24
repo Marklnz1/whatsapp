@@ -229,7 +229,7 @@ async function getChatbotForm(historial, clientMessage) {
     }
   }
 
-  console.log("Lista de forms ", forms);
+  console.log("Lista de forms ", forms, "LA CONVERSACION ES :" + conversation);
   const chatbotMessage = await generateChatBotMessage(
     [],
     `Eres un analizador de mensajes que respondera en formato JSON
