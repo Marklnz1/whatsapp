@@ -202,15 +202,20 @@ async function sendMessageChatbot(
   );
   const emoji = await generateChatBotMessage(
     [],
-    ` *Eres un asistente que atiende a un cliente de un negocio, 
-    pero me daras como respuesta un emoji de forma directa sin texto extra unicode o la palabra void
-    ejemplo:😄,🤚,😠,void
-    poner un emoji de acuerdo al mensaje del cliente y de acuerdo al mensaje de respuesta, para expresar alguna emocion, pero de forma amigable y variada, 
-    poner void cuando el emoji no aporta nada o casi nada para expresar la respuesta del mensaje hacia el mensaje del cliente
-    *el mensaje de respuesta es:
-    ${chatbotMessage}
+    ` *Eres un asistente que responde con un emoji unicode o con la palabra "void" de acuerdo al usuario,
+    lo que haces es analizar un mensaje de usuario y un mensaje de respuesta, luego asignaras un emoji que aporte mayor emoción al mensaje de respuesta de acuerdo al mensaje de usuario,
+    solo si el emoji realmente aporta algo, de lo contrario responderas con la palabra "void"
+    la respuesta sera directa sin texto extra
+    ejemplo de respuesta:ejemplo:😄,🤚,😠
+    ejemplo de respuesta cuando no hay emoji:void
+ 
+   
+  
       `,
-    clientMessage,
+    `mensaje de usuario:${clientMessage}
+      mensaje de respuesta: ${chatbotMessage}
+      ahora dame un emoji o la palabra void sin texto extra de acuerdo a tu analisis`,
+
     false
   );
   // const emojiResponse = await generateChatBotMessage(
