@@ -124,7 +124,7 @@ module.exports.sendWhatsappMessage = async (
   category,
   messageData,
   biz_opaque_callback_data,
-  messageId
+  clientMessageId
 ) => {
   console.log("lo recibido " + biz_opaque_callback_data);
   biz_opaque_callback_data ??= "";
@@ -136,9 +136,9 @@ module.exports.sendWhatsappMessage = async (
     to: dstPhone,
     type: category,
   };
-  if (messageId) {
+  if (clientMessageId) {
     sendData.context = {
-      message_id: messageId,
+      message_id: clientMessageId,
     };
   }
   sendData[category] = messageData;
