@@ -237,12 +237,21 @@ async function getChatbotForm(historial, clientMessage) {
      *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
     ${forms}
     *Analizaras un historial de mensajes que se te brindara, es una conversación
+    *Analizaras dandole valor solo a los ultimos mensajes, osea empezaras del ultimo
     *Analizaras si en el ultimo mensaje del sistema se tiene la pregunta de inicio de algun proceso que esta en la lista de procesos validos.
     *Analizaras si los ultimos mensajes del usuario es un afirmación explicita al mensaje del sistema anterior
     *Analizaras que si no cumple extrictamente lo anterior modificaras tu respuesta
     *El proceso no es valido si el usuario solo quiere información
     *El proceso no es valido si el sistema solo le esta ofreciendo información
-    *IMPORTANTE: No importa si el usuario muestra interes en algun proceso, solo es valido si afirma explicitamente en su mensaje que quiere iniciar un proceso, no si muestra interes
+    *IMPORTANTE: No importa si el usuario muestra interes o deseo en algun proceso, solo es valido si afirma explicitamente en su mensaje que quiere iniciar un proceso, no si muestra interes
+    Por ejemplo si contiene el cliente en su mensaje alguna de estas frases o sus variantes:
+    -Si quiero iniciar el proceso
+    -Si
+    -Por supuesto
+    -Ok
+    -Esta bien
+    -Adelante
+    -etc
     *El cuerpo del mensaje json es el siguiente:
     {
       name:string(nombre del proceso valido al cual se hace referencia en el mensaje del sistema, si no hay entonces es null)
