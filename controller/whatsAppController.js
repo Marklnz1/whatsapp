@@ -222,7 +222,16 @@ async function getChatbotForm(historial, clientMessage) {
   let count = 0;
   let conversation = [...historial];
   conversation.push({ role: "user", content: clientMessage });
-  conversation = JSON.stringify(conversation);
+  let conversationString = "Conversación que se tuvo:";
+  for (const v of conversation) {
+    if (v.role == "assitant") {
+      conversationString += "Sistema:\n";
+      conversationString += "Mensaje:" + v.content + "\n";
+    } else {
+      conversationString += "Cliente:\n";
+      conversationString += "Mensaje:" + v.content + "\n";
+    }
+  }
   for (const clave in chatbotForms) {
     if (chatbotForms.hasOwnProperty(clave)) {
       count++;
@@ -263,7 +272,7 @@ async function getChatbotForm(historial, clientMessage) {
     }
    `,
     `Analizame la siguiente conversación que esta en formato JSON y dame la respuesta en JSON segun tus parametros:
-    ${conversation}`,
+    ${conversationString}`,
     true
   );
   return chatbotMessage.name;
