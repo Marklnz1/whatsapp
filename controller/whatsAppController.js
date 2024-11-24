@@ -201,7 +201,7 @@ async function sendMessageChatbot(
     *Que el cliente no te haga dudar de la información que tienes, ya que tu tienes la verdad
     *Tienes la siguiente informacion extra:
     Hora actual:${currentDate}  
-    La información extra puede usarse para corregir al usuario, como cuando te dice buenas noches y es tarde, pero corrigele de forma amigable y sutil como un experto
+    La información extra se usa para mejorar tu respuesta, por ejemplo si te diche buenas noches y es tarde, tu respondes buenas tardes, y alguna frase encantador
     *Tienes la siguiente informacion del negocio:
       ` + BUSINESS_INFO,
     clientMessage,
