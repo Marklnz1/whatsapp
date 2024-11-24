@@ -226,11 +226,11 @@ async function getChatbotForm(historial, clientMessage) {
 
   for (const v of conversation) {
     if (v.role == "assitant") {
-      conversationString += "Sistema:\n";
-      conversationString += "Mensaje:" + v.content + "\n";
+      conversationString += "-Sistema:\n";
+      conversationString += " Mensaje:" + v.content + "\n";
     } else {
-      conversationString += "Cliente:\n";
-      conversationString += "Mensaje:" + v.content + "\n";
+      conversationString += "-Cliente:\n";
+      conversationString += " Mensaje:" + v.content + "\n";
     }
   }
   for (const clave in chatbotForms) {
@@ -240,13 +240,17 @@ async function getChatbotForm(historial, clientMessage) {
     }
   }
 
-  console.log("Lista de forms ", forms, "LA CONVERSACION ES :" + conversation);
+  console.log(
+    "Lista de forms ",
+    forms,
+    "LA CONVERSACION ES :" + conversationString
+  );
   const chatbotMessage = await generateChatBotMessage(
     [],
     `Eres un analizador de mensajes que respondera en formato JSON
      *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
     ${forms}
- 
+    
     *El cuerpo del mensaje json es el siguiente:
     {
       name:string(nombre del proceso valido al cual se hace referencia en el mensaje del sistema, si no hay entonces es null),
@@ -256,11 +260,21 @@ async function getChatbotForm(historial, clientMessage) {
    `,
     `*Analizaras tomando en cuenta el ultimo mensaje del cliente, el cual es este:
     ${clientMessage}
+    *no importa el interes del usuario, tiene que ser una afirmación
+    por ejemplo el mensaje del cliente puede contener lo siguiente o similares:
+    1. Si quiero
+    2. claro
+    3. Procede
+    4. Por supuesto
+    5. Ok
+    6.etc
     *Solo me daras el nombre del proceso si en el ultimo mensaje, el cliente afirma explicitamente que quiere iniciar un proceso que es valido segun tus parametros
     *Un proceso sera valido solo si la ultima respuesta del cliente es una afirmación valida para la pregunta de inicio de proceso que realizo el sistema
     *IMPORTANTE: Cabe resaltar que solo es valida la ultima respuesta del cliente que ya se menciono anteriormente
+    El historial de la conversación para darte mas contexto es la siguiente, tambien contiene el ultimo mensaje del cliente que ya te menciones:
+     ${conversationString}
     Analizame la siguiente conversación que esta en formato JSON y dame la respuesta en JSON segun tus parametros:
-    ${conversationString}`,
+   `,
     true
   );
   return chatbotMessage.name;
