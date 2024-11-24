@@ -221,7 +221,6 @@ async function getChatbotForm(historial, clientMessage) {
   let forms = "";
   let count = 0;
   let conversation = [...historial];
-  conversation.push({ role: "user", content: clientMessage });
   let conversationString = "Conversación que se tuvo:";
 
   for (const v of conversation) {
@@ -247,34 +246,31 @@ async function getChatbotForm(historial, clientMessage) {
   );
   const chatbotMessage = await generateChatBotMessage(
     [],
-    `Eres un analizador de mensajes que respondera en formato JSON
-     *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
-    ${forms}
-    *Si el mensaje del cliente es que quiere mas información entonces no es valida la respuesta como afirmación
-    *IMPORTANTE: Un mensaje valido de afirmación del ultimo mensaje del cliente puede contener lo siguiente o similares:
-    1. Si quiero
-    2. claro
-    3. Procede
-    4. Por supuesto
-    5. Ok
-    6.etc
-    *Solo me daras el nombre del proceso si en el ultimo mensaje, el cliente afirma explicitamente que quiere iniciar un proceso que es valido segun tus parametros
-    *Un proceso sera valido solo si la ultima respuesta del cliente es una afirmación valida para la pregunta de inicio de proceso que realizo el sistema
-    *IMPORTANTE: Cabe resaltar que solo es valida la ultima respuesta del cliente que ya se menciono anteriormente
-    *El cuerpo del mensaje json es el siguiente:
-    {
-      ultimo_mensaje_usuario:string(El ultimo mensaje del usuario, el cual estas analizando),
-      name:string(nombre del proceso el cual tras el analisis del ultimo mensaje,se tomo como respuesta ya que el cliente afirmo explicitamente que si quiere iniciar el proceso, la razon de esta eleccion esta en el campo razon),
-      razon:string(razon de porque elegiste algun proceso o porque pusiste null, este campo es obligatorio y diferente de null)
-    }
+    `Eres un analizador de mensajes que responderá exclusivamente en formato JSON.
+      **Reglas clave**:
+      1. **Los nombres de los procesos válidos son los siguientes:** ${forms}.
+      2. **Un mensaje válido de afirmación del último mensaje del cliente puede contener lo siguiente o similares:**
+        - "Sí quiero"
+        - "Claro"
+        - "Procede"
+        - "Por supuesto"
+        - "Ok"
+        - Otros similares que indiquen afirmación explícita.
+      3. Si el mensaje del cliente **pide más información** o **no contiene una afirmación explícita sobre iniciar un proceso válido**, entonces debes devolver un proceso "null".
+      4. Solo analizarás el **último mensaje del cliente** para determinar si es una afirmación válida para iniciar un proceso.
+
+      **Formato del cuerpo del mensaje JSON:**
+      json
+      {
+        "ultimo_mensaje_usuario": string, 
+        "name": string, 
+        "razon": string
+      }
    `,
     `*Analizaras tomando en cuenta el ultimo mensaje del cliente, el cual es este:
-    ${clientMessage}
-    *no importa el interes del usuario, tiene que ser una afirmación
-    
+    ${clientMessage}    
     El historial de la conversación para darte mas contexto es la siguiente, tambien contiene el ultimo mensaje del cliente que ya te menciones:
      ${conversationString}
-    Analizame la siguiente conversación que esta en formato JSON y dame la respuesta en JSON segun tus parametros:
    `,
     true
   );
