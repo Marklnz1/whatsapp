@@ -228,9 +228,10 @@ async function getChatbotForm(historial, clientMessage) {
   const chatbotMessage = await generateChatBotMessage(
     historial,
     `Eres un asistente que respondera en formato JSON
-    Analizaras el mensaje del cliente, y si este afirma explicitamente el inicio de un proceso,devolveras lo siguiente:
+    Analizaras el mensaje del cliente, y si este afirma explicitamente el inicio de un proceso, despues de que tu le preguntaras si quiere iniciar, caso contrario no devolver un proceso osea null,devolveras lo siguiente:
     {
       name:string(nombre de un proceso valido, si no hay entonces devolver null)
+      razon:string(razon de porque escogiste dicho proceso)
     }
     *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
     ${forms}`,
