@@ -1,6 +1,5 @@
 const Client = require("../models/Client");
 const Message = require("../models/Message");
-const { sendWhatsappMessage } = require("../utils/server");
 const BUSINESS_PHONE = process.env.BUSINESS_PHONE;
 const PHONE_ID = process.env.PHONE_ID;
 

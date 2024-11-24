@@ -194,17 +194,16 @@ async function sendMessageChatbot(
 ) {
   const emojiResponse = await generateChatBotMessage(
     historial,
-    "*Eres un asistente que atiende a un cliente de un negocio y respondes en JSON, tienes la siguiente informacion del negocio:\n" +
-      BUSINESS_INFO,
-    `*El mensaje del cliente es:
-      ${clientMessage}
+    ` *Eres un asistente que atiende a un cliente de un negocio y respondes en JSON:
       *EL esquema de JSON debe incluir":
       {
-        "message":"string(respuesta al mensaje segun la información del negocio)",
+        "message":"string(respuesta al mensaje del cliente segun la información del negocio)",
         "emoji_message":"string emoji unicode(ejemplo:😄,🤚,😠, poner un emoji de acuerdo al mensaje del cliente, para expresar alguna emocion, solo si lo amerita, para que el cliente tenga mejor compresion del sentimiento de la respuesta, no responder por ejemplo siempre una cara feliz para cualquier mensaje porque no es necesario",
 
       }
-      `,
+      *Tienes la siguiente informacion del negocio:
+      ` + BUSINESS_INFO,
+    clientMessage,
     true
   );
   const responseBot = JSON.parse(emojiResponse);
