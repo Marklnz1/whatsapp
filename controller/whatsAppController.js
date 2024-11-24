@@ -232,7 +232,7 @@ async function sendMessageChatbot(
   // const chatbotMessage = responseBot.message;
   // console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
 
-  if (emoji || emoji != "null") {
+  if (emoji || emoji != "void") {
     sendReaction(
       META_TOKEN,
       businessPhoneId,
