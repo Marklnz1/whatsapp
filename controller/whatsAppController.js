@@ -219,7 +219,7 @@ async function sendMessageChatbot(
     Hora actual:${currentHour}
     Fecha actual:${currentDate}
     *IMPORTANTE: La unica frase de saludo que usaras sera la siguiente, no uses otro tipo de saludo, ni copies al cliente:
-    ${obtenerSaludo()}
+    -"${obtenerSaludo()}"
     
     *Tienes la siguiente informacion del negocio:
       ` + BUSINESS_INFO,
