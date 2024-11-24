@@ -136,10 +136,10 @@ module.exports.sendWhatsappMessage = async (
     to: dstPhone,
     type: category,
   };
-  if(messageId){
-    sendData.context= {
+  if (messageId) {
+    sendData.context = {
       message_id: messageId,
-    },
+    };
   }
   sendData[category] = messageData;
   const response = await axios({
