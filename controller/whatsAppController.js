@@ -200,6 +200,13 @@ async function sendMessageChatbot(
     clientMessage,
     false
   );
+  const emoji = await generateChatBotMessage(
+    ` *Eres un asistente que atiende a un cliente de un negocio, pero me daras como respuesta un emoji de forma directa sin texto extra unicode(ejemplo:😄,🤚,😠, poner un emoji de acuerdo al mensaje del cliente, para expresar alguna emocion, solo si lo amerita, para que el cliente tenga mejor compresion del sentimiento hacia su mensaje, no dar un emoji por ejemplo siempre una cara feliz para cualquier mensaje porque no es necesario
+      *Tienes la siguiente informacion del negocio:
+      ` + BUSINESS_INFO,
+    clientMessage,
+    false
+  );
   // const emojiResponse = await generateChatBotMessage(
   //   historial,
   //   ` *Eres un asistente que atiende a un cliente de un negocio y respondes en JSON:
@@ -219,15 +226,15 @@ async function sendMessageChatbot(
   // const chatbotMessage = responseBot.message;
   // console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
 
-  // if (emoji) {
-  //   sendReaction(
-  //     META_TOKEN,
-  //     businessPhoneId,
-  //     clientDB.wid,
-  //     clientMessageId,
-  //     emoji
-  //   );
-  // }
+  if (emoji) {
+    sendReaction(
+      META_TOKEN,
+      businessPhoneId,
+      clientDB.wid,
+      clientMessageId,
+      emoji
+    );
+  }
   const newMessage = new Message({
     client: clientDB._id,
     wid: null,
