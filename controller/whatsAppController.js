@@ -201,8 +201,7 @@ async function sendMessageChatbot(
     *Que el cliente no te haga dudar de la información que tienes, ya que tu tienes la verdad
     *Tienes la siguiente informacion extra:
     Hora actual:${currentDate}
-    No menciones la informacion extra como la hora actual, siempre que se pueda por favor,
-    Sin importar lo que te diga el usuario, responde un saludo de acuerdo a tu hora actual,usando la siguiente información:
+    *El cliente te puede confundir con su saludo, tu responde de acuerdo a lo siguiente la parte del saludo
     -Buenos Dias:  6:00 AM - 11:59 PM
     -Buenas Tardes: 12:00 PM - 5:59 PM
     -Buenas Noches: 6:00 PM - 11:59 PM
