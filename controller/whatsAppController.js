@@ -230,47 +230,32 @@ async function sendMessageChatbot(
     clientMessage,
     false
   );
-  const emoji = await generateChatBotMessage(
-    [],
-    ` *Eres un asistente que responde con un emoji unicode,
-    lo que haces es analizar un mensaje de usuario y un mensaje de respuesta, luego asignaras un emoji que aporte mayor emoción al mensaje de respuesta de acuerdo al mensaje de usuario,
-    la respuesta sera directa sin texto extra
-    usa emojis que no sean la tipica cara de siempre, sino varia como emojis de personas, etc, pero que vayan de acuerdo al analisis, no pongas cualquier cosa
-    `,
-    `mensaje de usuario:${clientMessage}
-      mensaje de respuesta: ${chatbotMessage}
-      ahora dame un emoji de acuerdo a tu analisis`,
+  if (Math.random() < 0.3) {
+    const emoji = await generateChatBotMessage(
+      [],
+      ` *Eres un asistente que responde con un emoji unicode,
+      lo que haces es analizar un mensaje de usuario y un mensaje de respuesta, luego asignaras un emoji que aporte mayor emoción al mensaje de respuesta de acuerdo al mensaje de usuario,
+      la respuesta sera directa sin texto extra
+      usa emojis que no sean la tipica cara de siempre, sino varia como emojis de personas, etc, pero que vayan de acuerdo al analisis, no pongas cualquier cosa
+      `,
+      `mensaje de usuario:${clientMessage}
+        mensaje de respuesta: ${chatbotMessage}
+        ahora dame un emoji de acuerdo a tu analisis`,
 
-    false
-  );
-  // const emojiResponse = await generateChatBotMessage(
-  //   historial,
-  //   ` *Eres un asistente que atiende a un cliente de un negocio y respondes en JSON:
-  //     *EL esquema de JSON debe incluir":
-  //     {
-  //       "message":"string(respuesta al mensaje del cliente segun la información del negocio)",
-  //       "emoji_message":"string emoji unicode(ejemplo:😄,🤚,😠, poner un emoji de acuerdo al mensaje del cliente, para expresar alguna emocion, solo si lo amerita, para que el cliente tenga mejor compresion del sentimiento de la respuesta, no responder por ejemplo siempre una cara feliz para cualquier mensaje porque no es necesario",
-
-  //     }
-  //     *Tienes la siguiente informacion del negocio:
-  //     ` + BUSINESS_INFO,
-  //   clientMessage,
-  //   true
-  // );
-  // const responseBot = JSON.parse(emojiResponse);
-  // const emoji = responseBot.emoji_message;
-  // const chatbotMessage = responseBot.message;
-  // console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
-
-  if (emoji || emoji != "void") {
-    sendReaction(
-      META_TOKEN,
-      businessPhoneId,
-      clientDB.wid,
-      clientMessageId,
-      emoji
+      false
     );
+
+    if (emoji || emoji != "void") {
+      sendReaction(
+        META_TOKEN,
+        businessPhoneId,
+        clientDB.wid,
+        clientMessageId,
+        emoji
+      );
+    }
   }
+
   const newMessage = new Message({
     client: clientDB._id,
     wid: null,
