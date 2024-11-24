@@ -208,7 +208,7 @@ async function sendMessageChatbot(
 ) {
   const currentHour = moment().tz("America/Lima").format("hh:mm A");
   const currentDate = moment().tz("America/Lima").format("DD/MM/YYYY");
-
+  console.log("ES ", obtenerSaludo());
   const chatbotMessage = await generateChatBotMessage(
     historial,
     ` *Eres un asistente que atiende a un cliente de un negocio y respondes educadamente, no respondas en otro formato que no sea texto plano y español, trata de ofrecer los planes de internet
