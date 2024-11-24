@@ -234,9 +234,12 @@ async function getChatbotForm(historial, clientMessage) {
      *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
     ${forms}
     Analizaras el mensaje del cliente, y si este afirma explicitamente el inicio de un proceso , despues de que tu le preguntaras si quiere iniciar,devolveras lo siguiente:
-    *IMPORTANTE: Solo se analiza el ultimo mensaje del cliente, y que en ese ultima mensaje contenga afirmacion de inicio de algun proceso, no cuenta si el cliente quiere solo preguntar u otra cosa
+    *IMPORTANTE: Solo se analiza el ultimo mensaje del cliente, y que en ese ultima mensaje contenga afirmacion de inicio de algun proceso, 
+    no cuenta como razón si el cliente quiere solo preguntar, o si quiere mayor información, o pide información
+    Solo cuenta si el cliente esta afirmando que quiere iniciar el proceso
+
+    El cuerpo del mensaje json es el siguiente:
     {
-      message:string(respuesta para el cliente)
       name:string(nombre de un proceso valido, si no hay entonces es null)
       razon:string(razon de porque escogiste dicho proceso, si no hay entonces es null)
     }
