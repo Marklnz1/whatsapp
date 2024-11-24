@@ -192,34 +192,42 @@ async function sendMessageChatbot(
   businessPhone,
   businessPhoneId
 ) {
-  const emojiResponse = await generateChatBotMessage(
+  const chatbotMessage = await generateChatBotMessage(
     historial,
-    ` *Eres un asistente que atiende a un cliente de un negocio y respondes en JSON:
-      *EL esquema de JSON debe incluir":
-      {
-        "message":"string(respuesta al mensaje del cliente segun la información del negocio)",
-        "emoji_message":"string emoji unicode(ejemplo:😄,🤚,😠, poner un emoji de acuerdo al mensaje del cliente, para expresar alguna emocion, solo si lo amerita, para que el cliente tenga mejor compresion del sentimiento de la respuesta, no responder por ejemplo siempre una cara feliz para cualquier mensaje porque no es necesario",
-
-      }
+    ` *Eres un asistente que atiende a un cliente de un negocio y respondes educadamente, no respondas en otro formato que no sea texto plano y español, trata de ofrecer los planes de internet
       *Tienes la siguiente informacion del negocio:
       ` + BUSINESS_INFO,
     clientMessage,
-    true
+    false
   );
-  const responseBot = JSON.parse(emojiResponse);
-  const emoji = responseBot.emoji_message;
-  const chatbotMessage = responseBot.message;
-  console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
+  // const emojiResponse = await generateChatBotMessage(
+  //   historial,
+  //   ` *Eres un asistente que atiende a un cliente de un negocio y respondes en JSON:
+  //     *EL esquema de JSON debe incluir":
+  //     {
+  //       "message":"string(respuesta al mensaje del cliente segun la información del negocio)",
+  //       "emoji_message":"string emoji unicode(ejemplo:😄,🤚,😠, poner un emoji de acuerdo al mensaje del cliente, para expresar alguna emocion, solo si lo amerita, para que el cliente tenga mejor compresion del sentimiento de la respuesta, no responder por ejemplo siempre una cara feliz para cualquier mensaje porque no es necesario",
 
-  if (emoji) {
-    sendReaction(
-      META_TOKEN,
-      businessPhoneId,
-      clientDB.wid,
-      clientMessageId,
-      emoji
-    );
-  }
+  //     }
+  //     *Tienes la siguiente informacion del negocio:
+  //     ` + BUSINESS_INFO,
+  //   clientMessage,
+  //   true
+  // );
+  // const responseBot = JSON.parse(emojiResponse);
+  // const emoji = responseBot.emoji_message;
+  // const chatbotMessage = responseBot.message;
+  // console.log("LA RESPUESTA ES=> ", JSON.parse(emojiResponse));
+
+  // if (emoji) {
+  //   sendReaction(
+  //     META_TOKEN,
+  //     businessPhoneId,
+  //     clientDB.wid,
+  //     clientMessageId,
+  //     emoji
+  //   );
+  // }
   const newMessage = new Message({
     client: clientDB._id,
     wid: null,
