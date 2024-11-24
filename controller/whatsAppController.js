@@ -224,7 +224,12 @@ async function getChatbotForm(responseMessage) {
   for (const f of chatbotForms) {
     forms += `id:${f.id}, activación:${f.activation}\n`;
   }
-  console.log("Lista de forms ", forms);
+  console.log(
+    "Lista de forms ",
+    forms,
+    " el mensaje de analisis es : ",
+    responseMessage
+  );
   const chatbotMessage = await generateChatBotMessage(
     [],
     ` *Eres un analisador de mensajes que me devolvera de la siguiente lista de formularios, un id de formulario
@@ -233,7 +238,7 @@ async function getChatbotForm(responseMessage) {
     *Solo responderas con el id del formulario, sin texto extra de forma directa y junto al porque de esa decision
     La list de formularios es la siguiente con su nombre y descripcion
     ${forms}`,
-    `*El mensaje de respuesta que tienes que analizar es el siguiente:
+    `*El mensaje que dio el sistema como respuesta que tienes que analizar es el siguiente:
     ${responseMessage}
     ahora dime que id de formulario corresponde a dicho mensaje para activar el proceso de algun formulario, de forma directa y agregale el porque de esa respuesta`,
     false
