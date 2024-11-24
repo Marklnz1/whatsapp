@@ -239,6 +239,8 @@ async function getChatbotForm(historial, clientMessage) {
     *Analizaras si en el ultimo mensaje del sistema se tiene la pregunta de inicio de algun proceso que esta en la lista de procesos validos.
     *Analizaras si los ultimos mensajes del usuario es un afirmación explicita al mensaje del sistema anterior
     *Analizaras que si no cumple extrictamente lo anterior modificaras tu respuesta
+    *El proceso no es valido si el usuario solo quiere información
+    *El proceso no es valido si el sistema solo le esta ofreciendo información
     *El cuerpo del mensaje json es el siguiente:
     {
       name:string(nombre del proceso valido al cual se hace referencia en el mensaje del sistema, si no hay entonces es null)
