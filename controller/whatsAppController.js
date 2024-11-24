@@ -253,8 +253,8 @@ async function getChatbotForm(historial, clientMessage) {
     
     *El cuerpo del mensaje json es el siguiente:
     {
-      name:string(nombre del proceso valido al cual se hace referencia en el mensaje del sistema, si no hay entonces es null),
       ultimo_mensaje_usuario:string(El ultimo mensaje del usuario, el cual estas analizando),
+      name:string(nombre del proceso el cual tras el analisis se tomo como respuesta, la razon de esta eleccion esta en el campo razon),
       razon:string(razon de porque elegiste algun proceso o porque pusiste null, este campo es obligatorio y diferente de null)
     }
    `,
