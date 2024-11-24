@@ -234,8 +234,12 @@ async function getChatbotForm(responseMessage) {
   const chatbotMessage = await generateChatBotMessage(
     [],
     `*Eres un analisador de mensajes que me devolvera de la siguiente lista de formularios, un id de formulario
-    *IMPORTANTE: El mensaje debe decir claramente que iniciara alguno proceso o formulario, no vale si solo es intencional o mostrar informacion
-      tiene que ser explicito el mensaje de respuesta donde indica que iniciara dicho proceso, si no cumple eso, no cuenta
+    *IMPORTANTE: El mensaje debe decir claramente que iniciara alguno proceso o formulario
+    Ejemplos de que debe contener el mensaje para activar algun proceso:
+    - Esta bien, iniciare con el proceso de ....
+    - con gusto, rellene el formulario de ...
+    - Entonces comenzare con el proceso de ...
+    Y similares
     *Si en el mensaje no indica el inicio de ningun proceso o formulario, devolver -1
     *Solo responderas con el id del formulario, sin texto extra de forma directa y junto al porque de esa decision
     *La list de formularios es la siguiente con su nombre y descripcion
