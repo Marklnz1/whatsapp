@@ -7,6 +7,26 @@ const https = require("https");
 const { response } = require("express");
 const MessageStatus = require("../models/MessageStatus");
 const moment = require("moment-timezone");
+const chatbotForms = [
+  {
+    id: 0,
+    activation: "Solicitud para instalación de internet",
+    fields: [
+      {
+        name: "DNI",
+        description: "identificación que cuenta con 8 numeros",
+      },
+      {
+        name: "Plan de internet",
+        description: "El plan de internet que quiere el cliente contratar",
+      },
+      {
+        name: "Dirección de domicilio",
+        description: "La direccion del cliente",
+      },
+    ],
+  },
+];
 const {
   sendWhatsappMessage,
   saveMediaClient,
@@ -199,6 +219,26 @@ function obtenerSaludo() {
     return "Buenas Noches";
   }
 }
+async function getChatbotForm() {
+  const forms = "";
+  for (const f of chatbotForms) {
+    forms += `id:${f.id}, activación:${f.activation}\n`;
+  }
+  const chatbotMessage = await generateChatBotMessage(
+    [],
+    ` *Eres un asistente que me devolvera de la siguiente lista de formularios, un id de formulario
+    *Para que un formulario sea valido de elegir, el mensaje del usuario debe tener intenciones de iniciar dicho formulario de acuerdo al mensaje de activación de dicho formulario
+    *Si ningun formulario cumple con la activación, responde con el numero negativo -1
+    *Solo responderas con el id del formulario, sin texto extra de forma directa
+    La list de formularios es la siguiente con su nombre y descripcion
+    ${forms}
+    *Tienes la siguiente informacion del negocio:
+      ` + BUSINESS_INFO,
+    clientMessage,
+    false
+  );
+  return chatbotMessage;
+}
 async function sendMessageChatbot(
   historial,
   clientDB,
@@ -210,6 +250,8 @@ async function sendMessageChatbot(
   const currentHour = moment().tz("America/Lima").format("hh:mm A");
   const currentDate = moment().tz("America/Lima").format("DD/MM/YYYY");
   console.log("ES ", obtenerSaludo(), " español");
+  const ress = await getChatbotForm();
+  console.log("EL ID ES ", ress);
   const chatbotMessage = await generateChatBotMessage(
     historial,
     ` *Eres un asistente que a pesar que te hablen en otro idioma o pidan otro idioma, responderas en español, cada respuesta tuya sera en español,
