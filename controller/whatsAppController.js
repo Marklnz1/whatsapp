@@ -219,13 +219,13 @@ function obtenerSaludo() {
     return "Buenas Noches";
   }
 }
-async function getChatbotForm() {
+async function getChatbotForm(historial) {
   const forms = "";
   for (const f of chatbotForms) {
     forms += `id:${f.id}, activación:${f.activation}\n`;
   }
   const chatbotMessage = await generateChatBotMessage(
-    [],
+    historial,
     ` *Eres un asistente que me devolvera de la siguiente lista de formularios, un id de formulario
     *Para que un formulario sea valido de elegir, el mensaje del usuario debe tener intenciones de iniciar dicho formulario de acuerdo al mensaje de activación de dicho formulario
     *Si ningun formulario cumple con la activación, responde con el numero negativo -1
@@ -250,7 +250,7 @@ async function sendMessageChatbot(
   const currentHour = moment().tz("America/Lima").format("hh:mm A");
   const currentDate = moment().tz("America/Lima").format("DD/MM/YYYY");
   console.log("ES ", obtenerSaludo(), " español");
-  const ress = await getChatbotForm();
+  const ress = await getChatbotForm(historial);
   console.log("EL ID ES ", ress);
   const chatbotMessage = await generateChatBotMessage(
     historial,
