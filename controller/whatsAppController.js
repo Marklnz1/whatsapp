@@ -203,18 +203,11 @@ async function sendMessageChatbot(
   const emoji = await generateChatBotMessage(
     [],
     ` *Eres un asistente que atiende a un cliente de un negocio, 
-    pero me daras como respuesta un emoji de forma directa sin texto extra unicode
-    ejemplo:😄,🤚,😠
+    pero me daras como respuesta un emoji de forma directa sin texto extra unicode o la palabra void
+    ejemplo:😄,🤚,😠,void
     poner un emoji de acuerdo al mensaje del cliente y de acuerdo al mensaje de respuesta, para expresar alguna emocion, pero que no sea una emocion negativa como enojo, sino como un emoji de un amigo, solo si lo amerita, 
-    si el mensaje realmente no requiere de un emoji o el emoji no aportara mucho, responder null, tipo los amigos no te ponen emoji para todo
-    para que el cliente tenga mejor compresion del sentimiento hacia su mensaje, 
-    si el mensaje no tiene una emocion fuerte, responder con un null
-    Ejemplo:
-    Mensaje del cliente: Hola
-    Respuesta:🤚
-    Ejemplo2:
-    Mensaje del cliente: que paso
-    Respuesta:"null"
+    poner void cuando el emoji no aporta nada o casi nada para expresar la respuesta del mensaje hacia el mensaje del cliente
+    *el mensaje de respuesta es:
     ${chatbotMessage}
       `,
     clientMessage,
