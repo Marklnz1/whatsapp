@@ -275,7 +275,7 @@ async function sendMessageChatbot(
     clientMessage,
     false
   );
-  const ress = await getChatbotForm(historial, chatbotMessage);
+  const ress = await getChatbotForm(chatbotMessage);
   console.log("EL ID ES ", ress);
   if (Math.random() < 0.5) {
     const emoji = await generateChatBotMessage(
