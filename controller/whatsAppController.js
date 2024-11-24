@@ -206,6 +206,7 @@ async function sendMessageChatbot(
     pero me daras como respuesta un emoji de forma directa sin texto extra unicode o la palabra void
     ejemplo:😄,🤚,😠,void
     poner un emoji de acuerdo al mensaje del cliente y de acuerdo al mensaje de respuesta, para expresar alguna emocion, pero que no sea una emocion negativa como enojo, sino como un emoji de un amigo, solo si lo amerita, 
+    el emoji que me daras sera variado, dame emojis no repetitivos por favor
     poner void cuando el emoji no aporta nada o casi nada para expresar la respuesta del mensaje hacia el mensaje del cliente
     *el mensaje de respuesta es:
     ${chatbotMessage}
