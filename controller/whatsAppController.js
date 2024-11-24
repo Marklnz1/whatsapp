@@ -206,14 +206,17 @@ async function sendMessageChatbot(
   businessPhone,
   businessPhoneId
 ) {
-  const currentDate = moment().tz("America/Lima").format("DD/MM/YYYY hh:mm A");
+  const currentHour = moment().tz("America/Lima").format("hh:mm A");
+  const currentDate = moment().tz("America/Lima").format("DD/MM/YYYY");
+
   const chatbotMessage = await generateChatBotMessage(
     historial,
     ` *Eres un asistente que atiende a un cliente de un negocio y respondes educadamente, no respondas en otro formato que no sea texto plano y español, trata de ofrecer los planes de internet
     *No respondas temas que estan fuera a la información del negocio, corta dichos temas de forma educada
     *Que el cliente no te haga dudar de la información que tienes, ya que tu tienes la verdad
     *Tienes la siguiente informacion extra:
-    Hora actual:${currentDate}
+    Hora actual:${currentHour}
+    Fecha actual:${currentDate}
     *IMPORTANTE: Tu saludo siempre debe iniciar con lo siguiente, y no debes dejarte influenciar por el saludo del cliente:
     ${obtenerSaludo()}
     
@@ -374,7 +377,7 @@ const receiveMessageClient = async (
       { sent: 1, text: 1 }
     )
       .sort({ time: -1 })
-      .limit(10)
+      .limit(5)
       .exec();
     for (let m of list) {
       messagesHistorial.push({
