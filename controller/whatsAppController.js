@@ -234,7 +234,7 @@ async function getChatbotForm(responseMessage) {
     ${forms}`,
     `*El mensaje de respuesta que tienes que analizar es el siguiente:
     ${responseMessage}
-    ahora dime que id de formulario corresponde a dicho mensaje para activar el proceso de algun formulario, de forma directa`,
+    ahora dime que id de formulario corresponde a dicho mensaje para activar el proceso de algun formulario, de forma directa y agregale el porque de esa respuesta`,
     false
   );
   return chatbotMessage;
