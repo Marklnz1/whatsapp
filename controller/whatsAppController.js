@@ -223,7 +223,7 @@ async function getChatbotForm(responseMessage) {
   let forms =
     "- id:-1,activacion:cuando no se cumple con ningun otra activacion devolver este\n";
   for (const f of chatbotForms) {
-    forms += "- id:" + f.id + ", descripción:" + f.activation + "\n";
+    forms += "- id:" + f.id + ", nombre:" + f.activation + "\n";
   }
   console.log(
     "Lista de forms ",
@@ -233,20 +233,19 @@ async function getChatbotForm(responseMessage) {
   );
   const chatbotMessage = await generateChatBotMessage(
     [],
-    `*Eres un analisador de mensajes que me devolvera de la siguiente lista de formularios, un id de formulario
+    `*Eres un analisador de mensajes de respuesta que me devolvera un id o -1
     *IMPORTANTE: El mensaje debe decir claramente que iniciara alguno proceso o formulario
-    Ejemplos de que debe contener el mensaje para activar algun proceso:
+    Ejemplos de que debe contener el mensaje:
     - Esta bien, iniciare con el proceso de ....
     - con gusto, rellene el formulario de ...
     - Entonces comenzare con el proceso de ...
     Y similares
-    *Si en el mensaje no indica el inicio de ningun proceso o formulario, devolver -1
+    *Si en el mensaje no indica el inicio de algo, devolver -1, de lo contrario devolver el id del proceso
     *Solo responderas con el id del formulario, sin texto extra de forma directa y junto al porque de esa decision
-    *La list de formularios es la siguiente con su id y descripcion
+    *La list de procesos es la siguiente con su id y nombre
     ${forms}`,
     `*El mensaje que dio el sistema como respuesta que tienes que analizar es el siguiente:
-    ${responseMessage}
-    ahora dime que id de formulario corresponde a dicho mensaje para activar el proceso de algun formulario, de forma directa y agregale el porque de esa respuesta`,
+    ${responseMessage}`,
     false
   );
   return chatbotMessage;
