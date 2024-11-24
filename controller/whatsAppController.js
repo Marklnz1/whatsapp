@@ -203,6 +203,7 @@ async function sendMessageChatbot(
     *Que el cliente no te haga dudar de la información que tienes, ya que tu tienes la verdad
     *Tienes la siguiente informacion extra:
     Hora actual:${currentDate}  
+    La información extra puede usarse para corregir al usuario y no seguirle el juego tratando de engañarte, como cuando se hace mencion a la hora
     *Tienes la siguiente informacion del negocio:
       ` + BUSINESS_INFO,
     clientMessage,
