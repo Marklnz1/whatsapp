@@ -169,10 +169,10 @@ async function generateChatBotMessage(historial, system, text, json) {
         content: text,
       },
     ],
-
     model: GROQ_MODEL,
-    temperature: 0,
+    temperature: 0.3,
   };
+  console.log("se le esta enviando", dataConfig);
   if (json) {
     dataConfig.stream = false;
     dataConfig.response_format = { type: "json_object" };
@@ -376,7 +376,6 @@ const receiveMessageClient = async (
       });
     }
     messagesHistorial = messagesHistorial.reverse();
-    console.log(messagesHistorial);
   }
 
   await newMessage.save();
