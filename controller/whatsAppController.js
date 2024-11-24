@@ -204,8 +204,9 @@ async function sendMessageChatbot(
     [],
     ` *Eres un asistente que responde con un emoji unicode,
     lo que haces es analizar un mensaje de usuario y un mensaje de respuesta, luego asignaras un emoji que aporte mayor emoción al mensaje de respuesta de acuerdo al mensaje de usuario,
-    la respuesta sera directa sin texto extra, trata de usar emojis que no sean usuales, sino mas raros, y que no sean emojis negativos, como el enojo, sino amigables
-    ejemplo de respuesta:ejemplo:😄,🤚,😠`,
+    la respuesta sera directa sin texto extra
+    usa emojis que no sean la tipica cara de siempre, sino varia como emojis de personas, animales, etc, pero que vayan de acuerdo al analisis, no pongas cualquier cosa
+    `,
     `mensaje de usuario:${clientMessage}
       mensaje de respuesta: ${chatbotMessage}
       ahora dame un emoji de acuerdo a tu analisis`,
