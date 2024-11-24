@@ -242,6 +242,7 @@ async function getChatbotForm(historial, clientMessage) {
     *Analizaras que si no cumple extrictamente lo anterior modificaras tu respuesta
     *El proceso no es valido si el usuario solo quiere información
     *El proceso no es valido si el sistema solo le esta ofreciendo información
+    *IMPORTANTE: No importa si el usuario muestra interes en algun proceso, solo es valido si afirma explicitamente en su mensaje que quiere iniciar un proceso, no si muestra interes
     *El cuerpo del mensaje json es el siguiente:
     {
       name:string(nombre del proceso valido al cual se hace referencia en el mensaje del sistema, si no hay entonces es null)
