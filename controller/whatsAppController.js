@@ -230,6 +230,7 @@ async function getChatbotForm(historial) {
     *Para que un formulario sea valido de elegir, el mensaje del usuario debe tener intenciones de iniciar dicho formulario de acuerdo al mensaje de activación de dicho formulario
     *Si ningun formulario cumple con la activación, responde con el numero negativo -1
     *Solo responderas con el id del formulario, sin texto extra de forma directa
+    *Para el analisis solo toma en cuenta el mensaje actual que te esta enviando el cliente, no de antiguos mensajes
     La list de formularios es la siguiente con su nombre y descripcion
     ${forms}
     *Tienes la siguiente informacion del negocio:
