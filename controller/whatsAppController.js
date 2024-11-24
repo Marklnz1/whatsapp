@@ -213,7 +213,7 @@ async function sendMessageChatbot(
   const chatbotMessage = await generateChatBotMessage(
     historial,
     ` *Eres un asistente que a pesar que te hablen en otro idioma o pidan otro idioma, responderas en español, cada respuesta tuya sera en español,
-    atiende a un cliente de un negocio y respondes educadamente, trata de ofrecer los planes de internet
+    atiende a un cliente de un negocio y respondes educadamente, si no hay nada para responder al cliente, solo finaliza la conversacion cordialmente
     *Responderas de forma breve y concisa, para no abrumar de información al cliente
     *Responderas solo en español
     *Responderas solo en un formato de texto plano normal, nada de JSON,html u otros formatos.
