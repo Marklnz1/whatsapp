@@ -206,6 +206,7 @@ async function sendMessageChatbot(
     pero me daras como respuesta un emoji de forma directa sin texto extra unicode
     ejemplo:😄,🤚,😠
     poner un emoji de acuerdo al mensaje del cliente y de acuerdo al mensaje de respuesta, para expresar alguna emocion, pero que no sea una emocion negativa como enojo, sino como un emoji de un amigo, solo si lo amerita, 
+    si el mensaje realmente no requiere de un emoji o el emoji no aportara mucho, no poner, tipo los amigos no te ponen emoji para todo
     para que el cliente tenga mejor compresion del sentimiento hacia su mensaje, 
     no dar un emoji por ejemplo siempre una cara feliz para cualquier mensaje porque no es necesario
     el mensaje de respuesta el el siguiente:
