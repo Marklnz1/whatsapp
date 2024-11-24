@@ -220,7 +220,8 @@ function obtenerSaludo() {
   }
 }
 async function getChatbotForm(responseMessage) {
-  let forms = "";
+  let forms =
+    "id:-1,activacion:cuando no se cumple con ningun otra activacion devolver este";
   for (const f of chatbotForms) {
     forms += `id:${f.id}, activación:${f.activation}\n`;
   }
