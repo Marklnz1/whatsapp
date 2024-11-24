@@ -231,7 +231,7 @@ async function sendMessageChatbot(
     clientMessage,
     false
   );
-  // if (Math.random() < 0.3) {
+  if (Math.random() < 0.5) {
   const emoji = await generateChatBotMessage(
     [],
     ` *Eres un asistente que responde con un emoji unicode,
