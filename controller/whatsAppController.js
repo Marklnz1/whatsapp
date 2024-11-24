@@ -219,9 +219,8 @@ function obtenerSaludo() {
     return "Buenas Noches";
   }
 }
-async function getChatbotForm(responseMessage) {
-  let forms =
-    "- id:-1,activacion:cuando no se cumple con ningun otra activacion devolver este\n";
+async function getChatbotForm(responseMessage, historial, clientMessage) {
+  let forms = "";
   for (const f of chatbotForms) {
     forms += "- id:" + f.id + ", nombre:" + f.name + "\n";
   }
@@ -233,21 +232,15 @@ async function getChatbotForm(responseMessage) {
   );
   const chatbotMessage = await generateChatBotMessage(
     [],
-    `*Eres un analisador de mensajes de respuesta que me devolvera un id o -1
-    *IMPORTANTE: El mensaje debe decir claramente que iniciara alguno proceso o formulario
-    *IMPORTANTE: El mensaje tiene que ser una afirmacion de inicio de proceso, no una pregunta
-    Ejemplos de que debe contener el mensaje:
-    - Esta bien, iniciare con el proceso de ....
-    - con gusto, rellene el formulario de ...
-    - Entonces comenzare con el proceso de ...
-    Y similares
-    *Si en el mensaje no indica el inicio de algo, devolver -1, de lo contrario devolver el id del proceso
-    *Solo responderas con el id del formulario, sin texto extra de forma directa y junto al porque de esa decision
-    *La list de procesos es la siguiente con su id y nombre
+    `Eres un asistente que respondera en formato JSON
+    Analizaras el mensaje del cliente, y si este afirma explicitamente el inicio de un proceso,devolveras lo siguiente:
+    {
+      name:string(nombre de un proceso valido, si no hay entonces devolver null)
+    }
+    *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
     ${forms}`,
-    `*El mensaje que dio el sistema como respuesta que tienes que analizar es el siguiente:
-    ${responseMessage}`,
-    false
+    `${responseMessage}`,
+    true
   );
   return chatbotMessage;
 }
@@ -282,19 +275,16 @@ async function sendMessageChatbot(
     *Tienes la siguiente informacion extra:
     Hora actual:${currentHour}
     Fecha actual:${currentDate}
-    *Tienes la siguiente informacion del negocio:
-    *IMPORTANTE:Si hay intencion de inciar algun proceso, pregunta si quiere realizarlo mencionando el nombre formal del proceso, no te inventes un nombre, ya que los nombres se especifican mas adelante, o solo quiere informacion nomas, siempre mencionando el nombre del proceso que esta en la siguiente lista. 
-    Si el cliente afirma que quiere iniciar algun proceso de la lista,tienes que especificar que iniciaras el proceso junto a su nombre declarado en la siguiente lista de forma breve sin detalles, solo nombrando el proceso, es mas no menciones la palabra proceso en tu respuesta, se mas humano:
-    *IMPORTANTE: LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
+    *IMPORTANTE:Si el cliente tiene intencion de iniciar algun proceso, pregunta si quiere realizarlo mencionando el nombre formal del proceso, no te inventes un nombre, ya que los nombres se especifican mas adelante, o solo quiere informacion nomas, siempre mencionando el nombre del proceso que esta en la siguiente lista. 
+    *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
     ${forms}
-
-      *IMPORTANTE: Recharzar el inicio de cualquiero proceso que no este en la lista de procesos validos
-      
+    *IMPORTANTE: Recharzar el inicio de cualquiero proceso que no este en la lista de procesos validos
+    *Tienes la siguiente informacion del negocio:   
       ` + BUSINESS_INFO,
     clientMessage,
     false
   );
-  const ress = await getChatbotForm(chatbotMessage);
+  const ress = await getChatbotForm(chatbotMessage, historial, clientMessage);
   console.log("EL ID ES ", ress);
   if (Math.random() < 0.5) {
     const emoji = await generateChatBotMessage(
