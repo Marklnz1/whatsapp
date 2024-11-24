@@ -221,6 +221,7 @@ async function getChatbotForm(historial, clientMessage) {
   let forms = "";
   let count = 0;
   let conversation = [...historial];
+  conversation.push({ role: "user", content: clientMessage });
   let conversationString = "Conversación que se tuvo:";
 
   for (const v of conversation) {
@@ -249,61 +250,52 @@ async function getChatbotForm(historial, clientMessage) {
     ``,
     `Eres un analizador de mensajes que responderá exclusivamente en formato JSON.
 
-    Reglas clave:
+      Reglas clave:
 
-    Los nombres de los procesos válidos son los siguientes: ${forms}.
-    Un mensaje válido de afirmación para iniciar un proceso debe contener explícitamente palabras o frases como:
-    "Sí quiero"
-    "Claro"
-    "Procede"
-    "Por supuesto"
-    "Ok"
-    Otras similares que expresen afirmación explícita.
-    Si el mensaje del cliente pide más información (por ejemplo, "Dame la lista de planes") o no contiene una afirmación explícita sobre iniciar un proceso válido, entonces:
-    El campo "name" debe ser null.
-    El campo "razon" debe explicar que el mensaje no contiene una afirmación válida para iniciar un proceso.
-    Solo analizarás el último mensaje del cliente para determinar si hay una afirmación válida. No harás inferencias basadas en el historial de la conversación.
-    Formato del cuerpo del mensaje JSON:
-    {
-    "ultimo_mensaje_usuario": string,
-    "name": string,
-    "razon": string
-    }
+      Los nombres de los procesos válidos son los siguientes: ${forms}.
+      Un mensaje válido de afirmación para iniciar un proceso debe cumplir las siguientes condiciones:
+      El último mensaje del cliente contiene explícitamente una afirmación, como:
+      "Sí quiero"
+      "Claro"
+      "Procede"
+      "Por supuesto"
+      "Ok"
+      Otras similares.
+      Esta afirmación debe ser una respuesta directa a una pregunta del sistema para iniciar un proceso válido.
+      Si el último mensaje del cliente no responde directamente a una pregunta de inicio de proceso, o si el sistema cambió el contexto de la conversación después de esa pregunta, el proceso no es válido.
+      Mensajes ambiguos o genéricos como "Sí", "Claro", "Ok", etc., no serán válidos para iniciar un proceso si no están directamente relacionados con una pregunta de inicio de proceso reciente.
+      Si el último mensaje del cliente pide más información o no responde directamente a una pregunta de inicio de proceso, entonces:
+      El campo "name" debe ser null.
+      El campo "razon" debe explicar que el mensaje no es una afirmación válida para iniciar un proceso.
+      Formato del cuerpo del mensaje JSON:
+      {
+      "ultimo_mensaje_usuario": string,
+      "name": string,
+      "razon": string
+      }
 
-    Comportamiento esperado:
-    El campo "ultimo_mensaje_usuario" contiene el último mensaje del cliente, sin modificaciones.
-    El campo "name" será el nombre del proceso válido (si y solo si el último mensaje es una afirmación explícita para iniciar el proceso). Si no hay afirmación explícita, este campo será null.
-    El campo "razon" explicará por qué elegiste un proceso o por qué devolviste null, y debe ser claro.
-    IMPORTANTE:
+      Ejemplo para este caso:
+      Historial de la conversación (JSON):
+      {
+      "conversation": [
+      {"sistema": "El plan de 80 mbps a 50 soles es un buen opción. ¿Quieres realizar la Solicitud para instalación de internet para este plan?"},
+      {"cliente": "Si"},
+      {"sistema": "Excelente elección. Para la instalación del plan de 80 mbps a 50 soles, debes realizar el pago por adelantado del primer mes de servicio. Puedes hacerlo presencialmente en nuestra ubicación de JR Ucayali 1133 o mediante Yape, Plin, bancos o agentes. También debes estar atento a la llamada del técnico para la instalación. Si no recibes la llamada, por favor comunícate con el área de VENTAS al 989552818. ¿Quieres realizar la instalación ahora?"},
+      {"cliente": "Hola"},
+      {"sistema": "¿En qué puedo ayudarte hoy? ¿Necesitas información sobre nuestros planes de internet o tienes alguna pregunta sobre la instalación?"},
+      {"cliente": "Si"}
+      ]
+      }
 
-    Solo tomarás en cuenta el último mensaje del cliente para determinar si hay una afirmación válida. Ignorarás cualquier inferencia del historial.
-    Un mensaje como "Dame la lista de planes" NO es una afirmación explícita. En este caso, el campo "name" debe ser null.
-    Ejemplo:
-    Historial de la conversación (JSON):
-    {
-    "conversation": [
-    {"usuario": "Quiero saber los planes de internet."},
-    {"sistema": "¿Deseas iniciar la solicitud para instalación de internet?"},
-    {"usuario": "Dame la lista de planes"}
-    ]
-    }
+      Último mensaje del cliente:
+      "Si"
 
-    Último mensaje del cliente:
-    "Dame la lista de planes"
-
-    Respuesta JSON esperada:
-    {
-    "ultimo_mensaje_usuario": "Dame la lista de planes",
-    "name": null,
-    "razon": "El último mensaje del cliente ('Dame la lista de planes') no contiene una afirmación explícita para iniciar un proceso válido, sino que solicita más información."
-    }
-
-    Ahora analiza la siguiente conversación:
-    Historial de la conversación (JSON):
-    ${conversationString}
-
-    Último mensaje del cliente:
-    ${clientMessage}
+      Respuesta JSON esperada:
+      {
+      "ultimo_mensaje_usuario": "Si",
+      "name": null,
+      "razon": "El último mensaje del cliente ('Si') no es una respuesta directa a una pregunta de inicio de proceso válida. El sistema previamente cambió el contexto de la conversación, y el 'Si' actual no está relacionado con una pregunta de inicio de proceso."
+      }
    `,
     true
   );
