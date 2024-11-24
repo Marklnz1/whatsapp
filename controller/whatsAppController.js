@@ -242,7 +242,8 @@ async function sendMessageChatbot(
     {
       body: chatbotMessage,
     },
-    newMessage._id
+    newMessage._id,
+    clientMessageId
   );
   newMessage.wid = messageId;
   newMessage.sentStatus = "send_requested";

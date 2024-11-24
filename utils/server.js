@@ -123,7 +123,8 @@ module.exports.sendWhatsappMessage = async (
   dstPhone,
   category,
   messageData,
-  biz_opaque_callback_data
+  biz_opaque_callback_data,
+  messageId
 ) => {
   console.log("lo recibido " + biz_opaque_callback_data);
   biz_opaque_callback_data ??= "";
@@ -135,6 +136,11 @@ module.exports.sendWhatsappMessage = async (
     to: dstPhone,
     type: category,
   };
+  if(messageId){
+    sendData.context= {
+      message_id: messageId,
+    },
+  }
   sendData[category] = messageData;
   const response = await axios({
     method: "POST",
