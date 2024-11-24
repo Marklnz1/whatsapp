@@ -192,7 +192,7 @@ async function generateChatBotMessage(historial, system, text, json) {
     model: GROQ_MODEL,
     temperature: 0.3,
   };
-  console.log("se le esta enviando", dataConfig);
+  // console.log("se le esta enviando", dataConfig);
   if (json) {
     dataConfig.stream = false;
     dataConfig.response_format = { type: "json_object" };
@@ -250,7 +250,7 @@ async function sendMessageChatbot(
 ) {
   const currentHour = moment().tz("America/Lima").format("hh:mm A");
   const currentDate = moment().tz("America/Lima").format("DD/MM/YYYY");
-  console.log("ES ", obtenerSaludo(), " español");
+  // console.log("ES ", obtenerSaludo(), " español");
   const ress = await getChatbotForm(historial, clientMessage);
   console.log("EL ID ES ", ress);
   const chatbotMessage = await generateChatBotMessage(
