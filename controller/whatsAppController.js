@@ -192,11 +192,13 @@ async function sendMessageChatbot(
   businessPhone,
   businessPhoneId
 ) {
+  const currentDate = moment().tz("America/Lima").format("YYYY-MM-DD HH:mm");
   const chatbotMessage = await generateChatBotMessage(
     historial,
     ` *Eres un asistente que atiende a un cliente de un negocio y respondes educadamente, no respondas en otro formato que no sea texto plano y español, trata de ofrecer los planes de internet
+      *No respondas temas que estan fuera a la información del negocio, corta dichos temas de forma educada
     *Tienes la siguiente informacion extra:
-    Hora actual:${new Date()}  
+    Hora actual:${currentDate}  
     *Tienes la siguiente informacion del negocio:
       ` + BUSINESS_INFO,
     clientMessage,
