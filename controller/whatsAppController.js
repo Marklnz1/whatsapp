@@ -178,6 +178,7 @@ async function generateChatBotMessage(historial, system, text, json) {
     dataConfig.response_format = { type: "json_object" };
   }
   const chatCompletion = await groqClient.chat.completions.create(dataConfig);
+  console.log(util.inspect(chatCompletion.choices[0].message, true, 99));
   return chatCompletion.choices[0].message.content;
 }
 // async function generateChatbotMessageWithSystemPrompt(text) {
