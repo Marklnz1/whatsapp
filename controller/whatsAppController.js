@@ -261,7 +261,8 @@ async function getChatbotForm(historial, clientMessage) {
     `*Analizaras tomando en cuenta el ultimo mensaje del cliente, el cual es este:
     ${clientMessage}
     *no importa el interes del usuario, tiene que ser una afirmación
-    por ejemplo el mensaje del cliente puede contener lo siguiente o similares:
+    *Si el mensaje del cliente es que quiere mas información entonces no es valida la respuesta como afirmación
+    *IMPORTANTE: Un mensaje valido de afirmación del ultimo mensaje del cliente puede contener lo siguiente o similares:
     1. Si quiero
     2. claro
     3. Procede
