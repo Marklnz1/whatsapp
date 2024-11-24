@@ -208,9 +208,6 @@ async function sendMessageChatbot(
     la respuesta sera directa sin texto extra
     ejemplo de respuesta:ejemplo:😄,🤚,😠
     ejemplo de respuesta cuando no hay emoji:void
- 
-   
-  
       `,
     `mensaje de usuario:${clientMessage}
       mensaje de respuesta: ${chatbotMessage}
