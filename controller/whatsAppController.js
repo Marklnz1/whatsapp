@@ -223,6 +223,7 @@ async function getChatbotForm(historial, clientMessage) {
   let conversation = [...historial];
   conversation.push({ role: "user", content: clientMessage });
   let conversationString = "Conversación que se tuvo:";
+
   for (const v of conversation) {
     if (v.role == "assitant") {
       conversationString += "Sistema:\n";
@@ -245,26 +246,7 @@ async function getChatbotForm(historial, clientMessage) {
     `Eres un analizador de mensajes que respondera en formato JSON
      *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
     ${forms}
-    *Analizaras un historial de mensajes que se te brindara, es una conversación
-    *Analizaras dandole valor solo a los ultimos mensajes, osea empezaras del ultimo
-    *Analizaras si en el ultimo mensaje del sistema se tiene la pregunta de inicio de algun proceso que esta en la lista de procesos validos.
-    *Analizaras si los ultimos mensajes del usuario es un afirmación explicita al mensaje del sistema anterior
-    *Analizaras que si no cumple extrictamente lo anterior modificaras tu respuesta
-    *El proceso no es valido si el usuario solo quiere información
-    *El proceso no es valido si el sistema solo le esta ofreciendo información
-    *Incluso si en la conversacion el usuario afirmo el inicio de un proceso, solo toma en cuenta el ultimo mensaje del usuario, el cual si o si debe tener la afirmacion
-    *Si la afirmacion del usuario no es el ultimo mensaje, sino anteriores, entonces la afirmacion no es valida
-    *Detallar la razon de tu respuesta tomando todo lo anterior en cuenta
-    *IMPORTANTE: No importa si el usuario muestra interes o deseo en algun proceso, solo es valido si afirma explicitamente en su mensaje que quiere iniciar un proceso, no si muestra interes
-    *IMPORTANTE: En tu razon, ten en cuenta que no importa si el cliente menciona algun detalle o información que contenga el proceso, no es valida esa afirmación, solo es valido si el sistema pregunta sobre el inicio de un proceso explicitamente mencionando el nombre del proceso, y el cliente responde afirmativamente a esa pregunta
-    Por ejemplo si contiene el cliente en su mensaje alguna de estas frases o sus variantes:
-    -Si quiero iniciar el proceso
-    -Si
-    -Por supuesto
-    -Ok
-    -Esta bien
-    -Adelante
-    -etc
+ 
     *El cuerpo del mensaje json es el siguiente:
     {
       name:string(nombre del proceso valido al cual se hace referencia en el mensaje del sistema, si no hay entonces es null),
@@ -272,7 +254,12 @@ async function getChatbotForm(historial, clientMessage) {
       razon:string(razon de porque elegiste algun proceso o porque pusiste null, este campo es obligatorio y diferente de null)
     }
    `,
-    `Analizame la siguiente conversación que esta en formato JSON y dame la respuesta en JSON segun tus parametros:
+    `*Analizaras tomando en cuenta el ultimo mensaje del cliente, el cual es este:
+    ${clientMessage}
+    *Solo me daras el nombre del proceso si en el ultimo mensaje, el cliente afirma explicitamente que quiere iniciar un proceso que es valido segun tus parametros
+    *Un proceso sera valido solo si la ultima respuesta del cliente es una afirmación valida para la pregunta de inicio de proceso que realizo el sistema
+    *IMPORTANTE: Cabe resaltar que solo es valida la ultima respuesta del cliente que ya se menciono anteriormente
+    Analizame la siguiente conversación que esta en formato JSON y dame la respuesta en JSON segun tus parametros:
     ${conversationString}`,
     true
   );
