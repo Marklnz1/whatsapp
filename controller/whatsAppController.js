@@ -242,7 +242,7 @@ async function getChatbotForm(historial, clientMessage) {
     {
       message:string(respuesta para el cliente)
       name:string(nombre de un proceso valido, si no hay entonces es null)
-      razon:string(razon de porque escogiste dicho proceso, si no hay entonces es null)
+      razon:string(razon de porque escogiste dicho proceso o porque no escogiste ninguno)
     }
    `,
     `${clientMessage}`,
