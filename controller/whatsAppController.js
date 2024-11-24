@@ -283,9 +283,9 @@ async function sendMessageChatbot(
     Hora actual:${currentHour}
     Fecha actual:${currentDate}
     *Tienes la siguiente informacion del negocio:
-    *IMPORTANTE:Si hay intencion de inciar algun proceso, pregunta si quiere realizarlo, o solo quiere informacion nomas, siempre mencionando el nombre del proceso que esta en la siguiente lista. 
+    *IMPORTANTE:Si hay intencion de inciar algun proceso, pregunta si quiere realizarlo mencionando el nombre formal del proceso, no te inventes un nombre, ya que los nombres se especifican mas adelante, o solo quiere informacion nomas, siempre mencionando el nombre del proceso que esta en la siguiente lista. 
     Si el cliente afirma que quiere iniciar algun proceso de la lista,tienes que especificar que iniciaras el proceso junto a su nombre declarado en la siguiente lista de forma breve sin detalles, solo nombrando el proceso, es mas no menciones la palabra proceso en tu respuesta, se mas humano:
-    *IMPORTANTE: LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
+    *IMPORTANTE: LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
     ${forms}
 
       *IMPORTANTE: Recharzar el inicio de cualquiero proceso que no este en la lista de procesos validos
