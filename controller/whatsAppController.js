@@ -402,7 +402,10 @@ async function sendMessageChatbot(
     await clientDB.save();
     console.log("se guardo al cliente");
     const currentForm = chatbotForms[clientDB.formProcess];
-
+    console.log(
+      "El formulario actual es ",
+      util.inspect(currentForm, true, 99)
+    );
     const chatbotMessage = await generateChatBotMessage(
       historial,
       ` *Eres un asistente que actualmente estas en un proceso de obtener datos,que a pesar que te hablen en otro idioma o pidan otro idioma, responderas en español, cada respuesta tuya sera en español,
