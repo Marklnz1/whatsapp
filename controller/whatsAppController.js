@@ -386,7 +386,7 @@ async function sendMessageChatbot(
   }
   if (clientDB.formProcess != null) {
     const currentForm = conversationalFormMap[clientDB.formProcess];
-    let currentFormValueDB = await ConversationalFormValue.find({
+    let currentFormValueDB = await ConversationalFormValue.findOne({
       conversationalForm: currentForm._id,
     });
     if (currentFormValueDB == null) {
