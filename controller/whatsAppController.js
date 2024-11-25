@@ -526,9 +526,10 @@ async function sendMessageChatbot(
     );
     await clientDB.save();
   } else {
-    const terminar = isEndCurrentForm(conversationString, clientMessage);
+    const terminar = await isEndCurrentForm(conversationString, clientMessage);
     if (terminar) {
       clientDB.formProcess = null;
+      await clientDB.save();
     }
   }
   if (clientDB.formProcess != null) {
