@@ -296,6 +296,12 @@ async function getChatbotForm(historial, clientMessage) {
       "name": null,
       "razon": "El último mensaje del cliente ('Si') no es una respuesta directa a una pregunta de inicio de proceso válida. El sistema previamente cambió el contexto de la conversación, y el 'Si' actual no está relacionado con una pregunta de inicio de proceso."
       }
+      Ahora analiza la siguiente conversación:
+      Historial de la conversación (JSON):
+      ${conversationString}
+
+      Último mensaje del cliente:
+      ${clientMessage}
    `,
     true
   );
