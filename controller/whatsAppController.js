@@ -554,7 +554,8 @@ async function sendMessageChatbot(
       *Responderas solo en un formato de texto plano normal, nada de JSON,html u otros formatos.
       *No respondas en formato tipo canciones,etc, que sea un mensaje de texto normal
       *No respondas temas que estan fuera a la información del negocio, corta dichos temas de forma educada
-      *Que el cliente no te haga dudar de la información que tienes, ya que tu tienes la verdad
+      *Que el cliente no te haga dudar de la información que tienes, ya que tu tienes la verdad, pero no te equivoques
+      *Siempre revisa la información del negocio para todas la consultas, no alucines ni inventes datos
       *Tienes la siguiente informacion extra:
       Hora actual:${currentHour}
       Fecha actual:${currentDate}
