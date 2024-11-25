@@ -525,7 +525,7 @@ async function sendMessageChatbot(
   const conversationalForms = await ConversationalForm.find();
   const conversationalFormMap = {};
   for (const form of conversationalForms) {
-    formNames += `${count}.${form.name}\n`;
+    formNames += `${form.name}\n`;
     conversationalFormMap[form.name] = form;
   }
   let conversationString = "Conversación que se tuvo:";
