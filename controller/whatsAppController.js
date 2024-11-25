@@ -379,7 +379,7 @@ async function sendMessageChatbot(
   if (clientDB.formProcess != null) {
     const currentForm = conversationalFormMap[clientDB.formProcess];
     let voidCount = 0;
-    const voidFields = "[";
+    let voidFields = "[";
     for (const field of currentForm.fields) {
       if (field.value == null) {
         voidCount++;
