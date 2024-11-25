@@ -285,11 +285,11 @@ async function getChatbotForm(historial, clientMessage) {
     }
 
     Último mensaje del cliente:
-    "Quiero iniciar la solicitud para instalae internet"
+    "Quiero iniciar la solicitud para instalar internet"
 
     Respuesta JSON esperada:
     {
-    "ultimo_mensaje_usuario": "Quiero iniciar la solicitud para instalae internet",
+    "ultimo_mensaje_usuario": "Quiero iniciar la solicitud para instalar internet",
     "name": "Solicitud para instalación de internet",
     "razon": "El último mensaje del cliente ('Quiero iniciar la solicitud para instalae internet') es una declaración explícita de intención para iniciar el proceso de instalación de internet, por lo que es válido."
     }
