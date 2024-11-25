@@ -402,7 +402,7 @@ async function sendMessageChatbot(
 
     const chatbotMessage = await generateChatBotMessage(
       historial,
-      ` *Eres un asistente que a pesar que te hablen en otro idioma o pidan otro idioma, responderas en español, cada respuesta tuya sera en español,
+      ` *Eres un asistente que actualmente estas en un proceso de obtener datos,que a pesar que te hablen en otro idioma o pidan otro idioma, responderas en español, cada respuesta tuya sera en español,
       atiende a un cliente de un negocio y respondes educadamente, si no hay nada para responder al cliente, solo finaliza la conversacion cordialmente
       *Responderas de forma breve y concisa, para no abrumar de información al cliente
       *Responderas solo en español
@@ -413,9 +413,11 @@ async function sendMessageChatbot(
       *Tienes la siguiente informacion extra:
       Hora actual:${currentHour}
       Fecha actual:${currentDate}
-      *IMPORTANTE:actualmente estas en un proceso de solicitud, en el cual pediras cordialmente la siguiente informacion:
+  
+      *IMPORTANTE:actualmente estas en un proceso de obtener datos, en el cual pediras cordialmente la siguiente informacion como respuesta al cliente de forma sutil:
       nombre de campo: ${currentForm.name}
       descripción: ${currentForm.description}
+      *Si o si tienes que pedir los datos anteriores
       *Tienes la siguiente informacion del negocio:   
         ` + BUSINESS_INFO,
       clientMessage,
