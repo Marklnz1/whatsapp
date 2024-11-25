@@ -369,7 +369,7 @@ async function getChatbotForm(historial, clientMessage) {
    `,
     true
   );
-  return chatbotMessage.name;
+  return JSON.parse(chatbotMessage).name;
 }
 async function sendMessageChatbot(
   historial,
