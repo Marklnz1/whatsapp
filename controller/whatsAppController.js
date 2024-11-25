@@ -398,6 +398,7 @@ async function sendMessageChatbot(
     let voidCount = 0;
     let voidFields = "[";
     let fillFields = "[";
+    console.log("PORQUEEEEEEE ", util.inspect(currentFormValueDB, true, 99));
     for (const field of currentFormValueDB.fields) {
       if (field.value == null) {
         voidCount++;
