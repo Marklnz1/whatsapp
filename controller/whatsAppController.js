@@ -344,12 +344,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
   const formName = JSON.parse(responseFormName).name;
   return formName;
 }
-async function isEndCurrentForm(conversationString, clientMessage, formNames) {
-  console.log(
-    "Lista de forms ",
-    formNames,
-    "LA CONVERSACION ES :" + conversationString
-  );
+async function isEndCurrentForm(conversationString, clientMessage) {
   const responseFormName = await generateChatBotMessage(
     [],
     ``,
@@ -488,8 +483,8 @@ async function isEndCurrentForm(conversationString, clientMessage, formNames) {
    `,
     true
   );
-  const formName = JSON.parse(responseFormName).name;
-  return formName;
+  const terminar = JSON.parse(responseFormName).terminar;
+  return terminar;
 }
 async function sendMessageChatbot(
   historial,
@@ -530,6 +525,11 @@ async function sendMessageChatbot(
       formNames
     );
     await clientDB.save();
+  } else {
+    const terminar = isEndCurrentForm(conversationString, clientMessage);
+    if (terminar) {
+      clientDB.formProcess = null;
+    }
   }
   if (clientDB.formProcess != null) {
     const currentForm = conversationalFormMap[clientDB.formProcess];
