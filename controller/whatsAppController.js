@@ -392,23 +392,17 @@ async function sendMessageChatbot(
     if (currentFormValueDB == null) {
       currentFormValueDB = new ConversationalFormValue({
         conversationalForm: currentForm._id,
-        fields: [],
+        fields: [...currentForm.fields],
       });
     }
-    let voidCount = 0;
-    let voidFields = "[";
-    let fillFields = "[";
+    let fieldsAllFirst = "[";
     console.log("PORQUEEEEEEE ", util.inspect(currentFormValueDB, true, 99));
+
     for (const field of currentFormValueDB.fields) {
-      if (field.value == null) {
-        voidCount++;
-        voidFields += JSON.stringify(field) + "\n";
-      } else {
-        fillFields += JSON.stringify(field) + "\n";
-      }
+      fieldsAllFirst += JSON.stringify(field) + "\n";
     }
-    voidFields += "]";
-    fillFields += "]";
+    fieldsAllFirst += "]";
+
     const responseFormName = await generateChatBotMessage(
       [],
       ``,
@@ -543,7 +537,7 @@ async function sendMessageChatbot(
       Historial de la conversación:
       ${conversationString}
       Lista única de campos:
-      ${fields}
+      ${fieldsAllFirst}
      `,
       true
     );
