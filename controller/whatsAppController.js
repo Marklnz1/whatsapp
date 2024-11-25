@@ -392,6 +392,7 @@ async function sendMessageChatbot(
     if (currentFormValueDB == null) {
       currentFormValueDB = new ConversationalFormValue({
         conversationalForm: currentForm._id,
+        fields: [],
       });
     }
     let voidCount = 0;
