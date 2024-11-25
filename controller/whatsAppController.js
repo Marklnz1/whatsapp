@@ -570,7 +570,7 @@ async function sendMessageChatbot(
       fieldsAllFirst += JSON.stringify(field) + "\n";
     }
     fieldsAllFirst += "]";
-
+    console.log("-Todos los campos antes de ser modificados\n", fieldsAllFirst);
     const responseFormName = await generateChatBotMessage(
       [],
       ``,
@@ -714,6 +714,7 @@ async function sendMessageChatbot(
       "-Se extrajo los siguientes datos\n",
       util.inspect(extractFields, true, 99)
     );
+
     for (const key in extractFields) {
       let fieldDB = null;
       for (const field of currentFormValueDB.fields) {
@@ -736,7 +737,7 @@ async function sendMessageChatbot(
       fieldsAll += JSON.stringify(field) + "\n";
     }
     fieldsAll += "]";
-
+    console.log("-Todos los campos despues de ser modificados\n", fieldsAll);
     let currentField = null;
     for (const field of currentFormValueDB.fields) {
       if (field.value == null) {
