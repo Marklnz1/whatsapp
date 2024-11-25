@@ -262,9 +262,9 @@ async function getChatbotForm(historial, clientMessage) {
       "Ok"
       Otras similares.
       Esta afirmación debe ser una respuesta directa a una pregunta del sistema para iniciar un proceso válido.
-      Si el último mensaje del cliente no responde directamente a una pregunta de inicio de proceso, o si el sistema cambió el contexto de la conversación después de esa pregunta, el proceso no es válido.
-      Mensajes ambiguos o genéricos como "Sí", "Claro", "Ok", etc., no serán válidos para iniciar un proceso si no están directamente relacionados con una pregunta de inicio de proceso reciente.
-      Si el último mensaje del cliente pide más información o no responde directamente a una pregunta de inicio de proceso, entonces:
+      Si el último mensaje del cliente responde directamente a una pregunta de inicio de proceso reciente, el proceso es válido.
+      Mensajes ambiguos o genéricos como "Sí", "Claro", "Ok", etc., son válidos solo si están directamente relacionados con una pregunta de inicio de proceso válida.
+      Si el último mensaje del cliente no responde directamente a una pregunta de inicio de proceso, o si no hay una pregunta válida reciente, entonces:
       El campo "name" debe ser null.
       El campo "razon" debe explicar que el mensaje no es una afirmación válida para iniciar un proceso.
       Formato del cuerpo del mensaje JSON:
@@ -274,15 +274,20 @@ async function getChatbotForm(historial, clientMessage) {
       "razon": string
       }
 
+      Instrucciones adicionales:
+
+      Siempre analiza la última pregunta del sistema antes del último mensaje del cliente.
+      Si la última pregunta del sistema es una pregunta de inicio de proceso válida, y el último mensaje del cliente es una afirmación explícita, el proceso es válido.
+      Ignora cualquier cambio de contexto anterior si la última pregunta del sistema es relevante para iniciar un proceso.
       Ejemplo para este caso:
       Historial de la conversación (JSON):
       {
       "conversation": [
-      {"sistema": "El plan de 80 mbps a 50 soles es un buen opción. ¿Quieres realizar la Solicitud para instalación de internet para este plan?"},
-      {"cliente": "Si"},
-      {"sistema": "Excelente elección. Para la instalación del plan de 80 mbps a 50 soles, debes realizar el pago por adelantado del primer mes de servicio. Puedes hacerlo presencialmente en nuestra ubicación de JR Ucayali 1133 o mediante Yape, Plin, bancos o agentes. También debes estar atento a la llamada del técnico para la instalación. Si no recibes la llamada, por favor comunícate con el área de VENTAS al 989552818. ¿Quieres realizar la instalación ahora?"},
-      {"cliente": "Hola"},
-      {"sistema": "¿En qué puedo ayudarte hoy? ¿Necesitas información sobre nuestros planes de internet o tienes alguna pregunta sobre la instalación?"},
+      {"sistema": "¿Quieres realizar la Solicitud para instalación de internet o solo quieres información sobre nuestros planes?"},
+      {"cliente": "Dame la lista de planes"},
+      {"sistema": "Nuestros planes de internet son: - 80 mbps a 50 soles - 100 mbps a 80 soles - 200 mbps a 110 soles - 250 mbps a 140 soles. Todos los planes incluyen descargas ilimitadas y están disponibles en fibra óptica. ¿Necesitas algo más?"},
+      {"cliente": "El de 50 soles"},
+      {"sistema": "El plan de 80 mbps a 50 soles es una excelente opción. ¿Quieres realizar la Solicitud para instalación de internet o solo quieres información adicional sobre este plan?"},
       {"cliente": "Si"}
       ]
       }
@@ -293,8 +298,8 @@ async function getChatbotForm(historial, clientMessage) {
       Respuesta JSON esperada:
       {
       "ultimo_mensaje_usuario": "Si",
-      "name": null,
-      "razon": "El último mensaje del cliente ('Si') no es una respuesta directa a una pregunta de inicio de proceso válida. El sistema previamente cambió el contexto de la conversación, y el 'Si' actual no está relacionado con una pregunta de inicio de proceso."
+      "name": "Solicitud para instalación de internet",
+      "razon": "El último mensaje del cliente ('Si') es una afirmación explícita en respuesta directa a la pregunta del sistema sobre iniciar la Solicitud para instalación de internet para el plan de 80 mbps a 50 soles."
       }
       Ahora analiza la siguiente conversación:
       Historial de la conversación (JSON):
