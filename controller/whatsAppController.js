@@ -344,6 +344,153 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
   const formName = JSON.parse(responseFormName).name;
   return formName;
 }
+async function isEndCurrentForm(conversationString, clientMessage, formNames) {
+  console.log(
+    "Lista de forms ",
+    formNames,
+    "LA CONVERSACION ES :" + conversationString
+  );
+  const responseFormName = await generateChatBotMessage(
+    [],
+    ``,
+    `Eres un analizador de mensajes que responderá exclusivamente en formato JSON. Tu objetivo principal es determinar si el mensaje del usuario indica que desea terminar el proceso actual. Analiza el mensaje del usuario en el contexto de la conversación y responde en el formato especificado.
+    Reglas clave para determinar si el proceso debe terminar:
+    Un mensaje del cliente indicará la intención de terminar el proceso actual si:
+    Contiene frases explícitas como "Todo está bien", "Sí, terminemos", "Está correcto", "Eso es todo", "Gracias, ya terminé", u otras declaraciones similares que confirmen o indiquen el cierre del proceso.
+    Es una respuesta afirmativa directa o implícita, incluso con dudas, como "Creo que sí", "No estoy seguro, pero supongo que sí". Estos mensajes, aunque no son completamente seguros, serán interpretados como afirmaciones válidas para finalizar.
+    Mensajes ambiguos o irrelevantes no indican la intención de terminar un proceso.
+    Ejemplos: "Hola", "No sé", "Explícame más", "Tengo dudas", etc.
+    En estos casos, el campo "terminar" será false.
+    Mensajes que no se relacionen con el contexto del proceso actual tampoco indicarán intención de finalizar.
+    Ejemplo: Si el cliente cambia de tema o habla de algo no relacionado, se considerará que no desea finalizar el proceso.
+    Formato de respuesta JSON:
+    Responderás exclusivamente en el siguiente formato:
+    {
+      "ultimo_mensaje_usuario": string,
+      "terminar": boolean,
+      "razon": string
+    }
+    ultimo_mensaje_usuario: El último mensaje enviado por el cliente.
+    terminar: true si el mensaje indica intención de finalizar el proceso, false en caso contrario.
+    razon: Explicación breve que justifique el valor de "terminar", indicando por qué el mensaje es válido para finalizar el proceso o no.
+    Casos de uso cubiertos (ajustados):
+    Caso 1: Mensaje explícito que indica intención de finalizar (válido)
+    Historial de la conversación:
+    {
+      "conversation": [
+        {"sistema": "¿Está todo correcto con los datos ingresados?"},
+        {"cliente": "Sí, todo está bien"}
+      ]
+    }
+    Respuesta esperada:
+    {
+      "ultimo_mensaje_usuario": "Sí, todo está bien",
+      "terminar": true,
+      "razon": "El mensaje del cliente ('Sí, todo está bien') indica explícitamente que desea finalizar el proceso actual."
+    }
+    Caso 2: Mensaje afirmativo con duda implícita (válido)
+    Historial de la conversación:
+    {
+      "conversation": [
+        {"sistema": "¿Está todo correcto con los datos ingresados?"},
+        {"cliente": "No sé, creo que sí"}
+      ]
+    }
+    Respuesta esperada:
+    {
+      "ultimo_mensaje_usuario": "No sé, creo que sí",
+      "terminar": true,
+      "razon": "El mensaje del cliente ('No sé, creo que sí') implica una afirmación implícita, por lo que se interpreta como intención de finalizar el proceso actual."
+    }
+    Caso 3: Mensaje de agradecimiento que implica cierre (válido)
+    Historial de la conversación:
+    {
+      "conversation": [
+        {"sistema": "¿Hay algo más en lo que pueda ayudarte?"},
+        {"cliente": "No, gracias, ya terminé"}
+      ]
+    }
+    Respuesta esperada:
+    {
+      "ultimo_mensaje_usuario": "No, gracias, ya terminé",
+      "terminar": true,
+      "razon": "El mensaje del cliente ('No, gracias, ya terminé') indica claramente que no requiere más asistencia y desea finalizar el proceso actual."
+    }
+    Caso 4: Mensaje que cambia de contexto o tema (inválido)
+    Historial de la conversación:
+    {
+      "conversation": [
+        {"sistema": "¿Está todo correcto con los datos ingresados?"},
+        {"cliente": "Por cierto, ¿tienen promociones en otros servicios?"}
+      ]
+    }
+    Respuesta esperada:
+    {
+      "ultimo_mensaje_usuario": "Por cierto, ¿tienen promociones en otros servicios?",
+      "terminar": false,
+      "razon": "El mensaje del cliente ('Por cierto, ¿tienen promociones en otros servicios?') no está relacionado con el proceso actual y no indica intención de finalizarlo."
+    }
+    Caso 5: Mensaje afirmativo genérico pero no relacionado con el cierre del proceso (inválido)
+    Historial de la conversación:
+    {
+      "conversation": [
+        {"sistema": "¿Hay algo más en lo que pueda ayudarte?"},
+        {"cliente": "Sí"}
+      ]
+    }
+    Respuesta esperada:
+    {
+      "ultimo_mensaje_usuario": "Sí",
+      "terminar": false,
+      "razon": "El mensaje del cliente ('Sí') es ambiguo y no indica explícitamente la intención de finalizar el proceso actual."
+    }
+    Caso 6: Mensaje implícito que confirma el cierre del proceso (válido)
+    Historial de la conversación:
+    {
+      "conversation": [
+        {"sistema": "¿Hay algo más en lo que pueda ayudarte?"},
+        {"cliente": "No, eso sería todo"}
+      ]
+    }
+    Respuesta esperada:
+    {
+      "ultimo_mensaje_usuario": "No, eso sería todo",
+      "terminar": true,
+      "razon": "El mensaje del cliente ('No, eso sería todo') implica de manera clara que desea finalizar el proceso actual."
+    }
+    Caso 7: Mensaje irrelevante o trivial (inválido)
+    Historial de la conversación:
+    {
+      "conversation": [
+        {"sistema": "¿Está todo correcto con los datos ingresados?"},
+        {"cliente": "Hola"}
+      ]
+    }
+    Respuesta esperada:
+    {
+      "ultimo_mensaje_usuario": "Hola",
+      "terminar": false,
+      "razon": "El mensaje del cliente ('Hola') no está relacionado con el proceso actual ni indica intención de finalizarlo."
+    }
+    Instrucciones finales:
+    Ahora analiza la siguiente conversación:
+    Historial de la conversación:
+    ${conversationString}
+    Último mensaje del cliente:
+    ${clientMessage}
+
+    Responde exclusivamente en el siguiente formato JSON:
+    {
+      "ultimo_mensaje_usuario": string,
+      "terminar": boolean,
+      "razon": string
+    }
+   `,
+    true
+  );
+  const formName = JSON.parse(responseFormName).name;
+  return formName;
+}
 async function sendMessageChatbot(
   historial,
   clientDB,
@@ -605,6 +752,8 @@ async function sendMessageChatbot(
           - El cliente no puede hacerte dudar de la información que tienes. Siempre responderás con seguridad.
         6 **Adelante te dire el campo principal que deberas recopilar, pero si el cliente te indica un campo ya sea que estaba vacio o ya tenia un valor y quiere modificarlo, si o si tiene que ser de la siguiente lista:
         ${fieldsAll}
+        7* **No responder en formato JSON o similares:**
+         - Que el formato de respuesta sea humano y nada tecnico y amigable
         **Información adicional que debes usar en tus respuestas:**
         - Hora actual: ${currentHour}
         - Fecha actual: ${currentDate}
@@ -655,6 +804,8 @@ async function sendMessageChatbot(
         `Eres un asistente enfocado en la confirmación y verificación de datos previamente recopilados para un cliente de un negocio. Siempre responderás educadamente y en español, con el objetivo de confirmar los datos existentes, permitir modificaciones si son necesarias y avanzar en el proceso.
 
         Reglas estrictas que debes seguir:
+        IMPORTANTE:**No responder en formato JSON o similares:**
+        Que el formato de respuesta sea humano y nada tecnico y amigable
         Confirmación de datos existentes:
         Siempre inicia mostrando los datos recopilados previamente de forma clara y ordenada para que el cliente pueda revisarlos.
         Pregunta si los datos son correctos, ofreciendo opciones claras: confirmar, modificar algún dato o agregar algo adicional que falte.
