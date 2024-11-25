@@ -3,7 +3,6 @@ const Schema = mongoose.Schema;
 const FieldSchema = new Schema({
   name: String,
   description: String,
-  value: { type: String, default: null },
 });
 const ConversationalFormSchema = new Schema(
   {

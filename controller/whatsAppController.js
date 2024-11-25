@@ -547,7 +547,17 @@ async function sendMessageChatbot(
     );
     const extractFields = JSON.parse(responseFormName);
     for (const key in extractFields) {
-      currentFormValueDB[key] = extractFields[key];
+      let fieldDB = null;
+      for (const field of currentFormValueDB.fields) {
+        if (field.name == key) {
+          fieldDB = field;
+        }
+      }
+      if (fieldDB) {
+        fieldDB.value = extractFields[key];
+      } else {
+        currentFormValueDB.push({ name: key, value: extractFields[key] });
+      }
     }
     await currentFormValueDB.save();
     console.log(
