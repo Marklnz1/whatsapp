@@ -461,7 +461,7 @@ async function sendMessageChatbot(
     console.log(
       "Se extrajo y obtuvo los siguientes datos => ",
       util.inspect(fieldFills, true, 99),
-      " se tomo en cuesta los voidFields siguientes",
+      " se tomo en cuenta los voidFields siguientes",
       util.inspect(voidFields, true, 99)
     );
     let currentField = null;
