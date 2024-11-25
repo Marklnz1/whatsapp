@@ -351,7 +351,7 @@ async function sendMessageChatbot(
   let count = 0;
   const conversationalForms = await ConversationalForm.find();
   const conversationalFormMap = {};
-  for (const form in conversationalForms) {
+  for (const form of conversationalForms) {
     formNames += `${count}.${form.name}\n`;
     conversationalFormMap[form.name] = form;
   }
