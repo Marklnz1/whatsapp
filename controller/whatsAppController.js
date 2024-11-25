@@ -392,81 +392,70 @@ async function sendMessageChatbot(
       ``,
       `Eres un analizador de conversaciones especializado en extraer información proporcionada por el cliente a partir de un historial de mensajes. Responderás exclusivamente en formato JSON.
 
-        Objetivo principal:
-        Extraer los valores más recientes de los campos definidos en la lista fields. Cada elemento de esta lista es un objeto con las propiedades name (nombre del campo) y description (descripción del campo). Usando el historial completo de la conversación, devolverás un JSON con el formato { field_name1: value, field_name2: value, field_name3: null }, donde las claves corresponden al name de cada campo en fields. Si no se encuentra un valor en el historial para un campo, su valor será null.
+      Objetivo principal:
+      Extraer los valores más recientes de los campos definidos en la lista voidFields. Cada elemento de esta lista es un objeto con las propiedades name (nombre del campo) y description (descripción del campo). Usando el historial completo de la conversación definido en conversationString, devolverás un JSON con el formato { field_name1: value, field_name2: value, field_name3: null }, donde las claves corresponden al name de cada campo en voidFields. Si no se encuentra un valor en el historial para un campo, su valor será null.
 
-        Instrucciones
-        Procesamiento de los campos:
-        La variable fields contiene una lista de objetos con esta estructura:
-        [
-          { "name": "nombre", "description": "Tu nombre completo" },
-          { "name": "correo", "description": "Tu correo electrónico" },
-          { "name": "teléfono", "description": "Tu número de teléfono" }
-        ]
-        Para cada objeto en fields, utiliza el valor de name como clave para el JSON de salida.
-        Busca en el historial valores relevantes asociados a cada campo basado en su name y, si es necesario, en su description.
-        Análisis del historial de conversación:
-        Analiza el historial completo de la conversación.
-        Identifica menciones explícitas o implícitas de los valores asociados a los campos en fields.
-        Explícito: El cliente menciona directamente el nombre del campo y su valor.
-        Implícito: El cliente proporciona un dato que puede asociarse claramente al campo, incluso sin mencionar su nombre.
-        Si un campo tiene múltiples valores en diferentes momentos de la conversación, prevalece el más reciente.
-        Campos sin valor:
-        Si no se encuentra un valor asociado a un campo en el historial, asígnale el valor null en el JSON.
-        Formato de salida:
-        La respuesta será un JSON con las claves correspondientes al name de los campos en fields.
-        Cada clave tendrá como valor el dato más reciente proporcionado por el cliente o null si no se encuentra información para ese campo.
-        Manejo de irrelevancias:
-        Ignora cualquier dato, mensaje o contexto que no esté relacionado con los campos definidos en fields.
-        No incluyas información adicional en el JSON que no esté especificada en fields.
-        Salida estricta en formato JSON:
-        Responde exclusivamente en formato JSON.
-        No incluyas explicaciones, comentarios ni texto adicional fuera del JSON.
-        Estructura del JSON de Respuesta
-        La salida tendrá este formato:
-        {
-          "nombre": "valor más reciente encontrado o null",
-          "correo": "valor más reciente encontrado o null",
-          "teléfono": "valor más reciente encontrado o null"
-        }
-        Cada clave corresponde al valor de name en los objetos de fields.
+      Instrucciones:
+      Procesamiento de los campos:
+      La variable voidFields contiene una lista de objetos con esta estructura:
+      [
+      { "name": "nombre", "description": "Tu nombre completo" },
+      { "name": "correo", "description": "Tu correo electrónico" },
+      { "name": "teléfono", "description": "Tu número de teléfono" }
+      ]
+      Para cada objeto en voidFields, utiliza el valor de name como clave para el JSON de salida.
+      Busca en el historial valores relevantes asociados a cada campo basado en su name y, si es necesario, en su description.
+      Análisis del historial de conversación:
+      Analiza el historial completo de la conversación contenido en conversationString.
+      Identifica menciones explícitas o implícitas de los valores asociados a los campos en voidFields:
+      Explícito: El cliente menciona directamente el nombre del campo y su valor.
+      Implícito: El cliente proporciona un dato que puede asociarse claramente al campo, incluso sin mencionar su nombre.
+      Si un campo tiene múltiples valores en diferentes momentos de la conversación, prevalece el más reciente.
+      Campos sin valor:
+      Si no se encuentra un valor asociado a un campo en el historial, asígnale el valor null en el JSON.
+      Formato de salida:
+      La respuesta será un JSON con las claves correspondientes al name de los campos en voidFields.
+      Cada clave tendrá como valor el dato más reciente proporcionado por el cliente o null si no se encuentra información para ese campo.
+      Manejo de irrelevancias:
+      Ignora cualquier dato, mensaje o contexto que no esté relacionado con los campos definidos en voidFields.
+      No incluyas información adicional en el JSON que no esté especificada en voidFields.
+      Salida estricta en formato JSON:
+      Responde exclusivamente en formato JSON.
+      No incluyas explicaciones, comentarios ni texto adicional fuera del JSON.
+      Consideraciones Técnicas:
+      Prioridad del dato más reciente: Si un mismo campo tiene múltiples valores proporcionados en diferentes momentos de la conversación, selecciona el valor más reciente.
+      Flexibilidad en el análisis: Extrae tanto valores explícitos (cuando el cliente menciona el campo directamente) como implícitos (cuando un dato puede asociarse claramente al campo, basado en la descripción o el contexto).
+      Lista de campos como única fuente: Procesa únicamente los campos definidos en la lista voidFields. No extraigas información adicional que no esté en esta lista.
+      Historial como única base: Usa exclusivamente el historial de conversación definido en conversationString para identificar los valores. No asumas información que no esté explícitamente presente.
+      Input esperado:
+      {
+      "voidFields": [
+      { "name": "nombre", "description": "Tu nombre completo" },
+      { "name": "correo", "description": "Tu correo electrónico" },
+      { "name": "teléfono", "description": "Tu número de teléfono" }
+      ],
+      "conversationString": [
+      {"cliente": "Hola, soy Ana."},
+      {"sistema": "¿Podrías proporcionarnos tu correo electrónico?"},
+      {"cliente": "Claro, mi correo es ana@example.com."},
+      {"sistema": "¿Y tu número de teléfono?"},
+      {"cliente": "Es 555123456."},
+      {"cliente": "Perdón, el número correcto es 555987654."}
+      ]
+      }
 
-        Consideraciones Técnicas
-        Prioridad del dato más reciente:
-        Si un mismo campo tiene múltiples valores proporcionados en diferentes momentos de la conversación, selecciona el valor más reciente.
-        Flexibilidad en el análisis:
-        Extrae tanto valores explícitos (cuando el cliente menciona el campo directamente) como implícitos (cuando un dato puede asociarse claramente al campo, basado en la descripción o el contexto).
-        Lista de campos como única fuente:
-        Procesa únicamente los campos definidos en la lista de campos vacios. No extraigas información adicional que no esté en esta lista.
-        Historial como única base:
-        Usa exclusivamente el historial de conversación  para identificar los valores. No asumas información que no esté explícitamente presente.
-        Ejemplo de Uso
-        Input:
-        {
-          "fields": [
-            { "name": "nombre", "description": "Tu nombre completo" },
-            { "name": "correo", "description": "Tu correo electrónico" },
-            { "name": "teléfono", "description": "Tu número de teléfono" }
-          ],
-          "conversationString": [
-            {"cliente": "Hola, soy Ana."},
-            {"sistema": "¿Podrías proporcionarnos tu correo electrónico?"},
-            {"cliente": "Claro, mi correo es ana@example.com."},
-            {"sistema": "¿Y tu número de teléfono?"},
-            {"cliente": "Es 555123456."},
-            {"cliente": "Perdón, el número correcto es 555987654."}
-          ]
-        }
-        Output esperado:
-        {
-          "nombre": "Ana",
-          "correo": "ana@example.com",
-          "teléfono": "555987654"
-        }
-         Ahora analiza la siguiente conversación:
+      Output esperado:
+      {
+      "nombre": "Ana",
+      "correo": "ana@example.com",
+      "teléfono": "555987654"
+      }
+
+      Ahora analiza la siguiente conversación:
       Historial de la conversación:
       ${conversationString}
-      Se tiene la siguiente lista de campos vacios:
+
+      Se tiene la siguiente lista de campos vacíos:
       ${voidFields}
      `,
       true
