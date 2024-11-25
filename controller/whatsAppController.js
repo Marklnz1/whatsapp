@@ -393,12 +393,15 @@ async function sendMessageChatbot(
     }
   }
   const formName = await getChatbotForm(historial, clientMessage);
-  if (formName) {
-    clientDB.formProcess = formName;
-    console.log("GUARDANDO A ", formName);
+  if (formName || clientDB.formProcess != null) {
+    if (formName) {
+      clientDB.formProcess = formName;
+      console.log("GUARDANDO A ", formName);
+    }
+
     await clientDB.save();
     console.log("se guardo al cliente");
-    const currentForm = chatbotForms[formName];
+    const currentForm = chatbotForms[clientDB.formProcess];
 
     const chatbotMessage = await generateChatBotMessage(
       historial,
