@@ -268,6 +268,8 @@ async function getChatbotForm(historial, clientMessage) {
         "name": string,
         "razon": string
       }
+      *IMPORTANTE: en el campo name si es valido, solo podra ir los procesos que se encuentren en la siguiente lista:
+      ${forms}
       Casos de uso cubiertos:
       Caso 1: Respuesta directa a una pregunta sobre un proceso (válido)
 
