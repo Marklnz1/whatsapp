@@ -408,7 +408,7 @@ async function sendMessageChatbot(
       util.inspect(currentForm, true, 99)
     );
     const chatbotMessage = await generateChatBotMessage(
-      historial,
+      [],
       ` *Eres un asistente que actualmente estas en un proceso de obtener datos,que a pesar que te hablen en otro idioma o pidan otro idioma, responderas en español, cada respuesta tuya sera en español,
       atiende a un cliente de un negocio y respondes educadamente, si no hay nada para responder al cliente, solo finaliza la conversacion cordialmente
       *Responderas de forma breve y concisa, para no abrumar de información al cliente
