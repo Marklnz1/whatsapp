@@ -404,6 +404,7 @@ async function sendMessageChatbot(
     const currentForm = chatbotForms[clientDB.formProcess];
     console.log(
       "El formulario actual es ",
+      currentForm.fields[0],
       util.inspect(currentForm, true, 99)
     );
     const chatbotMessage = await generateChatBotMessage(
