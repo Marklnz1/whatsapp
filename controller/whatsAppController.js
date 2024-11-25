@@ -386,7 +386,7 @@ async function sendMessageChatbot(
         voidFields += JSON.stringify(field) + "\n";
       }
     }
-    voidFields = "]";
+    voidFields += "]";
     const responseFormName = await generateChatBotMessage(
       [],
       ``,
