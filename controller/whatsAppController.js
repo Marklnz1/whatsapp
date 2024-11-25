@@ -412,8 +412,8 @@ async function sendMessageChatbot(
       Hora actual:${currentHour}
       Fecha actual:${currentDate}
       *IMPORTANTE:actualmente estas en un proceso de solicitud, en el cual pediras cordialmente la siguiente informacion:
-      nombre de campo: ${currentForm[0].name}
-      descripción: ${currentForm[0].description}
+      nombre de campo: ${currentForm.name}
+      descripción: ${currentForm.description}
       *Tienes la siguiente informacion del negocio:   
         ` + BUSINESS_INFO,
       clientMessage,
