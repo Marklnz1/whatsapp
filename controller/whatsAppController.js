@@ -250,49 +250,116 @@ async function getChatbotForm(historial, clientMessage) {
     ``,
     `Eres un analizador de mensajes que responderá exclusivamente en formato JSON.
 
-    Reglas clave:
+      Reglas clave para validar un proceso:
 
-    Los nombres de los procesos válidos son los siguientes: ${forms}.
-    Un mensaje válido para iniciar un proceso puede ser cualquiera de los siguientes:
-    Una afirmación explícita en respuesta directa a una pregunta del sistema sobre iniciar un proceso válido.
-    Una declaración explícita e independiente del cliente indicando su intención de iniciar un proceso válido (por ejemplo: "Quiero iniciar la solicitud para instalar internet").
-    Mensajes ambiguos o genéricos como "Sí", "Claro", "Ok", etc., solo serán válidos si están directamente relacionados con una pregunta de inicio de proceso reciente.
-    Si el último mensaje del cliente no contiene una afirmación explícita ni una declaración independiente sobre iniciar un proceso, entonces:
-    El campo "name" debe ser null.
-    El campo "razon" debe explicar que el mensaje no es válido para iniciar un proceso.
-    Formato del cuerpo del mensaje JSON:
-    {
-    "ultimo_mensaje_usuario": string,
-    "name": string,
-    "razon": string
-    }
+      Un mensaje del cliente será válido para iniciar un proceso si:
+      Es una respuesta directa a una pregunta del sistema sobre iniciar un proceso, y el mensaje contiene una afirmación explícita como "Sí", "Claro", "Ok", etc.
+      O el mensaje del cliente incluye una declaración explícita e independiente indicando su intención de iniciar un proceso válido, como "Quiero iniciar la solicitud para instalar internet".
+      Un mensaje afirmativo genérico (como "Sí", "Claro", "Ok", etc.) será considerado inválido si no es una respuesta directa a una pregunta del sistema.
+      En este caso, el cliente debe detallar explícitamente el proceso que quiere iniciar.
+      Si el mensaje no cumple con las condiciones anteriores:
+      El proceso no será válido.
+      El campo "name" debe ser null.
+      El campo "razon" debe explicar por qué el mensaje no es válido, indicando si es ambiguo o si no responde directamente a una pregunta válida.
+      Formato de respuesta JSON:
 
-    Instrucciones adicionales:
+      {
+        "ultimo_mensaje_usuario": string,
+        "name": string,
+        "razon": string
+      }
+      Casos de uso cubiertos:
+      Caso 1: Respuesta directa a una pregunta sobre un proceso (válido)
 
-    Si el cliente declara explícitamente su intención de iniciar un proceso válido, siempre considera el proceso como válido, incluso si no responde directamente a una pregunta del sistema.
-    Si el cliente no expresa una intención explícita ni responde directamente a una pregunta de inicio de proceso, el proceso no es válido.
-    Ejemplo para este caso:
-    Historial de la conversación (JSON):
-    {
-    "conversation": [
-    {"sistema": "¿En qué puedo ayudarte hoy? ¿Quieres información sobre nuestros planes de internet o tienes alguna pregunta sobre la instalación?"},
-    {"cliente": "Si"},
-    {"sistema": "Nuestros planes de internet son: - 80 mbps a 50 soles - 100 mbps a 80 soles - 200 mbps a 110 soles - 250 mbps a 140 soles. Todos nuestros planes incluyen descargas ilimitadas y están disponibles en fibra óptica. ¿Quieres información adicional sobre nuestros planes o quieres solicitar la instalación de internet?"},
-    {"cliente": "Hola"},
-    {"sistema": "¿En qué puedo ayudarte hoy? ¿Quieres información sobre nuestros planes de internet o tienes alguna pregunta sobre la instalación?"},
-    {"cliente": "Quiero iniciar la solicitud para instalae internet"}
-    ]
-    }
+      Historial de la conversación:
 
-    Último mensaje del cliente:
-    "Quiero iniciar la solicitud para instalar internet"
+      {
+        "conversation": [
+          {"sistema": "¿Quieres realizar la solicitud para instalación de internet?"},
+          {"cliente": "Sí"}
+        ]
+      }
+      Respuesta esperada:
 
-    Respuesta JSON esperada:
-    {
-    "ultimo_mensaje_usuario": "Quiero iniciar la solicitud para instalar internet",
-    "name": "Solicitud para instalación de internet",
-    "razon": "El último mensaje del cliente ('Quiero iniciar la solicitud para instalae internet') es una declaración explícita de intención para iniciar el proceso de instalación de internet, por lo que es válido."
-    }
+      {
+        "ultimo_mensaje_usuario": "Sí",
+        "name": "Solicitud para instalación de internet",
+        "razon": "El último mensaje del cliente ('Sí') es una respuesta afirmativa directa a la pregunta del sistema sobre iniciar el proceso de instalación de internet."
+      }
+      Caso 2: Declaración explícita independiente del cliente (válido)
+
+      Historial de la conversación:
+
+      {
+        "conversation": [
+          {"sistema": "¿En qué puedo ayudarte hoy?"},
+          {"cliente": "Quiero iniciar la solicitud para instalar internet"}
+        ]
+      }
+      Respuesta esperada:
+
+      {
+        "ultimo_mensaje_usuario": "Quiero iniciar la solicitud para instalar internet",
+        "name": "Solicitud para instalación de internet",
+        "razon": "El último mensaje del cliente ('Quiero iniciar la solicitud para instalar internet') es una declaración explícita de intención para iniciar el proceso de instalación de internet."
+      }
+      Caso 3: Mensaje afirmativo genérico, pero no responde directamente a una pregunta (inválido)
+
+      Historial de la conversación:
+
+      {
+        "conversation": [
+          {"sistema": "¿En qué puedo ayudarte hoy?"},
+          {"cliente": "Sí"}
+        ]
+      }
+      Respuesta esperada:
+
+      {
+        "ultimo_mensaje_usuario": "Sí",
+        "name": null,
+        "razon": "El último mensaje del cliente ('Sí') no es una respuesta directa a una pregunta del sistema y no detalla explícitamente qué proceso quiere iniciar, por lo que no es válido."
+      }
+      Caso 4: Mensaje ambiguo después de un cambio de contexto (inválido)
+
+      Historial de la conversación:
+
+ 
+      {
+        "conversation": [
+          {"sistema": "¿Quieres realizar la solicitud para instalación de internet?"},
+          {"cliente": "Dime un chiste"},
+          {"sistema": "Lo siento, pero no puedo compartir chistes. ¿En qué puedo ayudarte?"},
+          {"cliente": "Sí"}
+        ]
+      }
+      Respuesta esperada:
+
+
+      {
+        "ultimo_mensaje_usuario": "Sí",
+        "name": null,
+        "razon": "El último mensaje del cliente ('Sí') no está relacionado con una pregunta válida del sistema y no demuestra una intención clara de iniciar un proceso."
+      }
+      Caso 5: Declaración explícita después de un cambio de contexto (válido)
+
+      Historial de la conversación:
+
+      {
+        "conversation": [
+          {"sistema": "¿Quieres realizar la solicitud para instalación de internet?"},
+          {"cliente": "Dime un chiste"},
+          {"sistema": "Lo siento, pero no puedo compartir chistes. ¿En qué puedo ayudarte?"},
+          {"cliente": "Quiero iniciar la solicitud para instalar internet"}
+        ]
+      }
+      Respuesta esperada:
+
+      {
+        "ultimo_mensaje_usuario": "Quiero iniciar la solicitud para instalar internet",
+        "name": "Solicitud para instalación de internet",
+        "razon": "El último mensaje del cliente ('Quiero iniciar la solicitud para instalar internet') es una declaración explícita de intención para iniciar el proceso de instalación de internet, lo que lo hace válido."
+      }
       Ahora analiza la siguiente conversación:
       Historial de la conversación (JSON):
       ${conversationString}
