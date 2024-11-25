@@ -387,13 +387,17 @@ async function sendMessageChatbot(
     const currentForm = conversationalFormMap[clientDB.formProcess];
     let voidCount = 0;
     let voidFields = "[";
+    let fillFields = "[";
     for (const field of currentForm.fields) {
       if (field.value == null) {
         voidCount++;
         voidFields += JSON.stringify(field) + "\n";
+      } else {
+        fillFields += JSON.stringify(field) + "\n";
       }
     }
     voidFields += "]";
+    fillFields += "]";
     const responseFormName = await generateChatBotMessage(
       [],
       ``,
@@ -439,16 +443,19 @@ async function sendMessageChatbot(
       [
         { "name": "nombre", "description": "Tu nombre completo" },
         { "name": "correo", "description": "Tu correo electrónico" },
-        { "name": "teléfono", "description": "Tu número de teléfono" }
+      ]
+      Lista de campos llenos:
+      [
+        { "name": "teléfono", "description": "Tu número de teléfono", value:"918284124" }
       ]
       Historial de la conversación:
       [
         { "cliente": "Hola, soy Ana." },
         { "sistema": "¿Podrías proporcionarnos tu correo electrónico?" },
         { "cliente": "Claro, mi correo es ana@example.com." },
-        { "sistema": "¿Y tu número de teléfono?" },
-        { "cliente": "Es 555123456." },
-        { "cliente": "Perdón, el número correcto es 555987654." }
+        { "sistema": "Que bien" },
+        { "cliente": "Modifica mi telefono por 555123456." },
+        { "sistema": "Listo." }
       ]
       Output esperado:
       {
@@ -461,13 +468,15 @@ async function sendMessageChatbot(
       ${conversationString}
       Lista de campos vacíos:
       ${voidFields}
+      Lista de campos llenos:
+      ${fillFields}
      `,
       true
     );
-    const fieldFills = JSON.parse(responseFormName);
+    const extractFields = JSON.parse(responseFormName);
     console.log(
       "Se extrajo y obtuvo los siguientes datos => ",
-      util.inspect(fieldFills, true, 99),
+      util.inspect(extractFields, true, 99),
       " se tomo en cuenta los voidFields siguientes",
       util.inspect(voidFields, true, 99)
     );
@@ -506,7 +515,11 @@ async function sendMessageChatbot(
 
       5. **No mostrar dudas:**
         - El cliente no puede hacerte dudar de la información que tienes. Siempre responderás con seguridad.
-
+      6 **Adelante te dire el campo principal que deberas recopilar, pero si el cliente te indica un campo que sea de la siguiente lista:
+      Esta lista son de los campos vacios sin valor:
+      ${voidFields}
+      Esta lista son del os campos que ya tienen un valor:
+      ${fillFields}
       **Información adicional que debes usar en tus respuestas:**
       - Hora actual: ${currentHour}
       - Fecha actual: ${currentDate}
@@ -515,7 +528,7 @@ async function sendMessageChatbot(
         - Nombre del campo: ${currentField.name}
         - Descripción: ${currentField.description}
       - Nombre del proceso actual: ${clientDB.formProcess}
-
+      
       **IMPORTANTE**:
       1. En tu primera mención de la solicitud de datos, incluye el propósito de los mismos (usando el nombre del proceso actual, ${clientDB.formProcess}) para que el cliente entienda por qué estás solicitando los datos.
       2. En las respuestas posteriores, no repitas constantemente el nombre del proceso, pero continúa solicitando los datos necesarios de forma clara y educada.
