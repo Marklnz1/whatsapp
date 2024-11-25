@@ -559,8 +559,8 @@ async function sendMessageChatbot(
     console.log(
       "Se extrajo y obtuvo los siguientes datos => ",
       util.inspect(extractFields, true, 99),
-      " se tomo en cuenta los voidFields siguientes",
-      util.inspect(voidFields, true, 99)
+      " se tomo en cuenta los siguientes campos siguientes",
+      util.inspect(fieldsAllFirst, true, 99)
     );
     let fieldsAll = "[";
     for (const field of currentFormValueDB.fields) {
