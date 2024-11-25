@@ -463,7 +463,9 @@ async function sendMessageChatbot(
     const fieldFills = JSON.parse(responseFormName);
     console.log(
       "Se extrajo y obtuvo los siguientes datos => ",
-      util.inspect(fieldFills, true, 99)
+      util.inspect(fieldFills, true, 99),
+      " se tomo en cuesta los voidFields siguientes",
+      util.inspect(voidFields, true, 99)
     );
     let currentField = null;
     for (const field of currentForm.fields) {
