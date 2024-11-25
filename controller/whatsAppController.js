@@ -16,6 +16,7 @@ const {
 } = require("../utils/server");
 const { v7: uuidv7 } = require("uuid");
 const ConversationalForm = require("../models/ConversationalForm");
+const ConversationalFormValue = require("../models/ConversationalFormValue");
 
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
@@ -385,10 +386,18 @@ async function sendMessageChatbot(
   }
   if (clientDB.formProcess != null) {
     const currentForm = conversationalFormMap[clientDB.formProcess];
+    let currentFormValueDB = await ConversationalFormValue.find({
+      conversationalForm: currentForm._id,
+    });
+    if (currentFormValueDB == null) {
+      currentFormValueDB = new ConversationalFormValue({
+        conversationalForm: currentForm._id,
+      });
+    }
     let voidCount = 0;
     let voidFields = "[";
     let fillFields = "[";
-    for (const field of currentForm.fields) {
+    for (const field of currentFormValueDB.fields) {
       if (field.value == null) {
         voidCount++;
         voidFields += JSON.stringify(field) + "\n";
@@ -403,85 +412,158 @@ async function sendMessageChatbot(
       ``,
       `Eres un analizador de conversaciones especializado en extraer información proporcionada por el cliente a partir de un historial de conversación. Responderás exclusivamente en formato JSON.
 
-      Objetivo principal:
-      Extraer los valores más recientes de los campos definidos en la lista de campos vacíos. Cada elemento de esta lista es un objeto con las propiedades name (nombre del campo) y description (descripción del campo). Usando el historial completo de la conversación proporcionado, devolverás un JSON con el formato { field_name1: value, field_name2: value, field_name3: null }, donde las claves corresponden al name de cada campo en la lista de campos vacíos. Si no se encuentra un valor en el historial para un campo, su valor será null.
+      Objetivo principal
+      A partir de una lista única de campos y un historial de conversación, extraer los valores más recientes proporcionados por el cliente para cada campo. La lista única de campos contiene objetos con las siguientes propiedades:
 
-      Instrucciones:
-      Procesamiento de los campos:
-      La lista de campos vacíos contiene una lista de objetos con esta estructura:
-      [
-        { "name": "nombre", "description": "Tu nombre completo" },
-        { "name": "correo", "description": "Tu correo electrónico" },
-        { "name": "teléfono", "description": "Tu número de teléfono" }
-      ]
-      Para cada objeto en la lista de campos vacíos, utiliza el valor de name como clave para el JSON de salida.
-      Busca en el historial valores relevantes asociados a cada campo basado en su name y, si es necesario, en su description.
-      Análisis del historial de conversación:
-      Analiza el historial completo de la conversación proporcionado en la variable conversationString.
-      Identifica menciones explícitas o implícitas de los valores asociados a los campos en la lista de campos vacíos:
-      Explícito: El cliente menciona directamente el nombre del campo y su valor.
-      Implícito: El cliente proporciona un dato que puede asociarse claramente al campo, incluso sin mencionar su nombre.
-      Si un campo tiene múltiples valores en diferentes momentos de la conversación, selecciona el valor más reciente.
-      Campos sin valor:
+      name: Nombre único del campo (clave para el JSON de salida).
+      description: Descripción del campo que orienta sobre el tipo de dato esperado.
+      value (opcional): Valor inicial del campo, si ya tiene uno asignado.
+      El objetivo es devolver un JSON con el formato:
+      {
+        "field_name1": "nuevo_valor_o_valor_existente",
+        "field_name2": null,
+        "field_name3": "valor_modificado"
+      }
+      Para cada campo:
+
+      Si el historial contiene un valor relevante, actualiza el campo con el valor más reciente proporcionado.
+      Si no se encuentra un valor para el campo en el historial, asigna null.
+      Instrucciones
+      Procesamiento de la lista única de campos
+      Estructura de la lista única de campos:
+      La lista tiene objetos con la estructura:
+      { "name": "nombre", "description": "Tu nombre completo", "value": "Ana" }
+      La propiedad value es opcional. Si no está presente, significa que el campo aún no tiene un valor asignado.
+      Claves del JSON de salida:
+      Utiliza el valor de name como clave para el JSON de salida.
+      Actualización de valores:
+      Si el cliente proporciona un nuevo valor para un campo, actualiza el valor.
+      Si no hay menciones relevantes en el historial para un campo, su valor será null (incluso si previamente no tenía valor).
+      Análisis del historial de conversación
+      Extracción explícita:
+      Busca menciones directas al nombre o descripción del campo.
+      Ejemplo: Si el cliente dice "Mi correo es ana@example.com", el valor de correo será "ana@example.com".
+      Extracción implícita:
+      Identifica datos que pueden asociarse claramente a un campo basado en el contexto, aunque el cliente no mencione explícitamente el nombre del campo.
+      Ejemplo: Si el cliente dice "Hola, soy Ana", puedes inferir que el valor del campo nombre es "Ana".
+      Modificaciones:
+      Si un cliente menciona un cambio para un campo, como "Modifica mi teléfono a 555123456", actualiza el valor con el más reciente.
+      Prioridad del dato más reciente:
+      Si un mismo campo tiene múltiples valores proporcionados en diferentes momentos, selecciona el valor más reciente.
+      Campos sin valor
       Si no se encuentra un valor asociado a un campo en el historial, asígnale el valor null en el JSON.
-      Formato de salida:
-      La respuesta será un JSON con las claves correspondientes al name de los campos en la lista de campos vacíos.
-      Cada clave tendrá como valor el dato más reciente proporcionado en el historial o null si no se encuentra información para ese campo.
-      Manejo de irrelevancias:
-      Ignora cualquier dato, mensaje o contexto que no esté relacionado con los campos definidos en la lista de campos vacíos.
-      No incluyas información adicional en el JSON que no esté especificada en la lista de campos vacíos.
-      Salida estricta en formato JSON:
-      Responde exclusivamente en formato JSON.
-      No incluyas explicaciones, comentarios ni texto adicional fuera del JSON.
-      Consideraciones Técnicas:
-      Prioridad del dato más reciente: Si un mismo campo tiene múltiples valores proporcionados en diferentes momentos de la conversación, selecciona el valor más reciente.
-      Flexibilidad en el análisis: Extrae tanto valores explícitos (cuando el cliente menciona el campo directamente) como implícitos (cuando un dato puede asociarse claramente al campo, basado en la descripción o el contexto).
-      Lista de campos como única fuente: Procesa únicamente los campos definidos en la lista de campos vacíos. No extraigas información adicional que no esté en esta lista.
-      Historial como única base: Usa exclusivamente el historial de conversación proporcionado en conversationString para identificar los valores. No asumas información que no esté explícitamente presente.
-      Input esperado:
-      Lista de campos vacíos:
+
+      Formato de salida
+      La respuesta será un JSON con las claves correspondientes al name de los campos.
+      Cada clave tendrá como valor el dato más reciente proporcionado en el historial, el valor inicial (si no fue modificado), o null si no se encuentra información para el campo.
+
+      Ejemplo 1: Caso completo
+      Lista única de campos:
       [
-        { "name": "nombre", "description": "Tu nombre completo" },
-        { "name": "correo", "description": "Tu correo electrónico" },
-      ]
-      Lista de campos llenos:
-      [
-        { "name": "teléfono", "description": "Tu número de teléfono", value:"918284124" }
+        { "name": "nombre", "description": "Tu nombre completo", "value": null },
+        { "name": "correo", "description": "Tu correo electrónico", "value": null },
+        { "name": "teléfono", "description": "Tu número de teléfono", "value": "918284124" }
       ]
       Historial de la conversación:
       [
         { "cliente": "Hola, soy Ana." },
         { "sistema": "¿Podrías proporcionarnos tu correo electrónico?" },
         { "cliente": "Claro, mi correo es ana@example.com." },
-        { "sistema": "Que bien" },
-        { "cliente": "Modifica mi telefono por 555123456." },
-        { "sistema": "Listo." }
+        { "sistema": "Gracias, Ana. ¿Algo más en lo que pueda ayudarte?" },
+        { "cliente": "Modifica mi teléfono a 555123456." },
+        { "sistema": "Listo, hemos actualizado tu teléfono." }
       ]
-      Output esperado:
+      Salida esperada:
       {
         "nombre": "Ana",
         "correo": "ana@example.com",
-        "teléfono": "555987654"
+        "teléfono": "555123456"
+      }
+      Ejemplo 2: Valores faltantes
+      Lista única de campos:
+      [
+        { "name": "DNI", "description": "Tu número de identificación personal", "value": null },
+        { "name": "dirección", "description": "Tu dirección de residencia", "value": null },
+        { "name": "teléfono", "description": "Tu número de teléfono", "value": "918284124" }
+      ]
+      Historial de la conversación:
+      [
+        { "cliente": "Mi DNI es 12345678." },
+        { "sistema": "¿Podrías proporcionarnos tu dirección?" },
+        { "cliente": "No la tengo a la mano en este momento." }
+      ]
+      Salida esperada:
+      {
+        "DNI": "12345678",
+        "dirección": null,
+        "teléfono": "918284124"
+      }
+      Ejemplo 3: Campo irrelevante ignorado
+      Lista única de campos:
+      [
+        { "name": "nombre", "description": "Tu nombre completo", "value": null },
+        { "name": "correo", "description": "Tu correo electrónico", "value": null },
+        { "name": "teléfono", "description": "Tu número de teléfono", "value": "918284124" }
+      ]
+      Historial de la conversación:
+      [
+        { "cliente": "Mi nombre es Pedro." },
+        { "cliente": "Por cierto, ¿pueden ayudarme con algo más? Mi coche está fallando." },
+        { "sistema": "Claro, ¿podrías darnos tu correo electrónico?" },
+        { "cliente": "Sí, es pedro@example.com." }
+      ]
+      Salida esperada:
+      {
+        "nombre": "Pedro",
+        "correo": "pedro@example.com",
+        "teléfono": "918284124"
+      }
+      Ejemplo 4: Todos los valores son null
+      Lista única de campos:
+      [
+        { "name": "nombre", "description": "Tu nombre completo", "value": null },
+        { "name": "correo", "description": "Tu correo electrónico", "value": null },
+        { "name": "teléfono", "description": "Tu número de teléfono", "value": null }
+      ]
+      Historial de la conversación:
+      [
+        { "cliente": "Hola, ¿pueden ayudarme con algo?" },
+        { "sistema": "Claro, ¿podrías proporcionarnos tu información?" },
+        { "cliente": "Prefiero no compartirla ahora." }
+      ]
+      Salida esperada:
+      {
+        "nombre": null,
+        "correo": null,
+        "teléfono": null
       }
       Ahora analiza la siguiente conversación:
       Historial de la conversación:
       ${conversationString}
-      Lista de campos vacíos:
-      ${voidFields}
-      Lista de campos llenos:
-      ${fillFields}
+      Lista única de campos:
+      ${fields}
      `,
       true
     );
     const extractFields = JSON.parse(responseFormName);
+    for (const key in extractFields) {
+      currentFormValueDB[key] = extractFields[key];
+    }
+    await currentFormValueDB.save();
     console.log(
       "Se extrajo y obtuvo los siguientes datos => ",
       util.inspect(extractFields, true, 99),
       " se tomo en cuenta los voidFields siguientes",
       util.inspect(voidFields, true, 99)
     );
+    let fieldsAll = "[";
+    for (const field of currentFormValueDB.fields) {
+      fieldsAll += JSON.stringify(field) + "\n";
+    }
+    fieldsAll += "]";
+
     let currentField = null;
-    for (const field of currentForm.fields) {
+    for (const field of currentFormValueDB.fields) {
       if (field.value == null) {
         currentField = field;
       }
@@ -515,11 +597,8 @@ async function sendMessageChatbot(
 
       5. **No mostrar dudas:**
         - El cliente no puede hacerte dudar de la información que tienes. Siempre responderás con seguridad.
-      6 **Adelante te dire el campo principal que deberas recopilar, pero si el cliente te indica un campo que sea de la siguiente lista:
-      Esta lista son de los campos vacios sin valor:
-      ${voidFields}
-      Esta lista son del os campos que ya tienen un valor:
-      ${fillFields}
+      6 **Adelante te dire el campo principal que deberas recopilar, pero si el cliente te indica un campo ya sea que estaba vacio o ya tenia un valor y quiere modificarlo, si o si tiene que ser de la siguiente lista:
+      ${fieldsAll}
       **Información adicional que debes usar en tus respuestas:**
       - Hora actual: ${currentHour}
       - Fecha actual: ${currentDate}
