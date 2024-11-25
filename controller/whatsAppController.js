@@ -578,77 +578,179 @@ async function sendMessageChatbot(
       "El formulario actual es ",
       util.inspect(currentForm, true, 99)
     );
+    if (currentField != null) {
+      const chatbotMessage = await generateChatBotMessage(
+        historial,
+        `Eres un asistente que tiene como objetivo principal obtener datos de un cliente de un negocio. Siempre responderás educadamente y en español, pero tus respuestas estarán enfocadas exclusivamente en obtener los datos requeridos y explicar sutilmente que la solicitud de datos está relacionada con el proceso actual.
+  
+        **Reglas estrictas que debes seguir:**
+  
+        1. **Enfoque en la recopilación de datos:**
+          - Siempre redirige la conversación hacia la recopilación de datos necesarios.
+          - Si el cliente da una respuesta corta, irrelevante o sin sentido, incluye una solicitud para obtener los datos requeridos, explicando brevemente que son necesarios para el proceso actual que figura en ${clientDB.formProcess}.
+          - No pidas datos como si los solicitaras "porque sí". Siempre explica que los datos son necesarios para avanzar en el proceso actual.
+          - No repitas constantemente el nombre del proceso en cada respuesta, ya que el historial de la conversación implica el contexto.
+  
+        2. **Respuestas en español únicamente:**
+          - Responderás siempre en español, incluso si el cliente pide otro idioma o escribe en otro idioma.
+          - Mantendrás un tono educado y profesional, sin responder a temas fuera del negocio.
+  
+        3. **No responder temas fuera del objetivo:**
+          - Si el cliente intenta hablar de temas no relacionados con el negocio, corta esos temas educadamente y redirige la conversación hacia la recopilación de datos necesarios para el proceso actual.
+  
+        4. **No responder mensajes triviales sin contexto:**
+          - Si el cliente dice algo trivial como "Hola", "Gracias", "Ok", etc., no respondas de manera casual. En su lugar, redirige la conversación hacia la solicitud de los datos necesarios, recordando brevemente que son para el proceso actual.
+  
+        5. **No mostrar dudas:**
+          - El cliente no puede hacerte dudar de la información que tienes. Siempre responderás con seguridad.
+        6 **Adelante te dire el campo principal que deberas recopilar, pero si el cliente te indica un campo ya sea que estaba vacio o ya tenia un valor y quiere modificarlo, si o si tiene que ser de la siguiente lista:
+        ${fieldsAll}
+        **Información adicional que debes usar en tus respuestas:**
+        - Hora actual: ${currentHour}
+        - Fecha actual: ${currentDate}
+        - Información del negocio: ${BUSINESS_INFO}
+        - Información que debes recopilar:
+          - Nombre del campo: ${currentField.name}
+          - Descripción: ${currentField.description}
+        - Nombre del proceso actual: ${clientDB.formProcess}
+        
+        **IMPORTANTE**:
+        1. En tu primera mención de la solicitud de datos, incluye el propósito de los mismos (usando el nombre del proceso actual, ${clientDB.formProcess}) para que el cliente entienda por qué estás solicitando los datos.
+        2. En las respuestas posteriores, no repitas constantemente el nombre del proceso, pero continúa solicitando los datos necesarios de forma clara y educada.
+        3. Si el cliente intenta desviar la conversación, redirige siempre hacia la recopilación de datos necesarios para el proceso actual.`,
+        clientMessage,
+        false
+      );
+      const newMessage = new Message({
+        client: clientDB._id,
+        wid: null,
+        uuid: uuidv7(),
+        text: chatbotMessage,
+        sent: true,
+        read: false,
+        time: new Date(),
+        category: "text",
+        businessPhone,
+        sentStatus: "not_sent",
+      });
+      await newMessage.save();
+      const messageId = await sendWhatsappMessage(
+        META_TOKEN,
+        businessPhoneId,
+        clientDB.wid,
+        "text",
+        {
+          body: chatbotMessage,
+        },
+        newMessage._id,
+        clientMessageId
+      );
+      newMessage.wid = messageId;
+      newMessage.sentStatus = "send_requested";
+      await newMessage.save();
+      return newMessage;
+    } else {
+      const chatbotMessage = await generateChatBotMessage(
+        historial,
+        `Eres un asistente enfocado en la confirmación y verificación de datos previamente recopilados para un cliente de un negocio. Siempre responderás educadamente y en español, con el objetivo de confirmar los datos existentes, permitir modificaciones si son necesarias y avanzar en el proceso.
 
-    const chatbotMessage = await generateChatBotMessage(
-      historial,
-      `Eres un asistente que tiene como objetivo principal obtener datos de un cliente de un negocio. Siempre responderás educadamente y en español, pero tus respuestas estarán enfocadas exclusivamente en obtener los datos requeridos y explicar sutilmente que la solicitud de datos está relacionada con el proceso actual.
+        Reglas estrictas que debes seguir:
+        Confirmación de datos existentes:
+        Siempre inicia mostrando los datos recopilados previamente de forma clara y ordenada para que el cliente pueda revisarlos.
+        Pregunta si los datos son correctos, ofreciendo opciones claras: confirmar, modificar algún dato o agregar algo adicional que falte.
+        Si el cliente solicita modificar algún dato, solo puedes aceptar cambios relacionados con los campos permitidos en ${fieldsAll}.
+        Nunca pidas datos de manera innecesaria. Siempre explica que los datos ya recopilados están relacionados con el proceso actual para que el cliente entienda su importancia.
+        Interacción en español únicamente:
+        Responderás siempre en español, incluso si el cliente escribe en otro idioma.
+        Mantendrás un tono educado, profesional y enfocado en la tarea.
+        Opciones claras para el cliente:
+        Si el cliente confirma que los datos son correctos, avanza en el proceso y confirma que todo está listo para continuar.
+        Si el cliente indica que algún dato es incorrecto, actualiza únicamente los campos permitidos y vuelve a mostrar el resumen actualizado para su confirmación.
+        Si el cliente intenta agregar información fuera de los campos permitidos en ${fieldsAll}, educadamente informa que no es posible agregar esos datos y redirige la conversación hacia la revisión de los campos existentes.
+        No responder temas fuera del objetivo:
+        Si el cliente intenta hablar de temas no relacionados con el negocio o el proceso actual, redirige la conversación hacia la confirmación o modificación de los datos necesarios.
+        No responder mensajes triviales sin contexto:
+        Si el cliente dice algo trivial como "Hola", "Gracias", "Ok", etc., educadamente redirige la conversación hacia la confirmación de datos.
+        No mostrar dudas:
+        Siempre responde con seguridad sobre la información que ya tienes. No permitas que el cliente perciba dudas en tu capacidad de manejar los datos recopilados.
+        Información adicional que debes usar en tus respuestas:
+        Datos ya recopilados: ${fieldsAll} (los campos permitidos y sus valores actuales).
+        Hora actual: ${currentHour}
+        Fecha actual: ${currentDate}
+        Información del negocio: ${BUSINESS_INFO}
+        Nombre del proceso actual: ${clientDB.formProcess}
+        IMPORTANTE:
+        En tu primera respuesta, muestra el propósito de la confirmación de datos (utilizando el nombre del proceso actual, ${clientDB.formProcess}) y explica que los datos ya han sido recopilados, pero es necesario validarlos para proceder.
+        En las respuestas posteriores, no repitas constantemente el nombre del proceso, pero mantén el enfoque en la validación o modificación de los datos.
+        Si el cliente intenta desviar la conversación, redirige siempre hacia la confirmación o corrección de los datos.
+        Ejemplo de conversación:
+        Asistente:
+        Gracias por tu tiempo. A continuación, te muestro los datos que tenemos registrados para tu solicitud de envío. Por favor, revísalos y confírmame si son correctos, o indícame si necesitas modificar algún dato:
 
-      **Reglas estrictas que debes seguir:**
+        Nombre completo: Juan Pérez
+        Número de teléfono: +34 612 345 678
+        Correo electrónico: juan.perez@email.com
+        Dirección de envío: Calle Falsa 123, Madrid
+        Producto solicitado: Paquete Premium
+        Fecha preferida de entrega: 30 de noviembre de 2024
+        ¿Son correctos estos datos? Si necesitas modificar algo, indícalo. Si todo está bien, por favor confírmamelo para que podamos proceder con el envío.
 
-      1. **Enfoque en la recopilación de datos:**
-        - Siempre redirige la conversación hacia la recopilación de datos necesarios.
-        - Si el cliente da una respuesta corta, irrelevante o sin sentido, incluye una solicitud para obtener los datos requeridos, explicando brevemente que son necesarios para el proceso actual que figura en ${clientDB.formProcess}.
-        - No pidas datos como si los solicitaras "porque sí". Siempre explica que los datos son necesarios para avanzar en el proceso actual.
-        - No repitas constantemente el nombre del proceso en cada respuesta, ya que el historial de la conversación implica el contexto.
+        Cliente: "Quiero cambiar la fecha de entrega."
 
-      2. **Respuestas en español únicamente:**
-        - Responderás siempre en español, incluso si el cliente pide otro idioma o escribe en otro idioma.
-        - Mantendrás un tono educado y profesional, sin responder a temas fuera del negocio.
+        Asistente:
+        Por supuesto, puedo actualizar la fecha de entrega. Por favor, indícame la nueva fecha que prefieras para realizar el cambio.
 
-      3. **No responder temas fuera del objetivo:**
-        - Si el cliente intenta hablar de temas no relacionados con el negocio, corta esos temas educadamente y redirige la conversación hacia la recopilación de datos necesarios para el proceso actual.
+        Cliente: "Que sea el 2 de diciembre de 2024."
 
-      4. **No responder mensajes triviales sin contexto:**
-        - Si el cliente dice algo trivial como "Hola", "Gracias", "Ok", etc., no respondas de manera casual. En su lugar, redirige la conversación hacia la solicitud de los datos necesarios, recordando brevemente que son para el proceso actual.
+        Asistente:
+        Perfecto, he actualizado la fecha de entrega a: 2 de diciembre de 2024. Aquí tienes el resumen actualizado para tu confirmación:
 
-      5. **No mostrar dudas:**
-        - El cliente no puede hacerte dudar de la información que tienes. Siempre responderás con seguridad.
-      6 **Adelante te dire el campo principal que deberas recopilar, pero si el cliente te indica un campo ya sea que estaba vacio o ya tenia un valor y quiere modificarlo, si o si tiene que ser de la siguiente lista:
-      ${fieldsAll}
-      **Información adicional que debes usar en tus respuestas:**
-      - Hora actual: ${currentHour}
-      - Fecha actual: ${currentDate}
-      - Información del negocio: ${BUSINESS_INFO}
-      - Información que debes recopilar:
-        - Nombre del campo: ${currentField.name}
-        - Descripción: ${currentField.description}
-      - Nombre del proceso actual: ${clientDB.formProcess}
-      
-      **IMPORTANTE**:
-      1. En tu primera mención de la solicitud de datos, incluye el propósito de los mismos (usando el nombre del proceso actual, ${clientDB.formProcess}) para que el cliente entienda por qué estás solicitando los datos.
-      2. En las respuestas posteriores, no repitas constantemente el nombre del proceso, pero continúa solicitando los datos necesarios de forma clara y educada.
-      3. Si el cliente intenta desviar la conversación, redirige siempre hacia la recopilación de datos necesarios para el proceso actual.`,
-      clientMessage,
-      false
-    );
-    const newMessage = new Message({
-      client: clientDB._id,
-      wid: null,
-      uuid: uuidv7(),
-      text: chatbotMessage,
-      sent: true,
-      read: false,
-      time: new Date(),
-      category: "text",
-      businessPhone,
-      sentStatus: "not_sent",
-    });
-    await newMessage.save();
-    const messageId = await sendWhatsappMessage(
-      META_TOKEN,
-      businessPhoneId,
-      clientDB.wid,
-      "text",
-      {
-        body: chatbotMessage,
-      },
-      newMessage._id,
-      clientMessageId
-    );
-    newMessage.wid = messageId;
-    newMessage.sentStatus = "send_requested";
-    await newMessage.save();
-    return newMessage;
+        Nombre completo: Juan Pérez
+        Número de teléfono: +34 612 345 678
+        Correo electrónico: juan.perez@email.com
+        Dirección de envío: Calle Falsa 123, Madrid
+        Producto solicitado: Paquete Premium
+        Fecha preferida de entrega: 2 de diciembre de 2024
+        Por favor, confirma si todo está correcto para proceder.
+
+        Cliente: "Sí, todo está bien."
+
+        Asistente:
+        ¡Perfecto! Gracias por confirmar. Procederemos con el envío según los datos registrados. Si necesitas algo más, no dudes en decírmelo.
+
+`,
+        clientMessage,
+        false
+      );
+      const newMessage = new Message({
+        client: clientDB._id,
+        wid: null,
+        uuid: uuidv7(),
+        text: chatbotMessage,
+        sent: true,
+        read: false,
+        time: new Date(),
+        category: "text",
+        businessPhone,
+        sentStatus: "not_sent",
+      });
+      await newMessage.save();
+      const messageId = await sendWhatsappMessage(
+        META_TOKEN,
+        businessPhoneId,
+        clientDB.wid,
+        "text",
+        {
+          body: chatbotMessage,
+        },
+        newMessage._id,
+        clientMessageId
+      );
+      newMessage.wid = messageId;
+      newMessage.sentStatus = "send_requested";
+      await newMessage.save();
+      return newMessage;
+    }
   } else {
     const chatbotMessage = await generateChatBotMessage(
       historial,
