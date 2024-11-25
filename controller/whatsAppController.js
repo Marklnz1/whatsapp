@@ -68,8 +68,6 @@ const getPriorityStatus = (state) => {
 module.exports.receiveMessage = async (req, res) => {
   try {
     const io = res.locals.io;
-    console.log("INSPECIONANDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-    // console.log(util.inspect(req.body, true, 99));
     let data = extractClientMessageData(req.body);
     if (data != null) {
       const clientMapData = await createClientMapData(data.contacts);
@@ -89,7 +87,6 @@ module.exports.receiveMessage = async (req, res) => {
     data = extractMessageStatusData(req.body);
 
     if (data != null) {
-      console.log("ENTRANDO STATUSES " + data.statuses.length);
       for (const statusData of data.statuses) {
         const biz_opaque_callback_data = statusData.biz_opaque_callback_data;
         const message = await Message.findById(biz_opaque_callback_data);
@@ -175,13 +172,11 @@ async function generateChatBotMessage(historial, system, text, json) {
     model: GROQ_MODEL,
     temperature: 0.3,
   };
-  // console.log("se le esta enviando", dataConfig);
   if (json) {
     dataConfig.stream = false;
     dataConfig.response_format = { type: "json_object" };
   }
   const chatCompletion = await groqClient.chat.completions.create(dataConfig);
-  console.log(util.inspect(chatCompletion.choices[0].message, true, 99));
   return chatCompletion.choices[0].message.content;
 }
 // async function generateChatbotMessageWithSystemPrompt(text) {
@@ -203,11 +198,6 @@ function obtenerSaludo() {
   }
 }
 async function getChatbotForm(conversationString, clientMessage, formNames) {
-  console.log(
-    "Lista de forms ",
-    formNames,
-    "LA CONVERSACION ES :" + conversationString
-  );
   const responseFormName = await generateChatBotMessage(
     [],
     ``,
@@ -517,9 +507,9 @@ async function sendMessageChatbot(
   businessPhone,
   businessPhoneId
 ) {
+  console.log("=============COMIENZO DE RESPUESTA===================");
   const currentHour = moment().tz("America/Lima").format("hh:mm A");
   const currentDate = moment().tz("America/Lima").format("DD/MM/YYYY");
-  // console.log("ES ", obtenerSaludo(), " español");
   let formNames = "";
   let count = 0;
   const conversationalForms = await ConversationalForm.find();
@@ -542,20 +532,28 @@ async function sendMessageChatbot(
   }
 
   if (clientDB.formProcess == null) {
+    console.log("- El proceso actual es null");
     clientDB.formProcess = await getChatbotForm(
       conversationString,
       clientMessage,
       formNames
     );
+    console.log("- Se obtuvo el nuevo proceso actual ", clientDB.formProcess);
     await clientDB.save();
   } else {
+    console.log("- El proceso actual tiene valor", clientDB.formProcess);
     const terminar = await isEndCurrentForm(conversationString, clientMessage);
+    console.log("- Se terminara el proceso actual?", terminar);
+
     if (terminar) {
       clientDB.formProcess = null;
       await clientDB.save();
     }
   }
+  console.log("***SIGUIENTE ETAPA***");
+
   if (clientDB.formProcess != null) {
+    console.log("-El proceso actual tiene valor ", clientDB.formProcess);
     const currentForm = conversationalFormMap[clientDB.formProcess];
     let currentFormValueDB = await ConversationalFormValue.findOne({
       conversationalForm: currentForm._id,
@@ -567,7 +565,6 @@ async function sendMessageChatbot(
       });
     }
     let fieldsAllFirst = "[";
-    console.log("PORQUEEEEEEE ", util.inspect(currentFormValueDB, true, 99));
 
     for (const field of currentFormValueDB.fields) {
       fieldsAllFirst += JSON.stringify(field) + "\n";
@@ -713,6 +710,10 @@ async function sendMessageChatbot(
       true
     );
     const extractFields = JSON.parse(responseFormName);
+    console.log(
+      "-Se extrajo los siguientes datos\n",
+      util.inspect(extractFields, true, 99)
+    );
     for (const key in extractFields) {
       let fieldDB = null;
       for (const field of currentFormValueDB.fields) {
@@ -721,18 +722,15 @@ async function sendMessageChatbot(
         }
       }
       if (fieldDB) {
-        fieldDB.value = extractFields[key];
+        if (extractFields[key]) {
+          fieldDB.value = extractFields[key];
+        }
       } else {
         currentFormValueDB.push({ name: key, value: extractFields[key] });
       }
     }
     await currentFormValueDB.save();
-    console.log(
-      "Se extrajo y obtuvo los siguientes datos => ",
-      util.inspect(extractFields, true, 99),
-      " se tomo en cuenta los siguientes campos siguientes",
-      util.inspect(fieldsAllFirst, true, 99)
-    );
+
     let fieldsAll = "[";
     for (const field of currentFormValueDB.fields) {
       fieldsAll += JSON.stringify(field) + "\n";
@@ -746,8 +744,8 @@ async function sendMessageChatbot(
       }
     }
     console.log(
-      "El formulario actual es ",
-      util.inspect(currentForm, true, 99)
+      "-El actual field vacio es \n",
+      util.inspect(currentField, true, 99)
     );
     if (currentField != null) {
       const chatbotMessage = await generateChatBotMessage(
@@ -793,6 +791,10 @@ async function sendMessageChatbot(
         3. Si el cliente intenta desviar la conversación, redirige siempre hacia la recopilación de datos necesarios para el proceso actual.`,
         clientMessage,
         false
+      );
+      console.log(
+        "- Respuesta del bot basado en el actual field\n",
+        chatbotMessage
       );
       const newMessage = new Message({
         client: clientDB._id,
@@ -907,6 +909,11 @@ Asistente:
         clientMessage,
         false
       );
+      console.log(
+        "- Respuesta del bot basado que no existe un field actual, osea todos llenos\n",
+        chatbotMessage
+      );
+
       const newMessage = new Message({
         client: clientDB._id,
         wid: null,
@@ -1033,6 +1040,11 @@ Asistente:
       clientMessage,
       false
     );
+    console.log(
+      "- Respuesta del bot basado en que no tiene proceso actual\n",
+      chatbotMessage
+    );
+
     if (Math.random() < 0.5) {
       const emoji = await generateChatBotMessage(
         [],
