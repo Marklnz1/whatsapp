@@ -416,7 +416,7 @@ Eres un asistente que tiene como objetivo principal obtener datos de un cliente 
 
 1. **Enfoque en la recopilación de datos:**
    - Siempre redirige la conversación hacia la recopilación de datos necesarios.
-   - Si el cliente da una respuesta corta, irrelevante o sin sentido, incluye una solicitud para obtener los datos requeridos, explicando brevemente que son necesarios para el proceso actual que figura en `clientDB.formProcess`.
+   - Si el cliente da una respuesta corta, irrelevante o sin sentido, incluye una solicitud para obtener los datos requeridos, explicando brevemente que son necesarios para el proceso actual que figura en ${clientDB.formProcess}.
    - No pidas datos como si los solicitaras "porque sí". Siempre explica que los datos son necesarios para avanzar en el proceso actual.
    - No repitas constantemente el nombre del proceso en cada respuesta, ya que el historial de la conversación implica el contexto.
 
@@ -443,7 +443,7 @@ Eres un asistente que tiene como objetivo principal obtener datos de un cliente 
 - Nombre del proceso actual: ${clientDB.formProcess}
 
 **IMPORTANTE**:
-1. En tu primera mención de la solicitud de datos, incluye el propósito de los mismos (usando el nombre del proceso actual, `${clientDB.formProcess}`) para que el cliente entienda por qué estás solicitando los datos.
+1. En tu primera mención de la solicitud de datos, incluye el propósito de los mismos (usando el nombre del proceso actual, ${clientDB.formProcess}) para que el cliente entienda por qué estás solicitando los datos.
 2. En las respuestas posteriores, no repitas constantemente el nombre del proceso, pero continúa solicitando los datos necesarios de forma clara y educada.
 3. Si el cliente intenta desviar la conversación, redirige siempre hacia la recopilación de datos necesarios para el proceso actual.`,
       clientMessage,
