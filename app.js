@@ -13,6 +13,7 @@ const whatsAppController = require("./controller/whatsAppController");
 const { Server } = require("socket.io");
 const server = http.createServer(app);
 const mediaController = require("./controller/mediaController");
+const formController = require("./controller/conversationalFormController");
 
 const socketController = require("./controller/socketController");
 const messageController = require("./controller/messageController");
@@ -113,6 +114,8 @@ app.post(
   messageController.sendMediaMessage
 );
 app.post("/api/message/text/", messageController.sendTextMessage);
+// app.post("/api/form/", formController.postForm);
+
 async function start() {
   await mongoose.connect(MONGODB_URL, {
     autoIndex: true,

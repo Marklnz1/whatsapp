@@ -7,24 +7,7 @@ const https = require("https");
 const { response } = require("express");
 const MessageStatus = require("../models/MessageStatus");
 const moment = require("moment-timezone");
-const chatbotForms = {
-  "Solicitud para instalación de internet": {
-    fields: [
-      {
-        name: "DNI",
-        description: "identificación que cuenta con 8 numeros",
-      },
-      {
-        name: "Plan de internet",
-        description: "El plan de internet que quiere el cliente contratar",
-      },
-      {
-        name: "Dirección de domicilio",
-        description: "La direccion del cliente",
-      },
-    ],
-  },
-};
+
 const {
   sendWhatsappMessage,
   saveMediaClient,
@@ -32,6 +15,7 @@ const {
   sendReaction,
 } = require("../utils/server");
 const { v7: uuidv7 } = require("uuid");
+const ConversationalForm = require("../models/ConversationalForm");
 
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
@@ -217,35 +201,13 @@ function obtenerSaludo() {
     return "Buenas Noches";
   }
 }
-async function getChatbotForm(historial, clientMessage) {
-  let forms = "";
-  let count = 0;
-  let conversation = [...historial];
-  conversation.push({ role: "user", content: clientMessage });
-  let conversationString = "Conversación que se tuvo:";
-
-  for (const v of conversation) {
-    if (v.role == "assistant") {
-      conversationString += "-Sistema:\n";
-      conversationString += " Mensaje:" + v.content + "\n";
-    } else {
-      conversationString += "-Cliente:\n";
-      conversationString += " Mensaje:" + v.content + "\n";
-    }
-  }
-  for (const clave in chatbotForms) {
-    if (chatbotForms.hasOwnProperty(clave)) {
-      count++;
-      forms += `${count}.${clave}\n`;
-    }
-  }
-
+async function getChatbotForm(conversationString, clientMessage, formNames) {
   console.log(
     "Lista de forms ",
-    forms,
+    formNames,
     "LA CONVERSACION ES :" + conversationString
   );
-  const chatbotMessage = await generateChatBotMessage(
+  const responseFormName = await generateChatBotMessage(
     [],
     ``,
     `Eres un analizador de mensajes que responderá exclusivamente en formato JSON.
@@ -269,7 +231,7 @@ async function getChatbotForm(historial, clientMessage) {
         "razon": string
       }
       *IMPORTANTE: en el campo name si es valido, solo podra ir los procesos que se encuentren en la siguiente lista:
-      ${forms}
+      ${formNames}
       Casos de uso cubiertos:
       Caso 1: Respuesta directa a una pregunta sobre un proceso (válido)
 
@@ -371,7 +333,8 @@ async function getChatbotForm(historial, clientMessage) {
    `,
     true
   );
-  return JSON.parse(chatbotMessage).name;
+  const formName = JSON.parse(responseFormName).name;
+  return formName;
 }
 async function sendMessageChatbot(
   historial,
@@ -384,68 +347,184 @@ async function sendMessageChatbot(
   const currentHour = moment().tz("America/Lima").format("hh:mm A");
   const currentDate = moment().tz("America/Lima").format("DD/MM/YYYY");
   // console.log("ES ", obtenerSaludo(), " español");
-  let forms = "";
+  let formNames = "";
   let count = 0;
-  for (const clave in chatbotForms) {
-    if (chatbotForms.hasOwnProperty(clave)) {
-      count++;
-      forms += `${count}.${clave}\n`;
+  const conversationalForms = await ConversationalForm.find();
+  const conversationalFormMap = {};
+  for (const form in conversationalForms) {
+    formNames += `${count}.${form.name}\n`;
+    conversationalFormMap[form.name] = form;
+  }
+  let conversationString = "Conversación que se tuvo:";
+  let conversation = [...historial];
+  conversation.push({ role: "user", content: clientMessage });
+  for (const v of conversation) {
+    if (v.role == "assistant") {
+      conversationString += "-Sistema:\n";
+      conversationString += " Mensaje:" + v.content + "\n";
+    } else {
+      conversationString += "-Cliente:\n";
+      conversationString += " Mensaje:" + v.content + "\n";
     }
   }
-  const formName = await getChatbotForm(historial, clientMessage);
-  if (formName || clientDB.formProcess != null) {
-    if (formName) {
-      clientDB.formProcess = formName;
-      console.log("GUARDANDO A ", formName);
-    }
 
+  if (clientDB.formProcess == null) {
+    clientDB.formProcess = await getChatbotForm(
+      conversationString,
+      clientMessage,
+      formNames
+    );
     await clientDB.save();
-    console.log("se guardo al cliente");
-    const currentForm = chatbotForms[clientDB.formProcess];
+  }
+  if (clientDB.formProcess != null) {
+    const currentForm = conversationalFormMap[clientDB.formProcess];
+    let voidCount = 0;
+    const voidFields = "[";
+    for (const field of currentForm.fields) {
+      if (field.value == null) {
+        voidCount++;
+        voidFields += JSON.stringify(field) + "\n";
+      }
+    }
+    voidFields = "]";
+    const responseFormName = await generateChatBotMessage(
+      [],
+      ``,
+      `Eres un analizador de conversaciones especializado en extraer información proporcionada por el cliente a partir de un historial de mensajes. Responderás exclusivamente en formato JSON.
+
+        Objetivo principal:
+        Extraer los valores más recientes de los campos definidos en la lista fields. Cada elemento de esta lista es un objeto con las propiedades name (nombre del campo) y description (descripción del campo). Usando el historial completo de la conversación, devolverás un JSON con el formato { field_name1: value, field_name2: value, field_name3: null }, donde las claves corresponden al name de cada campo en fields. Si no se encuentra un valor en el historial para un campo, su valor será null.
+
+        Instrucciones
+        Procesamiento de los campos:
+        La variable fields contiene una lista de objetos con esta estructura:
+        [
+          { "name": "nombre", "description": "Tu nombre completo" },
+          { "name": "correo", "description": "Tu correo electrónico" },
+          { "name": "teléfono", "description": "Tu número de teléfono" }
+        ]
+        Para cada objeto en fields, utiliza el valor de name como clave para el JSON de salida.
+        Busca en el historial valores relevantes asociados a cada campo basado en su name y, si es necesario, en su description.
+        Análisis del historial de conversación:
+        Analiza el historial completo de la conversación.
+        Identifica menciones explícitas o implícitas de los valores asociados a los campos en fields.
+        Explícito: El cliente menciona directamente el nombre del campo y su valor.
+        Implícito: El cliente proporciona un dato que puede asociarse claramente al campo, incluso sin mencionar su nombre.
+        Si un campo tiene múltiples valores en diferentes momentos de la conversación, prevalece el más reciente.
+        Campos sin valor:
+        Si no se encuentra un valor asociado a un campo en el historial, asígnale el valor null en el JSON.
+        Formato de salida:
+        La respuesta será un JSON con las claves correspondientes al name de los campos en fields.
+        Cada clave tendrá como valor el dato más reciente proporcionado por el cliente o null si no se encuentra información para ese campo.
+        Manejo de irrelevancias:
+        Ignora cualquier dato, mensaje o contexto que no esté relacionado con los campos definidos en fields.
+        No incluyas información adicional en el JSON que no esté especificada en fields.
+        Salida estricta en formato JSON:
+        Responde exclusivamente en formato JSON.
+        No incluyas explicaciones, comentarios ni texto adicional fuera del JSON.
+        Estructura del JSON de Respuesta
+        La salida tendrá este formato:
+        {
+          "nombre": "valor más reciente encontrado o null",
+          "correo": "valor más reciente encontrado o null",
+          "teléfono": "valor más reciente encontrado o null"
+        }
+        Cada clave corresponde al valor de name en los objetos de fields.
+
+        Consideraciones Técnicas
+        Prioridad del dato más reciente:
+        Si un mismo campo tiene múltiples valores proporcionados en diferentes momentos de la conversación, selecciona el valor más reciente.
+        Flexibilidad en el análisis:
+        Extrae tanto valores explícitos (cuando el cliente menciona el campo directamente) como implícitos (cuando un dato puede asociarse claramente al campo, basado en la descripción o el contexto).
+        Lista de campos como única fuente:
+        Procesa únicamente los campos definidos en la lista de campos vacios. No extraigas información adicional que no esté en esta lista.
+        Historial como única base:
+        Usa exclusivamente el historial de conversación  para identificar los valores. No asumas información que no esté explícitamente presente.
+        Ejemplo de Uso
+        Input:
+        {
+          "fields": [
+            { "name": "nombre", "description": "Tu nombre completo" },
+            { "name": "correo", "description": "Tu correo electrónico" },
+            { "name": "teléfono", "description": "Tu número de teléfono" }
+          ],
+          "conversationString": [
+            {"cliente": "Hola, soy Ana."},
+            {"sistema": "¿Podrías proporcionarnos tu correo electrónico?"},
+            {"cliente": "Claro, mi correo es ana@example.com."},
+            {"sistema": "¿Y tu número de teléfono?"},
+            {"cliente": "Es 555123456."},
+            {"cliente": "Perdón, el número correcto es 555987654."}
+          ]
+        }
+        Output esperado:
+        {
+          "nombre": "Ana",
+          "correo": "ana@example.com",
+          "teléfono": "555987654"
+        }
+         Ahora analiza la siguiente conversación:
+      Historial de la conversación:
+      ${conversationString}
+      Se tiene la siguiente lista de campos vacios:
+      ${voidFields}
+     `,
+      true
+    );
+    const fieldFills = JSON.parse(responseFormName);
+    console.log(
+      "Se extrajo y obtuvo los siguientes datos => ",
+      util.inspect(fieldFills, true, 99)
+    );
+    let currentField = null;
+    for (const field of currentForm.fields) {
+      if (field.value == null) {
+        currentField = field;
+      }
+    }
     console.log(
       "El formulario actual es ",
-      currentForm.fields[0],
       util.inspect(currentForm, true, 99)
     );
+
     const chatbotMessage = await generateChatBotMessage(
       historial,
-      `
-Eres un asistente que tiene como objetivo principal obtener datos de un cliente de un negocio. Siempre responderás educadamente y en español, pero tus respuestas estarán enfocadas exclusivamente en obtener los datos requeridos y explicar sutilmente que la solicitud de datos está relacionada con el proceso actual.
+      `Eres un asistente que tiene como objetivo principal obtener datos de un cliente de un negocio. Siempre responderás educadamente y en español, pero tus respuestas estarán enfocadas exclusivamente en obtener los datos requeridos y explicar sutilmente que la solicitud de datos está relacionada con el proceso actual.
 
-**Reglas estrictas que debes seguir:**
+      **Reglas estrictas que debes seguir:**
 
-1. **Enfoque en la recopilación de datos:**
-   - Siempre redirige la conversación hacia la recopilación de datos necesarios.
-   - Si el cliente da una respuesta corta, irrelevante o sin sentido, incluye una solicitud para obtener los datos requeridos, explicando brevemente que son necesarios para el proceso actual que figura en ${clientDB.formProcess}.
-   - No pidas datos como si los solicitaras "porque sí". Siempre explica que los datos son necesarios para avanzar en el proceso actual.
-   - No repitas constantemente el nombre del proceso en cada respuesta, ya que el historial de la conversación implica el contexto.
+      1. **Enfoque en la recopilación de datos:**
+        - Siempre redirige la conversación hacia la recopilación de datos necesarios.
+        - Si el cliente da una respuesta corta, irrelevante o sin sentido, incluye una solicitud para obtener los datos requeridos, explicando brevemente que son necesarios para el proceso actual que figura en ${clientDB.formProcess}.
+        - No pidas datos como si los solicitaras "porque sí". Siempre explica que los datos son necesarios para avanzar en el proceso actual.
+        - No repitas constantemente el nombre del proceso en cada respuesta, ya que el historial de la conversación implica el contexto.
 
-2. **Respuestas en español únicamente:**
-   - Responderás siempre en español, incluso si el cliente pide otro idioma o escribe en otro idioma.
-   - Mantendrás un tono educado y profesional, sin responder a temas fuera del negocio.
+      2. **Respuestas en español únicamente:**
+        - Responderás siempre en español, incluso si el cliente pide otro idioma o escribe en otro idioma.
+        - Mantendrás un tono educado y profesional, sin responder a temas fuera del negocio.
 
-3. **No responder temas fuera del objetivo:**
-   - Si el cliente intenta hablar de temas no relacionados con el negocio, corta esos temas educadamente y redirige la conversación hacia la recopilación de datos necesarios para el proceso actual.
+      3. **No responder temas fuera del objetivo:**
+        - Si el cliente intenta hablar de temas no relacionados con el negocio, corta esos temas educadamente y redirige la conversación hacia la recopilación de datos necesarios para el proceso actual.
 
-4. **No responder mensajes triviales sin contexto:**
-   - Si el cliente dice algo trivial como "Hola", "Gracias", "Ok", etc., no respondas de manera casual. En su lugar, redirige la conversación hacia la solicitud de los datos necesarios, recordando brevemente que son para el proceso actual.
+      4. **No responder mensajes triviales sin contexto:**
+        - Si el cliente dice algo trivial como "Hola", "Gracias", "Ok", etc., no respondas de manera casual. En su lugar, redirige la conversación hacia la solicitud de los datos necesarios, recordando brevemente que son para el proceso actual.
 
-5. **No mostrar dudas:**
-   - El cliente no puede hacerte dudar de la información que tienes. Siempre responderás con seguridad.
+      5. **No mostrar dudas:**
+        - El cliente no puede hacerte dudar de la información que tienes. Siempre responderás con seguridad.
 
-**Información adicional que debes usar en tus respuestas:**
-- Hora actual: ${currentHour}
-- Fecha actual: ${currentDate}
-- Información del negocio: ${BUSINESS_INFO}
-- Información que debes recopilar:
-  - Nombre del campo: ${currentForm.fields[0].name}
-  - Descripción: ${currentForm.fields[0].description}
-- Nombre del proceso actual: ${clientDB.formProcess}
+      **Información adicional que debes usar en tus respuestas:**
+      - Hora actual: ${currentHour}
+      - Fecha actual: ${currentDate}
+      - Información del negocio: ${BUSINESS_INFO}
+      - Información que debes recopilar:
+        - Nombre del campo: ${currentField.name}
+        - Descripción: ${currentField.description}
+      - Nombre del proceso actual: ${clientDB.formProcess}
 
-**IMPORTANTE**:
-1. En tu primera mención de la solicitud de datos, incluye el propósito de los mismos (usando el nombre del proceso actual, ${clientDB.formProcess}) para que el cliente entienda por qué estás solicitando los datos.
-2. En las respuestas posteriores, no repitas constantemente el nombre del proceso, pero continúa solicitando los datos necesarios de forma clara y educada.
-3. Si el cliente intenta desviar la conversación, redirige siempre hacia la recopilación de datos necesarios para el proceso actual.`,
+      **IMPORTANTE**:
+      1. En tu primera mención de la solicitud de datos, incluye el propósito de los mismos (usando el nombre del proceso actual, ${clientDB.formProcess}) para que el cliente entienda por qué estás solicitando los datos.
+      2. En las respuestas posteriores, no repitas constantemente el nombre del proceso, pero continúa solicitando los datos necesarios de forma clara y educada.
+      3. Si el cliente intenta desviar la conversación, redirige siempre hacia la recopilación de datos necesarios para el proceso actual.`,
       clientMessage,
       false
     );
@@ -493,7 +572,7 @@ Eres un asistente que tiene como objetivo principal obtener datos de un cliente 
       Fecha actual:${currentDate}
       *IMPORTANTE:Si el cliente tiene intencion de iniciar algun proceso, pregunta si quiere realizarlo mencionando el nombre formal del proceso, no te inventes un nombre, ya que los nombres se especifican mas adelante, o solo quiere informacion nomas, siempre mencionando el nombre del proceso que esta en la siguiente lista. 
       *LOS NOMBRES DE LOS PROCESOS VALIDOS SON LOS SIGUIENTES:  
-      ${forms}
+      ${formNames}
       *IMPORTANTE: Recharzar el inicio de cualquiero proceso que no este en la lista de procesos validos
       *Tienes la siguiente informacion del negocio:   
         ` + BUSINESS_INFO,
