@@ -212,125 +212,148 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     [],
     ``,
     `Eres un analizador de mensajes que responderá exclusivamente en formato JSON.
-    Reglas clave para validar un proceso:
-    Un mensaje del cliente será válido para iniciar un proceso si:
-    Es una respuesta directa a una pregunta del sistema sobre iniciar un proceso, y el mensaje contiene una afirmación explícita como "Sí", "Claro", "Ok", etc.
-    O el mensaje del cliente incluye una declaración explícita o implícita indicando su intención de iniciar un proceso válido. Esto incluye frases específicas relacionadas con los procesos disponibles en ${formNames}, como solicitudes de servicios, compras, gestiones administrativas, entre otros.
-    Validación estricta de los procesos disponibles:
-    Solo se considerarán válidos los procesos que se encuentren en la lista ${formNames}.
-    Si el mensaje del cliente no puede asociarse de manera inequívoca a un proceso en la lista ${formNames}, el campo "name" será null.
-    Un mensaje afirmativo genérico (como "Sí", "Claro", "Ok", etc.) será considerado inválido si:
-    No es una respuesta directa a una pregunta del sistema sobre un proceso.
-    El cliente no detalla explícitamente qué proceso quiere iniciar.
-    Si el mensaje no cumple con las condiciones anteriores:
-    El proceso no será válido.
-    El campo "name" será null.
-    El campo "razon" debe explicar por qué el mensaje no es válido, indicando si es ambiguo, si no responde directamente a una pregunta válida, o si no coincide con un proceso en ${formNames}.
-    Formato de respuesta JSON:
-    {
-      "ultimo_mensaje_usuario": string,
-      "name": string,
-      "razon": string
-    }
-    Casos de uso cubiertos:
-    Caso 1: Respuesta directa a una pregunta sobre un proceso (válido)
-    Lista de procesos válidos:
-    ["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]
-    Historial de la conversación:
-    {
-      "conversation": [
-        {"sistema": "¿Quieres realizar la apertura de una cuenta bancaria?"},
-        {"cliente": "Sí"}
-      ]
-    }
-    Respuesta esperada:
-    {
-      "ultimo_mensaje_usuario": "Sí",
-      "name": "Apertura de cuenta bancaria",
-      "razon": "El último mensaje del cliente ('Sí') es una respuesta afirmativa directa a la pregunta del sistema sobre iniciar el proceso de apertura de cuenta bancaria."
-    }
-    Caso 2: Declaración explícita independiente del cliente (válido)
-    Lista de procesos válidos:
-    ["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]
-    Historial de la conversación:
-    {
-      "conversation": [
-        {"sistema": "¿En qué puedo ayudarte hoy?"},
-        {"cliente": "Quiero solicitar un crédito hipotecario"}
-      ]
-    }
-    Respuesta esperada:
-    {
-      "ultimo_mensaje_usuario": "Quiero solicitar un crédito hipotecario",
-      "name": "Solicitud de crédito hipotecario",
-      "razon": "El último mensaje del cliente ('Quiero solicitar un crédito hipotecario') es una declaración explícita de intención para iniciar el proceso de solicitud de crédito hipotecario."
-    }
-    Caso 3: Declaración implícita con información relevante (inválido, proceso no existe)
-    Lista de procesos válidos:
-    ["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]
-    Historial de la conversación:
-    {
-      "conversation": [
-        {"sistema": "¿En qué puedo ayudarte hoy?"},
-        {"cliente": "Quiero una tarjeta de crédito, mi DNI es 75849302"}
-      ]
-    }
-    Respuesta esperada:
-    {
-      "ultimo_mensaje_usuario": "Quiero una tarjeta de crédito, mi DNI es 75849302",
-      "name": null,
-      "razon": "El último mensaje del cliente ('Quiero una tarjeta de crédito, mi DNI es 75849302') no coincide con ningún proceso válido en la lista de procesos disponibles."
-    }
-    Caso 4: Mensaje afirmativo genérico, pero no responde directamente a una pregunta (inválido)
-    Lista de procesos válidos:
-    ["Inscripción al curso de cocina", "Asesoría nutricional"]
-    Historial de la conversación:
-    {
-      "conversation": [
-        {"sistema": "¿En qué puedo ayudarte hoy?"},
-        {"cliente": "Sí"}
-      ]
-    }
-    Respuesta esperada:
-    {
-      "ultimo_mensaje_usuario": "Sí",
-      "name": null,
-      "razon": "El último mensaje del cliente ('Sí') no es una respuesta directa a una pregunta del sistema y no detalla explícitamente qué proceso quiere iniciar, por lo que no es válido."
-    }
-    Caso 5: Declaración explícita después de un cambio de contexto (válido)
-    Lista de procesos válidos:
-    ["Inscripción al curso de cocina", "Asesoría nutricional"]
-    Historial de la conversación:
-    {
-      "conversation": [
-        {"sistema": "¿Quieres inscribirte al curso de cocina?"},
-        {"cliente": "¿Cuándo inicia el curso?"},
-        {"sistema": "El curso inicia el 5 de diciembre. ¿En qué más te puedo ayudar?"},
-        {"cliente": "Quiero inscribirme al curso de cocina"}
-      ]
-    }
-    Respuesta esperada:
-    {
-      "ultimo_mensaje_usuario": "Quiero inscribirme al curso de cocina",
-      "name": "Inscripción al curso de cocina",
-      "razon": "El último mensaje del cliente ('Quiero inscribirme al curso de cocina') es una declaración explícita de intención para iniciar el proceso de inscripción al curso de cocina, lo que lo hace válido."
-    }
-    Caso 6: Declaración implícita válida con palabras clave reconocidas (válido)
-    Lista de procesos válidos:
-    ["Registro en el sistema de salud", "Actualización de datos médicos"]
-    Historial de la conversación:
-    {
-      "conversation": [
-        {"sistema": "¿En qué puedo ayudarte hoy?"},
-        {"cliente": "Necesito registrarme en el sistema de salud, mi número es 12345678"}
-      ]
-    }
-    Respuesta esperada:
-    {
-      "ultimo_mensaje_usuario": "Necesito registrarme en el sistema de salud, mi número es 12345678",
-      "name": "Registro en el sistema de salud",
-      "razon": "El último mensaje del cliente ('Necesito registrarme en el sistema de salud, mi número es 12345678') indica de forma implícita su intención de iniciar el proceso de registro en el sistema de salud."
-    }
+
+Reglas clave para validar un proceso:
+Un mensaje del cliente será válido para iniciar un proceso si:
+Es una respuesta directa y afirmativa a una pregunta del sistema relacionada con el inicio de un proceso específico en la lista ${formNames}. Por ejemplo, "Sí" o "Claro" en respuesta directa a "¿Quieres iniciar el proceso de registro?".
+El mensaje incluye una declaración explícita o implícita que indique claramente la intención del cliente de iniciar un proceso dentro de la lista ${formNames}. Ejemplo: "Quiero registrarme" o "Necesito abrir una cuenta bancaria".
+Un mensaje afirmativo genérico (como "Sí", "Claro", "Ok") será considerado inválido si:
+No responde directamente a una pregunta del sistema relacionada con un proceso específico.
+El cliente no detalla explícitamente el proceso que desea iniciar.
+Validación estricta de los procesos disponibles:
+Solo se considerarán válidos los procesos que se encuentren en la lista ${formNames}.
+Si el mensaje del cliente no puede asociarse de manera inequívoca a un proceso en la lista ${formNames}, el campo "name" será null.
+Si el mensaje no cumple con las condiciones anteriores:
+El proceso no será válido.
+El campo "name" será null.
+El campo "razon" debe explicar por qué el mensaje no es válido: ambiguo, no relacionado con un proceso, o fuera de la lista ${formNames}.
+Formato de respuesta JSON:
+{
+  "ultimo_mensaje_usuario": string,
+  "name": string | null,
+  "razon": string
+}
+Casos de uso cubiertos:
+Caso 1: Respuesta directa a una pregunta sobre un proceso (válido)
+Lista de procesos válidos:
+["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]
+
+Historial de la conversación:
+{
+  "conversation": [
+    {"sistema": "¿Quieres realizar la apertura de una cuenta bancaria?"},
+    {"cliente": "Sí"}
+  ]
+}
+Respuesta esperada:
+{
+  "ultimo_mensaje_usuario": "Sí",
+  "name": "Apertura de cuenta bancaria",
+  "razon": "El último mensaje del cliente ('Sí') es una respuesta afirmativa directa a la pregunta del sistema sobre iniciar el proceso de apertura de cuenta bancaria."
+}
+Caso 2: Declaración explícita independiente del cliente (válido)
+Lista de procesos válidos:
+["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]
+
+Historial de la conversación:
+{
+  "conversation": [
+    {"sistema": "¿En qué puedo ayudarte hoy?"},
+    {"cliente": "Quiero solicitar un crédito hipotecario"}
+  ]
+}
+Respuesta esperada:
+{
+  "ultimo_mensaje_usuario": "Quiero solicitar un crédito hipotecario",
+  "name": "Solicitud de crédito hipotecario",
+  "razon": "El último mensaje del cliente ('Quiero solicitar un crédito hipotecario') es una declaración explícita de intención para iniciar el proceso de solicitud de crédito hipotecario."
+}
+Caso 3: Mensaje afirmativo genérico, pero no relacionado con un proceso (inválido)
+Lista de procesos válidos:
+["Inscripción al curso de cocina", "Asesoría nutricional"]
+
+Historial de la conversación:
+{
+  "conversation": [
+    {"sistema": "¿En qué puedo ayudarte hoy?"},
+    {"cliente": "Sí"}
+  ]
+}
+Respuesta esperada:
+{
+  "ultimo_mensaje_usuario": "Sí",
+  "name": null,
+  "razon": "El último mensaje del cliente ('Sí') no es una respuesta directa a una pregunta sobre un proceso específico y no detalla explícitamente qué proceso quiere iniciar."
+}
+Caso 4: Mensaje genérico que responde a una pregunta irrelevante (inválido)
+Lista de procesos válidos:
+["Inscripción al curso de cocina", "Asesoría nutricional"]
+
+Historial de la conversación:
+{
+  "conversation": [
+    {"sistema": "¿Solo quiere información sobre el curso?"},
+    {"cliente": "Sí"}
+  ]
+}
+Respuesta esperada:
+{
+  "ultimo_mensaje_usuario": "Sí",
+  "name": null,
+  "razon": "El último mensaje del cliente ('Sí') responde a una pregunta del sistema sobre información, no sobre iniciar un proceso. Por lo tanto, no es válido para iniciar ningún proceso."
+}
+Caso 5: Declaración explícita después de un cambio de contexto (válido)
+Lista de procesos válidos:
+["Inscripción al curso de cocina", "Asesoría nutricional"]
+
+Historial de la conversación:
+{
+  "conversation": [
+    {"sistema": "¿Quieres inscribirte al curso de cocina?"},
+    {"cliente": "¿Cuándo inicia el curso?"},
+    {"sistema": "El curso inicia el 5 de diciembre. ¿En qué más te puedo ayudar?"},
+    {"cliente": "Quiero inscribirme al curso de cocina"}
+  ]
+}
+Respuesta esperada:
+{
+  "ultimo_mensaje_usuario": "Quiero inscribirme al curso de cocina",
+  "name": "Inscripción al curso de cocina",
+  "razon": "El último mensaje del cliente ('Quiero inscribirme al curso de cocina') es una declaración explícita de intención para iniciar el proceso de inscripción al curso de cocina, lo que lo hace válido."
+}
+Caso 6: Mensaje implícito válido con palabras clave reconocidas (válido)
+Lista de procesos válidos:
+["Registro en el sistema de salud", "Actualización de datos médicos"]
+
+Historial de la conversación:
+{
+  "conversation": [
+    {"sistema": "¿En qué puedo ayudarte hoy?"},
+    {"cliente": "Necesito registrarme en el sistema de salud, mi número es 12345678"}
+  ]
+}
+Respuesta esperada:
+{
+  "ultimo_mensaje_usuario": "Necesito registrarme en el sistema de salud, mi número es 12345678",
+  "name": "Registro en el sistema de salud",
+  "razon": "El último mensaje del cliente ('Necesito registrarme en el sistema de salud, mi número es 12345678') indica de forma implícita su intención de iniciar el proceso de registro en el sistema de salud."
+}
+Instrucciones finales:
+Ahora analiza la siguiente conversación:
+Historial de la conversación:
+${conversationString}
+Último mensaje del cliente:
+${clientMessage}
+Lista de procesos válidos:
+${formNames}
+
+Responde exclusivamente en el siguiente formato JSON:
+{
+  "ultimo_mensaje_usuario": string,
+  "name": string | null,
+  "razon": string
+}
+
     Ahora analiza la siguiente conversación:
     Historial de la conversación:
     ${conversationString}
