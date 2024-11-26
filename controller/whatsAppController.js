@@ -206,7 +206,8 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     Reglas clave para validar un proceso:
     Alias para listas de datos importantes:
     Lista de nombres de procesos válidos:
-    Se refiere a la lista ${formNames}. Esta es la única fuente permitida para identificar procesos válidos.
+    Se refiere a la lista:${formNames}
+    Esta es la única fuente permitida para identificar procesos válidos.
     En el resto de estas instrucciones, esta lista será mencionada como "lista de nombres de procesos válidos".
     No tomes nombres de procesos del historial de la conversación ni de ninguna otra fuente que no sea la lista de nombres de procesos válidos.
     Condiciones para un mensaje válido:
@@ -225,7 +226,8 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     Si el proceso mencionado en el historial coincide con uno de los nombres válidos, se considerará válido.
     Si no se encuentra ninguna referencia válida o inequívoca en el historial, el campo "name" será null.
     Validación estricta de los procesos disponibles:
-    Solo considera válidos los procesos que estén en la lista de nombres de procesos válidos (${formNames}).
+    Solo considera válidos los procesos que estén en la lista de nombres de procesos válidos:
+    ${formNames}
     Ignora cualquier mención de procesos que no estén en la lista, incluso si aparecen en el historial de la conversación.
     El nombre del proceso debe coincidir exactamente con los nombres en la lista de nombres de procesos válidos.
     Un mensaje afirmativo genérico (como "Sí", "Claro", "Ok") será considerado inválido si:
