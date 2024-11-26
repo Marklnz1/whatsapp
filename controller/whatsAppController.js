@@ -203,15 +203,19 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     ``,
     `Eres un analizador de mensajes que responderá exclusivamente en formato JSON. Tu tarea es identificar si el cliente desea iniciar o modificar un proceso válido, y garantizar que este proceso pertenezca exclusivamente a la lista de nombres de procesos válidos.
 
-Información adicional:
-Lista de nombres de procesos válidos: ${formNames}
-Alias: "lista de nombres de procesos válidos".
+Información Importante que Usaras:
+Lista de nombres de procesos válidos(Alias"lista de nombres de procesos válidos"): 
+${formNames}
+Historial de la conversación: 
+${conversationString}
+Último mensaje del cliente: 
+${clientMessage}
+
+En la respuesta en el campo razon siempre al final se menciona la lista de procesos validos de donde analizo y mencionado en la informacion importante
 Esta es la única fuente permitida para identificar procesos válidos.
 Está prohibido inventar nombres de procesos o tomar nombres de procesos del historial de conversación o de cualquier otra fuente que no sea la lista de nombres de procesos válidos.
-El nombre del proceso debe coincidir exactamente con uno de los nombres en esta lista.
-Historial de la conversación: ${conversationString}
+El nombre del proceso debe coincidir exactamente con uno de los nombres en esta lista de procesos validos.
 Contiene los mensajes previos enviados por el sistema y el cliente.
-Último mensaje del cliente: ${clientMessage}
 Este es el mensaje más reciente enviado por el cliente, que debe analizarse para determinar su intención.
 Reglas clave para validar un proceso:
 Condiciones para un mensaje válido:
@@ -249,7 +253,7 @@ Tu respuesta debe tener el siguiente formato:
 {
   "ultimo_mensaje_usuario": string,
   "name": string | null,
-  "razon": string
+  "razon": string(la razon junto a la lista de procesos validos mencionados anteriormente, el cual uso para su analisis ${formNames})
 }
 ultimo_mensaje_usuario: El último mensaje enviado por el cliente.
 name: El nombre del proceso identificado (exactamente como aparece en la lista de nombres de procesos válidos) o null si no se puede determinar.
@@ -271,7 +275,7 @@ Respuesta esperada:
 {
   "ultimo_mensaje_usuario": "Sí",
   "name": "Apertura de cuenta bancaria",
-  "razon": "El último mensaje del cliente ('Sí') es una respuesta afirmativa directa a la pregunta del sistema sobre iniciar el proceso de Apertura de cuenta bancaria."
+  "razon": "El último mensaje del cliente ('Sí') es una respuesta afirmativa directa a la pregunta del sistema sobre iniciar el proceso de Apertura de cuenta bancaria de la lista ["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]"
 }
 Caso 2: Declaración explícita independiente del cliente (válido)
 Lista de nombres de procesos válidos:
@@ -289,7 +293,7 @@ Respuesta esperada:
 {
   "ultimo_mensaje_usuario": "Quiero solicitar un crédito hipotecario",
   "name": "Solicitud de crédito hipotecario",
-  "razon": "El último mensaje del cliente ('Quiero solicitar un crédito hipotecario') es una declaración explícita de intención para iniciar el proceso de Solicitud de crédito hipotecario."
+  "razon": "El último mensaje del cliente ('Quiero solicitar un crédito hipotecario') es una declaración explícita de intención para iniciar el proceso de Solicitud de crédito hipotecario de la lista ["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]"
 }
 Caso 3: Cliente quiere modificar un dato previamente mencionado (válido)
 Lista de nombres de procesos válidos:
@@ -308,7 +312,7 @@ Respuesta esperada:
 {
   "ultimo_mensaje_usuario": "Quiero modificar un dato que te di",
   "name": "Apertura de cuenta bancaria",
-  "razon": "El último mensaje del cliente ('Quiero modificar un dato que te di') hace referencia a un proceso previamente mencionado en el historial ('Apertura de cuenta bancaria')."
+  "razon": "El último mensaje del cliente ('Quiero modificar un dato que te di') hace referencia a un proceso previamente mencionado en el historial ('Apertura de cuenta bancaria') de la lista ["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]."
 }
 Caso 4: Mensaje ambiguo sin referencia directa (inválido)
 Lista de nombres de procesos válidos:
@@ -325,11 +329,8 @@ Respuesta esperada:
 {
   "ultimo_mensaje_usuario": "Quiero modificar un dato",
   "name": null,
-  "razon": "El último mensaje del cliente ('Quiero modificar un dato') no tiene una referencia clara a un proceso específico en el historial y no coincide con ningún proceso en la lista de nombres de procesos válidos."
+  "razon": "El último mensaje del cliente ('Quiero modificar un dato') no tiene una referencia clara a un proceso específico en el historial y no coincide con ningún proceso en la lista de nombres de procesos válidos de la lista ["Inscripción al curso de cocina", "Asesoría nutricional"]."
 }
-  Caso 5: Se analiza el contexto y provee un posible nombre de proceso sin que este este en el historial, pero si esta en la lista de procesos validos
-Lista de nombres de procesos válidos:
-["Compra de vehiculo", "Solicitud de compra de casa"]
 
    `,
     true
