@@ -126,9 +126,9 @@ module.exports.sendWhatsappMessage = async (
   biz_opaque_callback_data,
   clientMessageId
 ) => {
-  console.log("lo recibido " + biz_opaque_callback_data);
+  // console.log("lo recibido " + biz_opaque_callback_data);
   biz_opaque_callback_data ??= "";
-  console.log("lo recibido posible cambio????? " + biz_opaque_callback_data);
+  // console.log("lo recibido posible cambio????? " + biz_opaque_callback_data);
 
   const sendData = {
     biz_opaque_callback_data,
