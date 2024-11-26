@@ -496,8 +496,7 @@ async function isEndCurrentForm(conversationString, clientMessage) {
    `,
     true
   );
-  const terminar = JSON.parse(responseFormName).terminar;
-  return terminar;
+  return JSON.parse(responseFormName);
 }
 async function sendMessageChatbot(
   historial,
@@ -542,8 +541,12 @@ async function sendMessageChatbot(
     await clientDB.save();
   } else {
     console.log("- El proceso actual tiene valor", clientDB.formProcess);
-    const terminar = await isEndCurrentForm(conversationString, clientMessage);
+    const { terminar, razon } = await isEndCurrentForm(
+      conversationString,
+      clientMessage
+    );
     console.log("- Se terminara el proceso actual?", terminar);
+    console.log("- Razon de la decision:'", razon, "'");
 
     if (terminar) {
       clientDB.formProcess = null;
