@@ -354,8 +354,7 @@ Responde exclusivamente en el siguiente formato JSON:
    `,
     true
   );
-  const formName = JSON.parse(responseFormName).name;
-  return formName;
+  return JSON.parse(responseFormName);
 }
 async function isEndCurrentForm(conversationString, clientMessage) {
   const responseFormName = await generateChatBotMessage(
@@ -532,12 +531,19 @@ async function sendMessageChatbot(
 
   if (clientDB.formProcess == null) {
     console.log("- El proceso actual es null");
-    clientDB.formProcess = await getChatbotForm(
+    const { ultimo_mensaje_usuario, razon, name } = await getChatbotForm(
       conversationString,
       clientMessage,
       formNames
     );
+    clientDB.formProcess = name;
     console.log("- Se obtuvo el nuevo proceso actual ", clientDB.formProcess);
+    console.log("- Razon de la decision:'", razon, "'");
+    console.log(
+      "- Ultimo mensaje que se tomo en cuenta:'",
+      ultimo_mensaje_usuario,
+      "'"
+    );
     await clientDB.save();
   } else {
     console.log("- El proceso actual tiene valor", clientDB.formProcess);
