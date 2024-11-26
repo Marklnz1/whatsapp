@@ -541,12 +541,17 @@ async function sendMessageChatbot(
     await clientDB.save();
   } else {
     console.log("- El proceso actual tiene valor", clientDB.formProcess);
-    const { terminar, razon } = await isEndCurrentForm(
+    const { terminar, razon, ultimo_mensaje_usuario } = await isEndCurrentForm(
       conversationString,
       clientMessage
     );
     console.log("- Se terminara el proceso actual?", terminar);
     console.log("- Razon de la decision:'", razon, "'");
+    console.log(
+      "- Ultimo mensaje que se tomo en cuenta:'",
+      ultimo_mensaje_usuario,
+      "'"
+    );
 
     if (terminar) {
       clientDB.formProcess = null;
