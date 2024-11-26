@@ -309,6 +309,19 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
       "name": null,
       "razon": "El último mensaje del cliente ('Quiero modificar un dato') no tiene una referencia clara a un proceso específico en el historial y no coincide con ningún proceso en la lista de nombres de procesos válidos."
     }
+     Instrucciones finales:
+    Ahora analiza la siguiente conversación:
+    Historial de la conversación:
+    ${conversationString}
+    Último mensaje del cliente:
+    ${clientMessage}
+
+    Responde exclusivamente en el siguiente formato JSON:
+    {
+      "ultimo_mensaje_usuario": string,
+      "terminar": boolean,
+      "razon": string
+    }
    `,
     true
   );
