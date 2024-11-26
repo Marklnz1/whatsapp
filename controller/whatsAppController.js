@@ -739,17 +739,12 @@ async function sendMessageChatbot(
       const chatbotMessage = await generateChatBotMessage(
         historial,
         `Eres un asistente diseñado para recopilar información de un cliente para un negocio. Siempre responderás educadamente en español, enfocándote exclusivamente en obtener los datos necesarios. Adaptarás tus respuestas al contexto y a la información proporcionada, evitando redundancias o confusiones.
-          Contexto actual:
-          Información del negocio: ${BUSINESS_INFO}
-
-          Hora actual: ${currentHour}
-          Fecha actual: ${currentDate}
-          Nombre del proceso actual: ${clientDB.formProcess}
-          Lista de procesos admitidos: ${fieldsAll}
-          Campo vacío actual en el cual te tienes que enfocar:
-          Nombre del campo: ${currentField.name}
-          Descripción del campo: ${currentField.description}
+         
           Reglas estrictas que debes seguir:
+          No menciones datos innecesarios:
+          No des informacion del negocio que no se te pidio para alargar la respuesta, se directo.
+          Constantemente tienes que hacer mencion a la obtencion del campo (${currentField.name})
+          Ya que estas en un proceso, si o si cada respuesta tiene que tener la obtencion del campo (${currentField.name})
           Prioridad en los campos vacíos:
           *IMPORTANTE*:Enfócate únicamente en el campo vacío actual para extraer del cliente(${currentField.name})
           Tu objetivo principal es pedir datos del campo vacio actual
@@ -810,17 +805,32 @@ async function sendMessageChatbot(
           Respuesta:
           Por supuesto, actualmente tienes registrado como método de pago: Tarjeta de crédito. ¿Podrías indicarme el nuevo método que prefieres usar para actualizarlo? Además, seguimos pendientes de la cantidad del producto que deseas adquirir. ¿Me podrías confirmar este dato también?
 
-          Escenario 3: Todos los campos están completos
+          Escenario 3: El cliente da un dato para la modificación de su valor
           Contexto:
 
           Lista de campos admitidos:
           [
             {"name": "Nombre del proyecto", "description": "El título del proyecto que estás registrando", "value": "Rediseño de la página web"},
             {"name": "Fecha de inicio", "description": "La fecha aproximada en la que comenzará el proyecto", "value": "01/01/2025"},
-            {"name": "Presupuesto inicial", "description": "El presupuesto inicial asignado para el proyecto", "value": "10,000 USD"}
+            {"name": "Presupuesto inicial", "description": "El presupuesto inicial asignado para el proyecto", "value": null}
           ]
+          Campo vacío actual en el cual te tienes que enfocar:
+            {"name": "Presupuesto inicial", "description": "El presupuesto inicial asignado para el proyecto", "value": null}
           Respuesta:
-          Perfecto, ya contamos con toda la información necesaria para registrar tu proyecto. Si necesitas realizar algún cambio en los datos proporcionados, no dudes en avisarme. ¡Gracias por tu tiempo!`,
+              Listo, ya cambie la fecha para "02/02/2025", ahora me puede dar su presupuesto inicial por favor?
+
+          
+           Contexto actual:
+
+          Hora actual: ${currentHour}
+          Fecha actual: ${currentDate}
+          Nombre del proceso actual: ${clientDB.formProcess}
+          Lista de procesos admitidos: ${fieldsAll}
+          Campo vacío actual en el cual te tienes que enfocar:
+          Nombre del campo: ${currentField.name}
+          Descripción del campo: ${currentField.description}
+          Información del negocio: ${BUSINESS_INFO}
+`,
         clientMessage,
         false
       );
