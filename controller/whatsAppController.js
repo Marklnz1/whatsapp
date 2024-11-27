@@ -658,7 +658,7 @@ async function sendMessageChatbot(
       {"name":"precio del vehiculo","description":"precio estimado del vehiculo según el usuario","value":null}
      ]
     Campo vacio que te enfocaras:
-      {"name":"placa de vehiculo"}
+      {"name":"placa de vehiculo","description":"la placa que identifica al vehiculo"}
     Conversación:
       [
         {"assistant":"gracias por confiar en nosotros, necesito que me brinde su nombre completo"},
@@ -678,7 +678,7 @@ async function sendMessageChatbot(
       {"name":"monto","description":"monto del prestamo que el usuario pide","value":"10 000 soles"}
      ]
   Campo vacio que te enfocaras:
-      {"name":"nombre completo"}
+      {"name":"nombre completo","description":"nombre completo del usuario"}
     Conversación:
       [
         {"assistant":"cual es el monto que requiere para el prestamo?"},
@@ -697,7 +697,7 @@ async function sendMessageChatbot(
       {"name":"razon","description":"razon por la cual eliminara su cuenta","value":"ya no usa la cuenta"}
      ]
     Campo vacio que te enfocaras:
-      {"name":"nombre completo"}
+      {"name":"nombre completo","description":"nombre completo del usuario"}
     Conversación:
       [
         {"assistant":"ok, ya registre su nombre, ahora digame porque quiere eliminar su cuenta?"},
@@ -712,9 +712,13 @@ async function sendMessageChatbot(
 
       Lista de campos del formulario:
       ${fieldsAll}
+      
+      Campo vacio que te enfocaras:
+      {"name":"${currentField.name}","description":"${currentField.description}"}
 
       Conversación:
       ${conversationString}
+      Dame la respuesta que se le dara al usuario de forma directa, no acompañes con datos innecesarios de explicaciones de tu analisis
      `,
         false
       );
