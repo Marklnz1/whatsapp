@@ -523,6 +523,7 @@ async function sendMessageChatbot(
     *IMPORTANTE: cuando realices el analisis y extraigas los datos, siempre toma en cuenta lo siguiente:
       - La descripcion de cada campo es importante, ya que tiene información mas detallada sobre el campo
       - En la conversación, se tiene que tomar en cuenta tambien al assistant, y analizar si este acepta el dato como valido, para que asi puedas extraer dicho dato
+      - En la conversación, es probable que el usuario proporcione un dato que reemplace a un dato anterior para un campo, siempre toma el mensaje que este mas al ultimo o mas reciente como dato para extraer  
     *Formato de respuesta JSON:
       {
         "fieldName1": string(valor extraido para el fieldName1),
