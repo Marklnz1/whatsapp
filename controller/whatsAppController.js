@@ -434,9 +434,9 @@ async function sendMessageChatbot(
   }
   let conversation = [...historial];
   conversation.push({ role: "user", content: clientMessage });
-  let conversationString = "[";
+  let conversationString = "[\n";
   for (const v of conversation) {
-    conversationString += `{"${v.role}":"${v.content}"}`;
+    conversationString += `{"${v.role}":"${v.content}"}\n`;
   }
   conversationString += "]";
   if (clientDB.formProcess == null) {
