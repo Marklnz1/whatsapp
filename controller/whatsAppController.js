@@ -315,7 +315,7 @@ async function isEndCurrentForm(conversationString, currentForm) {
     Respuesta esperada:
     {
         "finish":true
-        "reason":"El usuario afirma a la pregunta del assistant que sus datos son correctos"
+        "reason":"Según su ultimo mensaje (esta bien),el usuario afirma a la pregunta del assistant que sus datos son correctos"
     }
     
     *Ejemplo 2:
@@ -331,7 +331,7 @@ async function isEndCurrentForm(conversationString, currentForm) {
     Respuesta esperada:
      {
         "finish":true
-        "reason":"El usuario indica que quiere finalizar el formulario actual y muestra rechazo a responder"
+        "reason":"Según su ultimo mensaje (deseo finalizar, ya no me preguntes mas), el usuario indica que quiere finalizar el formulario actual y muestra rechazo a responder"
     }
       
     *Ejemplo 3:
@@ -348,7 +348,7 @@ async function isEndCurrentForm(conversationString, currentForm) {
      Respuesta esperada:
         {
         "finish":true
-        "reason":"El usuario indica que quiere no quiere proporcionar el dato que se le solicita"
+        "reason":"Según su ultimo mensaje (no quiero), el usuario indica que quiere no quiere proporcionar el dato que se le solicita"
     }
     
     *Ejemplo 4:
@@ -420,18 +420,14 @@ async function sendMessageChatbot(
     await clientDB.save();
   } else {
     console.log("- El proceso actual es:\n", clientDB.formProcess);
-    const { terminar, razon, ultimo_mensaje_usuario } = await isEndCurrentForm(
+    const { finish, reason } = await isEndCurrentForm(
       conversationString,
       clientMessage
     );
-    console.log("- Se terminara el proceso actual?\n", terminar);
-    console.log("- Razon de la decision:\n", razon);
-    console.log(
-      "- Ultimo mensaje que se tomo en cuenta:\n",
-      ultimo_mensaje_usuario
-    );
+    console.log("- Se terminara el proceso actual?\n", finish);
+    console.log("- Razon de la decision:\n", reason);
 
-    if (terminar) {
+    if (finish) {
       let chatbotMessage = `Se finalizo el registro de ${clientDB.formProcess}`;
       clientDB.formProcess = null;
       await clientDB.save();
