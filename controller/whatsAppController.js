@@ -265,8 +265,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
         "reason": "El usuario con su ultimo mensaje (ok, y que pasa si no realizo el pago de mi prestamo?) solo esta preguntando, y sus intenciones de iniciar algun formulario son ambiguas"
       }
     `,
-    ` 
-    Analiza la siguiente información:
+    `Analiza la siguiente información:
     Lista de nombres de formularios:
     ${formNames}
 
@@ -440,31 +439,30 @@ async function sendMessageChatbot(
   }
   conversationString += "]";
   if (clientDB.formProcess == null) {
-    console.log("- El proceso actual es null");
+    console.log("- El proceso actual es:\nnull");
     const { reason, formName } = await getChatbotForm(
       conversationString,
       clientMessage,
       formNames
     );
     clientDB.formProcess = formName;
-    console.log("- Se obtuvo el nuevo proceso actual:", clientDB.formProcess);
-    console.log("- Razon de la decision:'", reason, "'");
+    console.log("- Se obtuvo el nuevo proceso actual:\n", clientDB.formProcess);
+    console.log("- Razon de la decision:\n", reason);
     console.log("- Lista de procesos analizados:\n", formNames);
     console.log("- Conversación analizada:\n", conversationString);
 
     await clientDB.save();
   } else {
-    console.log("- El proceso actual tiene valor", clientDB.formProcess);
+    console.log("- El proceso actual es:\n", clientDB.formProcess);
     const { terminar, razon, ultimo_mensaje_usuario } = await isEndCurrentForm(
       conversationString,
       clientMessage
     );
-    console.log("- Se terminara el proceso actual?", terminar);
-    console.log("- Razon de la decision:'", razon, "'");
+    console.log("- Se terminara el proceso actual?\n", terminar);
+    console.log("- Razon de la decision:\n", razon);
     console.log(
-      "- Ultimo mensaje que se tomo en cuenta:'",
-      ultimo_mensaje_usuario,
-      "'"
+      "- Ultimo mensaje que se tomo en cuenta:\n",
+      ultimo_mensaje_usuario
     );
 
     if (terminar) {
@@ -486,148 +484,117 @@ async function sendMessageChatbot(
         fields: currentForm.fields,
       });
     }
-    let fieldsAllFirst = "[";
+    let fieldsAllFirst = "[\n";
 
     for (const field of currentFormValueDB.fields) {
-      fieldsAllFirst += JSON.stringify(field) + "\n";
+      fieldsAllFirst += `{"name":"${field.name}","description":"${field.description}", "value":"${field.value}"\n`;
     }
     fieldsAllFirst += "]";
-    console.log("-Todos los campos antes de ser modificados\n", fieldsAllFirst);
+    console.log(
+      "-Todos los campos antes de ser modificados:\n",
+      fieldsAllFirst
+    );
     const responseFormName = await generateChatBotMessage(
       [],
-      ``,
-      `Eres un analizador de conversaciones especializado en extraer información proporcionada por el cliente a partir de un historial de conversación. Responderás exclusivamente en formato JSON.
-
-      Objetivo principal
-      A partir de una lista única de campos y un historial de conversación, extraer los valores más recientes proporcionados por el cliente para cada campo. La lista única de campos contiene objetos con las siguientes propiedades:
-
-      name: Nombre único del campo (clave para el JSON de salida).
-      description: Descripción del campo que orienta sobre el tipo de dato esperado.
-      value (opcional): Valor inicial del campo, si ya tiene uno asignado.
-      El objetivo es devolver un JSON con el formato:
+      `*Eres un experto analizando conversaciones y devuelves los resultados en formato JSON
+    *Tu tarea es analizar una conversación y una lista de campos de un formulario
+    *Extraeras valores o datos de la conversación que sirvan para completar los campos de tu formulario
+    *Si en la conversacion varios datos pueden ser validos para un campo del formulario, se toma el ultimo o mas reciente
+    *Solo se toman los datos que analizando la conversación, el usuario tenga intenciones de brindarlas para completar el formulario
+    *En la respuesta solo aparecen los campos de los cuales se pudo extraer información
+    *IMPORTANTE: cuando realices el analisis y extraigas los datos, siempre toma en cuenta lo siguiente:
+      - La descripcion de cada campo es importante, ya que tiene información mas detallada sobre el campo
+      - En la conversación, se tiene que tomar en cuenta tambien al assistant, y analizar si este acepta el dato como valido, para que asi puedas extraer dicho dato
+    *Formato de respuesta JSON:
       {
-        "field_name1": "nuevo_valor_o_valor_existente",
-        "field_name2": null,
-        "field_name3": "valor_modificado"
+        "fieldName1": string(valor extraido para el fieldName1),
+        "fieldName2": string(valor extraido para el fieldName2),
+        "fieldName3": string(valor extraido para el fieldName3),
+        "fieldName4": string(valor extraido para el fieldName4),
       }
-      Para cada campo:
+    *Ejemplo 1:
+    Nombre del formulario:
+      Solicitud de registro de vehiculo
+    Lista de campos del formulario:
+     [
+      {"name":"placa del vehiculo","description":"la placa que identifica al vehiculo","value":null},
+      {"name":"nombre completo","description":"nombre completo del usuario","value":null},
+      {"name":"precio del vehiculo","description":"precio estimado del vehiculo según el usuario","value":null}
+     ]
 
-      Si el historial contiene un valor relevante, actualiza el campo con el valor más reciente proporcionado.
-      Si no se encuentra un valor para el campo en el historial, asigna null.
-      Instrucciones
-      Procesamiento de la lista única de campos
-      Estructura de la lista única de campos:
-      La lista tiene objetos con la estructura:
-      { "name": "nombre", "description": "Tu nombre completo", "value": "Ana" }
-      La propiedad value es opcional. Si no está presente, significa que el campo aún no tiene un valor asignado.
-      Claves del JSON de salida:
-      Utiliza el valor de name como clave para el JSON de salida.
-      Actualización de valores:
-      Si el cliente proporciona un nuevo valor para un campo, actualiza el valor.
-      Si no hay menciones relevantes en el historial para un campo, su valor será null (incluso si previamente no tenía valor).
-      Análisis del historial de conversación
-      Extracción explícita:
-      Busca menciones directas al nombre o descripción del campo.
-      Ejemplo: Si el cliente dice "Mi correo es ana@example.com", el valor de correo será "ana@example.com".
-      Extracción implícita:
-      Identifica datos que pueden asociarse claramente a un campo basado en el contexto, aunque el cliente no mencione explícitamente el nombre del campo.
-      Ejemplo: Si el cliente dice "Hola, soy Ana", puedes inferir que el valor del campo nombre es "Ana".
-      Modificaciones:
-      Si un cliente menciona un cambio para un campo, como "Modifica mi teléfono a 555123456", actualiza el valor con el más reciente.
-      Prioridad del dato más reciente:
-      Si un mismo campo tiene múltiples valores proporcionados en diferentes momentos, selecciona el valor más reciente.
-      Campos sin valor
-      Si no se encuentra un valor asociado a un campo en el historial, asígnale el valor null en el JSON.
+    Conversación:
+      [
+        {"assistant":"gracias por confiar en nosotros, necesito que me brinde su nombre completo"},
+        {"user":"Marcos Salas Duran"},
+        {"assistant":"Ok, ahora necesito la placa de su vehiculo"},
+        {"user":"disculpa, era Marco Gomez Duran"}    
+        {"assistant":"Ok, actualice su nombre, ahora como le decia, requiero la placa de su vehiculo"},
+        {"user":"Ok, es 8UJB2214"},
 
-      Formato de salida
-      La respuesta será un JSON con las claves correspondientes al name de los campos.
-      Cada clave tendrá como valor el dato más reciente proporcionado en el historial, el valor inicial (si no fue modificado), o null si no se encuentra información para el campo.
+      ]
+    Respuesta esperada:
+    {
+      "placa del vehiculo":"8UJB2214",
+      "nombre completo":"Marco Gomez Duran",
+      "precio del vehiculo":null  
+    }
+    
+    *Ejemplo 2:
+    Nombre del formulario:
+      Solicitud de prestamo
+    Lista de campos del formulario:
+     [
+      {"name":"nombre completo","description":"nombre completo del usuario","value":null}
+      {"name":"monto","description":"monto del prestamo que el usuario pide","value":null}
+     ]
 
-      Ejemplo 1: Caso completo
-      Lista única de campos:
+    Conversación:
       [
-        { "name": "nombre", "description": "Tu nombre completo", "value": null },
-        { "name": "correo", "description": "Tu correo electrónico", "value": null },
-        { "name": "teléfono", "description": "Tu número de teléfono", "value": "918284124" }
+        {"assistant":"cual es el monto que requiere para el prestamo?"},
+        {"user":"deseo, 10 000 soles"},
+        {"assistant":"ok, ahora necesito su nombre completo"},
+        {"user":"bueno, mi hermano se llama Jorge Santivan Salas"},
+        {"assistant":"necesito el nombre de quien solicitara el prestamo, osea usted"},
+        {"user":"entonces no le brindare nada"}    
+        {"assistant":"Ok, finalizare el formulario de Solicitud de prestamo"},
+        {"user":"bueno"},
+
       ]
-      Historial de la conversación:
-      [
-        { "cliente": "Hola, soy Ana." },
-        { "sistema": "¿Podrías proporcionarnos tu correo electrónico?" },
-        { "cliente": "Claro, mi correo es ana@example.com." },
-        { "sistema": "Gracias, Ana. ¿Algo más en lo que pueda ayudarte?" },
-        { "cliente": "Modifica mi teléfono a 555123456." },
-        { "sistema": "Listo, hemos actualizado tu teléfono." }
-      ]
-      Salida esperada:
+    Respuesta esperada:
       {
-        "nombre": "Ana",
-        "correo": "ana@example.com",
-        "teléfono": "555123456"
+        "nombre completo":null,
+        "monto":"10 000 soles"
       }
-      Ejemplo 2: Valores faltantes
-      Lista única de campos:
+    *Ejemplo 3:
+    Nombre del formulario:
+      Eliminación de cuenta
+    Lista de campos del formulario:
+     [
+      {"name":"nombre completo","description":"nombre completo del usuario","value":"Lucas marquez gomez"}
+      {"name":"razon","description":"razon por la cual eliminara su cuenta","value":null}
+     ]
+
+    Conversación:
       [
-        { "name": "DNI", "description": "Tu número de identificación personal", "value": null },
-        { "name": "dirección", "description": "Tu dirección de residencia", "value": null },
-        { "name": "teléfono", "description": "Tu número de teléfono", "value": "918284124" }
+        {"assistant":"ok, ya registre su nombre, ahora digame porque quiere eliminar su cuenta?"},
+        {"user":"no necesito decirle la razón"},
+        {"assistant":"no se preocupe, es opcional, procedere con la eliminación"},
+        {"user":"esta bien, gracias"}
       ]
-      Historial de la conversación:
-      [
-        { "cliente": "Mi DNI es 12345678." },
-        { "sistema": "¿Podrías proporcionarnos tu dirección?" },
-        { "cliente": "No la tengo a la mano en este momento." }
-      ]
-      Salida esperada:
+    Respuesta esperada:
       {
-        "DNI": "12345678",
-        "dirección": null,
-        "teléfono": "918284124"
-      }
-      Ejemplo 3: Campo irrelevante ignorado
-      Lista única de campos:
-      [
-        { "name": "nombre", "description": "Tu nombre completo", "value": null },
-        { "name": "correo", "description": "Tu correo electrónico", "value": null },
-        { "name": "teléfono", "description": "Tu número de teléfono", "value": "918284124" }
-      ]
-      Historial de la conversación:
-      [
-        { "cliente": "Mi nombre es Pedro." },
-        { "cliente": "Por cierto, ¿pueden ayudarme con algo más? Mi coche está fallando." },
-        { "sistema": "Claro, ¿podrías darnos tu correo electrónico?" },
-        { "cliente": "Sí, es pedro@example.com." }
-      ]
-      Salida esperada:
-      {
-        "nombre": "Pedro",
-        "correo": "pedro@example.com",
-        "teléfono": "918284124"
-      }
-      Ejemplo 4: Todos los valores son null
-      Lista única de campos:
-      [
-        { "name": "nombre", "description": "Tu nombre completo", "value": null },
-        { "name": "correo", "description": "Tu correo electrónico", "value": null },
-        { "name": "teléfono", "description": "Tu número de teléfono", "value": null }
-      ]
-      Historial de la conversación:
-      [
-        { "cliente": "Hola, ¿pueden ayudarme con algo?" },
-        { "sistema": "Claro, ¿podrías proporcionarnos tu información?" },
-        { "cliente": "Prefiero no compartirla ahora." }
-      ]
-      Salida esperada:
-      {
-        "nombre": null,
-        "correo": null,
-        "teléfono": null
-      }
-      Ahora analiza la siguiente conversación:
-      Historial de la conversación:
-      ${conversationString}
-      Lista única de campos:
+        "nombre completo":null,
+        "razon":null
+      }`,
+      `Analiza la siguiente información:
+      Nombre del formulario:
+      ${clientDB.formProcess}
+      
+      Lista de campos del formulario:
       ${fieldsAllFirst}
+
+      Conversación:
+      ${conversationString}
      `,
       true
     );
