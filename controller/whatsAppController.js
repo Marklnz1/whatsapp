@@ -635,6 +635,8 @@ async function sendMessageChatbot(
       "-El actual field vacio es \n",
       util.inspect(currentField, true, 99)
     );
+    console.log("-Los fields actualizados:\n", fieldsAll);
+
     if (currentField != null) {
       const chatbotMessage = await generateChatBotMessage(
         [],
@@ -771,7 +773,7 @@ async function sendMessageChatbot(
       *Ejemplo 1:
     Nombre del formulario:
       Solicitud de registro de vehiculo
-    Lista de campos del formulario:
+   Lista de campos del formulario rellenados que mostraras al usuario:
      [
       {"name":"placa del vehiculo","description":"la placa que identifica al vehiculo","value":"2H182H"},
       {"name":"nombre completo","description":"nombre completo del usuario","value":"Marco Gomez Duran"},
@@ -795,7 +797,7 @@ async function sendMessageChatbot(
     *Ejemplo 2:
     Nombre del formulario:
       Solicitud de prestamo
-    Lista de campos del formulario:
+  Lista de campos del formulario rellenados que mostraras al usuario:
      [
       {"name":"nombre completo","description":"nombre completo del usuario","value":"Marco Gomez Duran"}
       {"name":"monto","description":"monto del prestamo que el usuario pide","value":"10 000 soles"}
@@ -815,7 +817,7 @@ async function sendMessageChatbot(
     *Ejemplo 3:
     Nombre del formulario:
       Eliminación de cuenta
-    Lista de campos del formulario:
+      Lista de campos del formulario rellenados que mostraras al usuario:
      [
       {"name":"nombre completo","description":"nombre completo del usuario","value":"Marco Gomez Dura"}
       {"name":"razon","description":"razon por la cual eliminara su cuenta","value":"ya no usa la cuenta"}
@@ -841,7 +843,7 @@ async function sendMessageChatbot(
       Nombre del formulario:
       ${clientDB.formProcess}
 
-      Lista de campos del formulario:
+      Lista de campos del formulario rellenados que mostraras al usuario:
       ${fieldsAll}
 
       Conversación:
