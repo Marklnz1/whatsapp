@@ -200,138 +200,80 @@ function obtenerSaludo() {
 async function getChatbotForm(conversationString, clientMessage, formNames) {
   const responseFormName = await generateChatBotMessage(
     [],
-    ``,
-    `Eres un analizador de mensajes que responderá exclusivamente en formato JSON. Tu tarea es identificar si el cliente desea iniciar o modificar un proceso válido, y garantizar que este proceso pertenezca exclusivamente a la lista de nombres de procesos válidos.
+    `*Eres un experto analizando conversaciones y devuelves los resultados en formato JSON
+    *Tu tarea es analizar una conversación y una lista de nombres de formularios
+    *De acuerdo al contexto de la conversación, determinaras si el ultimo mensaje del usuario, tiene intenciones de realizar un formulario que pertenezca a la lista proporcionada
+    *Formato de respuesta JSON:
+          {
+            "formName": string | null (nombre del formulario)
+            "reason": string(razón de la decision de la elección de un nombre de usuario o null)
+          }
+    *Ejemplo 1:
+    Lista de nombres de formularios:
+     Solicitud de eliminación de cuenta
+     Formulario de registro de vehiculo
+     Solicitud de registro de identidad
 
-Información Importante que Usaras:
-Lista de nombres de procesos válidos(Alias"lista de nombres de procesos válidos"): 
-${formNames}
-Historial de la conversación: 
-${conversationString}
-Último mensaje del cliente: 
-${clientMessage}
 
-En la respuesta en el campo razon siempre al final se menciona la lista de procesos validos de donde analizo y mencionado en la informacion importante
-Esta es la única fuente permitida para identificar procesos válidos.
-Está prohibido inventar nombres de procesos o tomar nombres de procesos del historial de conversación o de cualquier otra fuente que no sea la lista de nombres de procesos válidos.
-El nombre del proceso debe coincidir exactamente con uno de los nombres en esta lista de procesos validos.
-Contiene los mensajes previos enviados por el sistema y el cliente.
-Este es el mensaje más reciente enviado por el cliente, que debe analizarse para determinar su intención.
-Reglas clave para validar un proceso:
-Condiciones para un mensaje válido:
-Un mensaje será válido para iniciar o modificar un proceso si cumple con alguna de las siguientes condiciones:
+    Conversación:
+      [
+        {"assistant":"gracias por su registro exitoso"},
+        {"user":"ok, me gustaria saber su horario disponible"},
+        {"assistant":"nuestro horario es de 10:00 AM a 2:00 PM"},
+        {"user":"ok, como elimino mi cuenta?"}    
+      ]
+    Respuesta esperada:
+      {
+        "formName": null
+        "reason": "El usuario con su ultimo mensaje (ok, como elimino mi cuenta?) solo esta preguntando, y sus intenciones de iniciar algun formulario son ambiguas"
+      }
+    
+    *Ejemplo 2:
+    Lista de nombres de formularios:
+     Solicitud de registro de identidad
+     Solicitud de prestamo de dinero
+     Formulario de apreciación
 
-Es una respuesta afirmativa directa a una pregunta del sistema sobre un proceso específico en la lista de nombres de procesos válidos.
-Ejemplo válido:
-Pregunta del sistema: "¿Quieres iniciar el proceso de Apertura de cuenta bancaria?"
-Respuesta del cliente: "Sí" o "Claro".
-Incluye una declaración explícita o implícita de intención del cliente para iniciar o modificar un proceso en la lista de nombres de procesos válidos.
-Ejemplo válido:
-"Quiero registrarme en el curso de cocina."
-"Necesito solicitar un crédito hipotecario."
-Hace referencia a un proceso previamente mencionado en el historial de conversación, siempre que ese proceso coincida exactamente con uno de los nombres en la lista de nombres de procesos válidos.
-Si el cliente menciona que desea modificar un dato o proceso, busca en el historial menciones claras de procesos que coincidan con los nombres de la lista de nombres de procesos válidos.
-Si el proceso mencionado en el historial coincide con uno de los nombres válidos, se considerará válido.
-Si no se encuentra ninguna referencia válida o inequívoca en el historial, el campo "name" será null.
-Validación estricta de los procesos disponibles:
-Solo considera válidos los procesos que estén en la lista de nombres de procesos válidos.
-Ignora cualquier mención de procesos que no estén en la lista, incluso si aparecen en el historial de la conversación.
-Está prohibido inventar nombres de procesos o interpretar las menciones del cliente como un proceso válido si no coincide exactamente con los nombres en la lista.
-Reglas adicionales para mensajes:
-Mensajes genéricos afirmativos:
-Un mensaje afirmativo genérico (como "Sí", "Claro", "Ok") será considerado inválido si:
-No responde directamente a una pregunta del sistema sobre un proceso específico.
-El cliente no detalla explícitamente el proceso que desea iniciar o modificar.
-Mensajes ambiguos:
-Si el cliente realiza un mensaje ambiguo o genérico sin hacer referencia clara a un proceso válido, el campo "name" será null.
-El campo "razon" debe explicar claramente por qué el mensaje no es válido (por ejemplo, mensaje ambiguo, no relacionado con un proceso, fuera de la lista de nombres de procesos válidos).
-Historial de la conversación:
-Si el cliente menciona un proceso previamente, verifica estrictamente si ese proceso pertenece a la lista de nombres de procesos válidos.
-No interpretes ni inventes nombres de procesos basándote en el historial.
-Formato de respuesta JSON:
-Tu respuesta debe tener el siguiente formato:
-{
-  "ultimo_mensaje_usuario": string,
-  "name": string | null,
-  "razon": string(la razon junto a la lista de procesos validos mencionados anteriormente, el cual uso para su analisis ${formNames})
-}
-ultimo_mensaje_usuario: El último mensaje enviado por el cliente.
-name: El nombre del proceso identificado (exactamente como aparece en la lista de nombres de procesos válidos) o null si no se puede determinar.
-razon: Explicación clara y breve de la decisión tomada.
-Casos de uso cubiertos:
-Caso 1: Respuesta directa a una pregunta sobre un proceso (válido)
-Lista de nombres de procesos válidos:
-["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]
+    Conversación:
+      [
+        {"assistant":"esperamos que nos contacte"},
+        {"user":"gracias, dame info de los montos de prestamos que ofrece"},
+        {"assistant":"ofrecemos solo montos de 2000 dolares, ¿Desea realizar el prestamo?"},
+        {"user":"si"}    
+      ]
+    Respuesta esperada:
+      {
+        "formName": "Solicitud de prestamo de dinero"
+        "reason": "El usuario con su ultimo mensaje (si) tiene intenciones de realizar un prestamo ya que responde a una pregunta con esa intención, esto corresponde al formulario (Solicitud de prestamo de dinero)"
+      }
+    *Ejemplo 3:
+    Lista de nombres de formularios:
+     Solicitud de registro de identidad
+     Solicitud de prestamo de dinero
+     Formulario de apreciación
 
-Historial de la conversación:
-{
-  "conversation": [
-    {"sistema": "¿Quieres realizar la apertura de una cuenta bancaria?"},
-    {"cliente": "Sí"}
-  ]
-}
-Respuesta esperada:
+    Conversación:
+      [
+        {"assistant":"que tenga un buen dia"},
+        {"user":"okey, y atienden a las 9:00 PM"},
+        {"assistant":"No, solo hasta las 6:00 PM"},
+        {"user":"ok, y que pasa si no realizo el pago de mi prestamo?"}    
+      ]
+    Respuesta esperada:
+      {
+        "formName": "Solicitud de prestamo de dinero"
+        "reason": "El usuario con su ultimo mensaje (ok, y que pasa si no realizo el pago de mi prestamo?) solo esta preguntando, y sus intenciones de iniciar algun formulario son ambiguas"
+      }
+    `,
+    ` 
+    Analiza la siguiente información:
+    Lista de nombres de formularios:
+    ${formNames}
 
-{
-  "ultimo_mensaje_usuario": "Sí",
-  "name": "Apertura de cuenta bancaria",
-  "razon": "El último mensaje del cliente ('Sí') es una respuesta afirmativa directa a la pregunta del sistema sobre iniciar el proceso de Apertura de cuenta bancaria de la lista ["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]"
-}
-Caso 2: Declaración explícita independiente del cliente (válido)
-Lista de nombres de procesos válidos:
-["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]
+    Conversación:
+    ${conversationString}
 
-Historial de la conversación:
-
-{
-  "conversation": [
-    {"sistema": "¿En qué puedo ayudarte hoy?"},
-    {"cliente": "Quiero solicitar un crédito hipotecario"}
-  ]
-}
-Respuesta esperada:
-{
-  "ultimo_mensaje_usuario": "Quiero solicitar un crédito hipotecario",
-  "name": "Solicitud de crédito hipotecario",
-  "razon": "El último mensaje del cliente ('Quiero solicitar un crédito hipotecario') es una declaración explícita de intención para iniciar el proceso de Solicitud de crédito hipotecario de la lista ["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]"
-}
-Caso 3: Cliente quiere modificar un dato previamente mencionado (válido)
-Lista de nombres de procesos válidos:
-["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]
-
-Historial de la conversación:
-{
-  "conversation": [
-    {"sistema": "¿Quieres realizar la apertura de una cuenta bancaria?"},
-    {"cliente": "Sí"},
-    {"sistema": "Perfecto, hemos iniciado el proceso de apertura de cuenta bancaria. ¿Hay algo más que quieras agregar?"},
-    {"cliente": "Quiero modificar un dato que te di"}
-  ]
-}
-Respuesta esperada:
-{
-  "ultimo_mensaje_usuario": "Quiero modificar un dato que te di",
-  "name": "Apertura de cuenta bancaria",
-  "razon": "El último mensaje del cliente ('Quiero modificar un dato que te di') hace referencia a un proceso previamente mencionado en el historial ('Apertura de cuenta bancaria') de la lista ["Apertura de cuenta bancaria", "Solicitud de crédito hipotecario"]."
-}
-Caso 4: Mensaje ambiguo sin referencia directa (inválido)
-Lista de nombres de procesos válidos:
-["Inscripción al curso de cocina", "Asesoría nutricional"]
-
-Historial de la conversación:
-{
-  "conversation": [
-    {"sistema": "¿En qué puedo ayudarte hoy?"},
-    {"cliente": "Quiero modificar un dato"}
-  ]
-}
-Respuesta esperada:
-{
-  "ultimo_mensaje_usuario": "Quiero modificar un dato",
-  "name": null,
-  "razon": "El último mensaje del cliente ('Quiero modificar un dato') no tiene una referencia clara a un proceso específico en el historial y no coincide con ningún proceso en la lista de nombres de procesos válidos de la lista ["Inscripción al curso de cocina", "Asesoría nutricional"]."
-}
-
+    Ahora dame una respuesta en JSON de acuerdo a tu analisis
    `,
     true
   );
@@ -487,37 +429,26 @@ async function sendMessageChatbot(
   const conversationalForms = await ConversationalForm.find();
   const conversationalFormMap = {};
   for (const form of conversationalForms) {
-    formNames += `${form.name}`;
+    formNames += `${form.name}\n`;
     conversationalFormMap[form.name] = form;
   }
-  let conversationString = "Conversación que se tuvo:";
   let conversation = [...historial];
   conversation.push({ role: "user", content: clientMessage });
+  let conversationString = "[";
   for (const v of conversation) {
-    if (v.role == "assistant") {
-      conversationString += "-Sistema:\n";
-      conversationString += " Mensaje:" + v.content + "\n";
-    } else {
-      conversationString += "-Cliente:\n";
-      conversationString += " Mensaje:" + v.content + "\n";
-    }
+    conversationString += `{"${v.role}":"${v.content}"}`;
   }
-
+  conversationString += "]";
   if (clientDB.formProcess == null) {
     console.log("- El proceso actual es null");
-    const { ultimo_mensaje_usuario, razon, name } = await getChatbotForm(
+    const { reason, formName } = await getChatbotForm(
       conversationString,
       clientMessage,
       formNames
     );
-    clientDB.formProcess = name;
+    clientDB.formProcess = formName;
     console.log("- Se obtuvo el nuevo proceso actual ", clientDB.formProcess);
-    console.log("- Razon de la decision:'", razon, "'");
-    console.log(
-      "- Ultimo mensaje que se tomo en cuenta:'",
-      ultimo_mensaje_usuario,
-      "'"
-    );
+    console.log("- Razon de la decision:'", reason, "'");
     await clientDB.save();
   } else {
     console.log("- El proceso actual tiene valor", clientDB.formProcess);
@@ -549,7 +480,7 @@ async function sendMessageChatbot(
     if (currentFormValueDB == null) {
       currentFormValueDB = new ConversationalFormValue({
         conversationalForm: currentForm._id,
-        fields: [...currentForm.fields],
+        fields: currentForm.fields,
       });
     }
     let fieldsAllFirst = "[";
