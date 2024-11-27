@@ -285,10 +285,13 @@ async function isEndCurrentForm(conversationString, currentForm) {
     `*Eres un experto analizando conversaciones y devuelves los resultados en formato JSON
     *Tu tarea es analizar una conversación y verificar si el usuario quiere finalizar el formulario actual
     *De acuerdo al contexto de la conversación, determinaras si el ultimo mensaje del usuario, tiene intenciones de finalizar el formulario actual
+    *La conversación es para dar contexto, se le da mucho mas valor al ultimo mensaje del usuario
     *IMPORTANTE: las unicas 3 razones en las que se finalizara el usuario:
      - Si el usuario responde afirmativamente cuando el assistant le pregunta si los campos que relleno son correctos y esta satisfecho
      - Si el usuario indica que quiere finalizar el formulario actual o tiene esa intención
-     - Si el usuario no quiere brindar un campo que el assistant le solicita, negandoze
+     - Si el usuario no quiere brindar un campo que el assistant le solicita, negandose
+     no finalizar cuando:
+     - Si anteriormente nego dar un dato, solo importa el ultimo mensaje, si en el ultimo mensaje esta dando los datos, no hay problema
      *Formato de respuesta JSON:
           {
             "finish": boolean
@@ -365,8 +368,30 @@ async function isEndCurrentForm(conversationString, currentForm) {
      Respuesta esperada:
         {
         "finish":false
-        "reason":"El usuario dio el campo solicitado, no muestra rechazo a responder"
-    }`,
+        "reason":"Según su ultimo mensaje (Marcos salas), el usuario dio el campo solicitado, no muestra rechazo a responder"
+        }
+    *Ejemplo 5:
+    Nombre del formulario:
+      Eliminación de cuenta
+    Conversación:
+      [
+       {"assistant":"cual es el monto que requiere para el prestamo?"},
+        {"user":"deseo, 10 000 soles"},
+        {"assistant":"ok, ahora necesito su nombre completo"},
+        {"user":"No quiero"},
+        {"assistant":"Se finalizo la eliminación de cuenta"},
+        {"user":"Ahora si quiero"},
+        {"assistant":"Entiendo que cambio de opinion, ahora necesito su nombre completo para finalizar la eliminación de cuenta"},
+        {"user":"Jorge Duran Santos"},
+
+
+      ]
+     Respuesta esperada:
+        {
+        "finish":false
+        "reason":"Según su ultimo mensaje (Jorge Duran Santos), el usuario dio el campo solicitado, incluso si anteriormente se negó a proporcionarlo"
+        }
+        `,
     `Analiza la siguiente información:
     Nombre del formulario:
     ${currentForm}
