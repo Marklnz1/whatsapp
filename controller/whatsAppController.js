@@ -233,7 +233,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     Respuesta esperada:
       {
         "formName": null
-        "reason": "El usuario con su ultimo mensaje (ok, como elimino mi cuenta?) solo esta preguntando, no se da valor a mensajes anteriores para sacar la conclusión, y sus intenciones de iniciar algun formulario no son claras, por lo tanto el valor de formName es null"
+        "reason": "El usuario con su ultimo mensaje (ok, como elimino mi cuenta?) solo esta preguntando,no se dara valor a un formulario rellenado anteriormente en la conversacion para el formName , y sus intenciones de iniciar algun formulario no son claras, por lo tanto el valor de formName es null"
       }
     
     *Ejemplo 2:
@@ -252,7 +252,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     Respuesta esperada:
       {
         "formName": "Solicitud de prestamo de dinero"
-        "reason": "El usuario con su ultimo mensaje (si), no se da valor a mensajes anteriores para sacar la conclusión, tiene intenciones de realizar un prestamo ya que responde a una pregunta con esa intención, esto corresponde al formulario (Solicitud de prestamo de dinero)"
+        "reason": "El usuario con su ultimo mensaje (si), no se dara valor a un formulario rellenado anteriormente en la conversacion para el formName, tiene intenciones de realizar un prestamo ya que responde a una pregunta con esa intención, esto corresponde al formulario (Solicitud de prestamo de dinero)"
       }
     *Ejemplo 3:
     Lista de nombres de formularios:
@@ -270,7 +270,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     Respuesta esperada:
       {
         "formName": null
-        "reason": "El usuario con su ultimo mensaje (ok, y que pasa si no realizo el pago de mi prestamo?), no se da valor a mensajes anteriores para sacar la conclusión, solo esta preguntando, y sus intenciones de iniciar algun formulario no son claras, por lo tanto el formName es null"
+        "reason": "El usuario con su ultimo mensaje (ok, y que pasa si no realizo el pago de mi prestamo?), no se dara valor a un formulario rellenado anteriormente en la conversacion para el formName, solo esta preguntando, y sus intenciones de iniciar algun formulario no son claras, por lo tanto el formName es null"
       }
      *Ejemplo 4:
     Lista de nombres de formularios:
