@@ -203,6 +203,9 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     `*Eres un experto analizando conversaciones y devuelves los resultados en formato JSON
     *Tu tarea es analizar una conversación y una lista de nombres de formularios
     *De acuerdo al contexto de la conversación, determinaras si el ultimo mensaje del usuario, tiene intenciones de realizar un formulario que pertenezca a la lista proporcionada
+    *IMPORTANTE:El campo reason tiene que tener sentido con el campo formName, es decir:
+     - si en el campo reason dice que no se pudo obtener un nombre de formulario o similares, en el formName tiene que estar null
+     - no seas inconsistente con la relacion entre el campo reason y el campo formName
     *Formato de respuesta JSON:
           {
             "formName": string | null (nombre del formulario)
@@ -225,7 +228,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     Respuesta esperada:
       {
         "formName": null
-        "reason": "El usuario con su ultimo mensaje (ok, como elimino mi cuenta?) solo esta preguntando, y sus intenciones de iniciar algun formulario son ambiguas"
+        "reason": "El usuario con su ultimo mensaje (ok, como elimino mi cuenta?) solo esta preguntando, y sus intenciones de iniciar algun formulario no son claras, por lo tanto la respuesta es null"
       }
     
     *Ejemplo 2:
@@ -262,7 +265,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     Respuesta esperada:
       {
         "formName": "Solicitud de prestamo de dinero"
-        "reason": "El usuario con su ultimo mensaje (ok, y que pasa si no realizo el pago de mi prestamo?) solo esta preguntando, y sus intenciones de iniciar algun formulario son ambiguas"
+        "reason": "El usuario con su ultimo mensaje (ok, y que pasa si no realizo el pago de mi prestamo?) solo esta preguntando, y sus intenciones de iniciar algun formulario no son claras, por lo tanto la respuesta es null"
       }
     `,
     `Analiza la siguiente información:
