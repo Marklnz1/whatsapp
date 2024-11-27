@@ -286,12 +286,14 @@ async function isEndCurrentForm(conversationString, currentForm) {
     *Tu tarea es analizar una conversación y verificar si el usuario quiere finalizar el formulario actual
     *De acuerdo al contexto de la conversación, determinaras si el ultimo mensaje del usuario, tiene intenciones de finalizar el formulario actual
     *La conversación es para dar contexto, se le da mucho mas valor al ultimo mensaje del usuario
-    *IMPORTANTE: las unicas 3 razones en las que se finalizara el usuario:
+    *IMPORTANTE*: las unicas 3 razones en las que se finalizara el usuario:
      - Si el usuario responde afirmativamente cuando el assistant le pregunta si los campos que relleno son correctos y esta satisfecho
      - Si el usuario indica que quiere finalizar el formulario actual o tiene esa intención
      - Si el usuario no quiere brindar un campo que el assistant le solicita, negandose
-     no finalizar cuando:
+      *IMPORTANTE*:no finalizar cuando:
      - Si anteriormente nego dar un dato, solo importa el ultimo mensaje, si en el ultimo mensaje esta dando los datos, no hay problema
+     - Si el usuario proporcion un campo solicitado
+  
      *Formato de respuesta JSON:
           {
             "finish": boolean
@@ -368,7 +370,7 @@ async function isEndCurrentForm(conversationString, currentForm) {
      Respuesta esperada:
         {
         "finish":false
-        "reason":"Según su ultimo mensaje (Marcos salas), el usuario dio el campo solicitado, no muestra rechazo a responder"
+        "reason":"Según su ultimo mensaje (Marcos salas), el usuario dio el campo solicitado, no muestra rechazo a responder, asi que no se finaliza el proceso"
         }
     *Ejemplo 5:
     Nombre del formulario:
@@ -389,7 +391,7 @@ async function isEndCurrentForm(conversationString, currentForm) {
      Respuesta esperada:
         {
         "finish":false
-        "reason":"Según su ultimo mensaje (Jorge Duran Santos), el usuario dio el campo solicitado, incluso si anteriormente se negó a proporcionarlo"
+        "reason":"Según su ultimo mensaje (Jorge Duran Santos), el usuario dio el campo solicitado, incluso si anteriormente se negó a proporcionarlo, asi que no se finaliza el proceso"
         }
         `,
     `Analiza la siguiente información:
