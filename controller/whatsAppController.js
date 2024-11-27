@@ -211,7 +211,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     - Lo importante es el ultimo mensaje del usuario, osea el mas reciente para el analisis
      *Formato de respuesta JSON:
           {
-            "formName": string | null (nombre del formulario)
+            "formName": string | null (nombre del formulario, este valor es al que hace referencia en el campo reason)
             "reason": string(razón de la decision de la elección de un nombre de usuario o null)
           }
     *Ejemplo 1:
@@ -231,7 +231,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     Respuesta esperada:
       {
         "formName": null
-        "reason": "El usuario con su ultimo mensaje (ok, como elimino mi cuenta?) solo esta preguntando, y sus intenciones de iniciar algun formulario no son claras, por lo tanto la respuesta es null"
+        "reason": "El usuario con su ultimo mensaje (ok, como elimino mi cuenta?) solo esta preguntando, y sus intenciones de iniciar algun formulario no son claras, por lo tanto el valor de formName es null"
       }
     
     *Ejemplo 2:
@@ -268,7 +268,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     Respuesta esperada:
       {
         "formName": null
-        "reason": "El usuario con su ultimo mensaje (ok, y que pasa si no realizo el pago de mi prestamo?) solo esta preguntando, y sus intenciones de iniciar algun formulario no son claras, por lo tanto la respuesta es null"
+        "reason": "El usuario con su ultimo mensaje (ok, y que pasa si no realizo el pago de mi prestamo?) solo esta preguntando, y sus intenciones de iniciar algun formulario no son claras, por lo tanto el formName es null"
       }
      *Ejemplo 4:
     Lista de nombres de formularios:
@@ -289,7 +289,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     Respuesta esperada:
       {
         "formName": null
-        "reason": "El usuario con su ultimo mensaje (Hola) solo esta saludando, incluso si anteriormente estuvo rellenando un formulario, actualmente no hay intenciones de iniciar ninguno, por lo tanto la respuesta es null"
+        "reason": "El usuario con su ultimo mensaje (Hola) solo esta saludando, incluso si anteriormente estuvo rellenando un formulario, actualmente no hay intenciones de iniciar ninguno, por lo tanto el formName es null"
       }
     `,
     `Analiza la siguiente información:
