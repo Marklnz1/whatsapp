@@ -393,7 +393,7 @@ async function isEndCurrentForm(conversationString, clientMessage) {
         "razon": "El mensaje del cliente ('No, eso sería todo') implica de manera clara que desea finalizar el proceso actual."
       }
     **DATO IMPORTANTE**
-      No se finalizara un proceso solo porque el usuario dio el campo final, el usuario tiene que escribir una afirmación de finalizar el proceso
+      No se finalizara el proceso solo porque el usuario dio un valor para un campo del formulario
       Instrucciones finales:
       Ahora analiza la siguiente conversación:
 
@@ -640,9 +640,9 @@ async function sendMessageChatbot(
     console.log("-Los fields actualizados:\n", fieldsAll);
 
     if (currentField != null) {
-      const chatbotMessage = await generateChatBotMessage(
+      let chatbotMessage = await generateChatBotMessage(
         [],
-        `*Eres un experto analizando conversaciones
+        `*Eres un experto analizando conversaciones y me daras el resultado en formato JSON
     *Tu tarea es analizar una conversación y una lista de campos de un formulario
     *Crearas una respuesta que se centrara exclusivamente en preguntar al usuario sobre un campo del formulario que se te especificara
     *Si el mensaje final del usuario contiene datos de otros campos pero que pertenezcan a la lista de campos del formulario, le diras que guardaste dichos datos pero seguiras insistiendo en tomar el campo que te especificaron
@@ -671,7 +671,9 @@ async function sendMessageChatbot(
         {"user":"disculpa, era Marco Gomez Duran"}    
       ]
     Respuesta esperada:
-    "Ok, actualice su nombre, ahora como le decia, requiero la placa de su vehiculo"
+     {
+        "response":"Ok, actualice su nombre, ahora como le decia, requiero la placa de su vehiculo"
+     }
     
     *Ejemplo 2:
     Nombre del formulario:
@@ -691,7 +693,9 @@ async function sendMessageChatbot(
         {"user":"bueno, mi hermano se llama Jorge Santivan Salas"},
       ]
     Respuesta esperada:
-      "necesito el nombre de quien solicitara el prestamo, osea usted"
+     {
+        "response":"necesito el nombre de quien solicitara el prestamo, osea usted"
+     }
     *Ejemplo 3:
     Nombre del formulario:
       Eliminación de cuenta
@@ -708,7 +712,9 @@ async function sendMessageChatbot(
         {"user":"es que ya no la uso"},
       ]
     Respuesta esperada:
-      "esta bien, solo necesito su nombre para finalizar la eliminacion de cuenta"
+     {
+        "response":"esta bien, solo necesito su nombre para finalizar la eliminacion de cuenta"
+     } 
 `,
         `Analiza la siguiente información:
       Nombre del formulario:
@@ -722,10 +728,10 @@ async function sendMessageChatbot(
 
       Conversación:
       ${conversationString}
-      Dame la respuesta que se le dara al usuario de forma directa, no acompañes con datos innecesarios de explicaciones de tu analisis
      `,
-        false
+        true
       );
+      chatbotMessage = JSON.parse(chatbotMessage).response;
       console.log(
         "- Respuesta del bot basado en el actual field\n",
         chatbotMessage
@@ -759,9 +765,9 @@ async function sendMessageChatbot(
       await newMessage.save();
       return newMessage;
     } else {
-      const chatbotMessage = await generateChatBotMessage(
+      let chatbotMessage = await generateChatBotMessage(
         [],
-        `*Eres un experto analizando conversaciones
+        `*Eres un experto analizando conversaciones y me daras el resultado en formato JSON
     *Tu tarea es enfocarte en informar al usuario los campos rellenados que tienes del formulario
     *Tu actualmente tienes todos los campos rellenados, solo mostrar al usuario los campos y que te confirme si son correctos
     *Le mostraras la informacion en un formato amigable y entendible
@@ -789,12 +795,13 @@ async function sendMessageChatbot(
         {"user":"la placa es, 2H182H"}    
       ]
     Respuesta esperada:
-    "Esta bien, registre todos los datos, los cuales son:
-      - Nombre completo: Marco Gomez Duran
-      - Placa de vehiculo: 2H182H
-      - Precio del vehiculo: 20 000 soles
-      ¿Los datos son correctos? o desea modificar alguno
-    "
+    {
+        "response": "Esta bien, registre todos los datos, los cuales son:
+                  - Nombre completo: Marco Gomez Duran
+                  - Placa de vehiculo: 2H182H
+                  - Precio del vehiculo: 20 000 soles
+                  ¿Los datos son correctos? o desea modificar alguno"
+    }
     
     *Ejemplo 2:
     Nombre del formulario:
@@ -812,10 +819,13 @@ async function sendMessageChatbot(
         {"user":"es Marco Gomez Duran, pero modifica mi prestamo, quiero que sea de 20 000 soles"},
       ]
     Respuesta esperada:
-      "Esta bien, modifique el prestamo que me indico, le informo que tengo los siguientes datos actualizados:
-      - Nombre completo: Marco Gomez Duran
-      - monto: 20 000 soles
-      ¿Esta satisfecho con los datos? o desea cambiar algun otro dato"
+    {
+        "response":"Esta bien, modifique el prestamo que me indico, le informo que tengo los siguientes datos actualizados:
+                    - Nombre completo: Marco Gomez Duran
+                    - monto: 20 000 soles
+                    ¿Esta satisfecho con los datos? o desea cambiar algun otro dato"
+    }
+      
     *Ejemplo 3:
     Nombre del formulario:
       Eliminación de cuenta
@@ -836,10 +846,12 @@ async function sendMessageChatbot(
 
       ]
      Respuesta esperada:
-      "Listo, actualize los datos que me dio, la información actualizada es:
-      - Nombre completo: Marco Gomez Sanchez
-      - Razon: No confia en la empresa
-      ¿Esta satisfecho con los datos? o desea cambiar algun otro dato"
+        {
+          "response": "Listo, actualize los datos que me dio, la información actualizada es:
+                      - Nombre completo: Marco Gomez Sanchez
+                      - Razon: No confia en la empresa
+                      ¿Esta satisfecho con los datos? o desea cambiar algun otro dato"
+        }
         `,
         `Analiza la siguiente información:
       Nombre del formulario:
@@ -850,8 +862,9 @@ async function sendMessageChatbot(
 
       Conversación:
       ${conversationString}`,
-        false
+        true
       );
+      chatbotMessage = JSON.parse(chatbotMessage).response;
       console.log(
         "- Respuesta del bot basado que no existe un field actual, osea todos llenos\n",
         chatbotMessage
