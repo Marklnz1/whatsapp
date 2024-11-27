@@ -469,8 +469,37 @@ async function sendMessageChatbot(
     );
 
     if (terminar) {
+      let chatbotMessage = `Se finalizo el registro de ${clientDB.formProcess}`;
       clientDB.formProcess = null;
       await clientDB.save();
+      const newMessage = new Message({
+        client: clientDB._id,
+        wid: null,
+        uuid: uuidv7(),
+        text: chatbotMessage,
+        sent: true,
+        read: false,
+        time: new Date(),
+        category: "text",
+        businessPhone,
+        sentStatus: "not_sent",
+      });
+      await newMessage.save();
+      const messageId = await sendWhatsappMessage(
+        META_TOKEN,
+        businessPhoneId,
+        clientDB.wid,
+        "text",
+        {
+          body: chatbotMessage,
+        },
+        newMessage._id,
+        clientMessageId
+      );
+      newMessage.wid = messageId;
+      newMessage.sentStatus = "send_requested";
+      await newMessage.save();
+      return newMessage;
     }
   }
   console.log("***SIGUIENTE ETAPA***");
