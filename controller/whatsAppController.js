@@ -447,7 +447,7 @@ async function sendMessageChatbot(
       formNames
     );
     clientDB.formProcess = formName;
-    console.log("- Se obtuvo el nuevo proceso actual ", clientDB.formProcess);
+    console.log("- Se obtuvo el nuevo proceso actual:", clientDB.formProcess);
     console.log("- Razon de la decision:'", reason, "'");
     console.log("- Lista de procesos analizados:\n", formNames);
     console.log("- Conversación analizada:\n", conversationString);
