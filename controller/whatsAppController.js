@@ -291,7 +291,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     Respuesta esperada:
       {
         "formName": null
-        "reason": "El usuario con su ultimo mensaje (Hola), no se da valor a mensajes anteriores para sacar la conclusión, solo esta saludando, incluso si anteriormente estuvo rellenando un formulario, actualmente no hay intenciones de iniciar ninguno, por lo tanto el formName es null"
+        "reason": "El usuario con su ultimo mensaje (Hola),no se dara valor a un formulario rellenado anteriormente en la conversacion para el formName, solo esta saludando, incluso si anteriormente estuvo rellenando un formulario, actualmente no hay intenciones de iniciar ninguno, por lo tanto el formName es null"
       }
     `,
     `Analiza la siguiente información:
