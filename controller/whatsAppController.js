@@ -206,7 +206,10 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     *IMPORTANTE:El campo reason tiene que tener sentido con el campo formName, es decir:
      - si en el campo reason dice que no se pudo obtener un nombre de formulario o similares, en el formName tiene que estar null
      - no seas inconsistente con la relacion entre el campo reason y el campo formName
-    *Formato de respuesta JSON:
+    *IMPORTANTE*: 
+    - Si las intenciones del usuario no son claras, entonces no eligas ningun formulario, ya que se tiene que estar seguro
+    - Lo importante es el ultimo mensaje del usuario, osea el mas reciente para el analisis
+     *Formato de respuesta JSON:
           {
             "formName": string | null (nombre del formulario)
             "reason": string(razón de la decision de la elección de un nombre de usuario o null)
@@ -264,8 +267,29 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
       ]
     Respuesta esperada:
       {
-        "formName": "Solicitud de prestamo de dinero"
+        "formName": null
         "reason": "El usuario con su ultimo mensaje (ok, y que pasa si no realizo el pago de mi prestamo?) solo esta preguntando, y sus intenciones de iniciar algun formulario no son claras, por lo tanto la respuesta es null"
+      }
+     *Ejemplo 4:
+    Lista de nombres de formularios:
+     Solicitud de registro de identidad
+     Solicitud de prestamo de dinero
+     Formulario de apreciación
+
+    Conversación:
+      [
+        {"assistant":"Esta bien, registre el nuevo dato, los datos que tengo son:
+                      - DNI:81823123
+                      - Nombre Completo:"Juan Gomez Sanches
+                      Los datos son correctos? o desea modificar alguno"},
+        {"user":"si"},
+        {"assistant":"Se finalizo el registro de Solicitud de registro de identidad"},
+        {"user":"Hola"}    
+      ]
+    Respuesta esperada:
+      {
+        "formName": null
+        "reason": "El usuario con su ultimo mensaje (Hola) solo esta saludando, incluso si anteriormente estuvo rellenando un formulario, actualmente no hay intenciones de iniciar ninguno, por lo tanto la respuesta es null"
       }
     `,
     `Analiza la siguiente información:
