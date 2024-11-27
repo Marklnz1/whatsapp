@@ -392,6 +392,8 @@ async function isEndCurrentForm(conversationString, clientMessage) {
         "terminar": true,
         "razon": "El mensaje del cliente ('No, eso sería todo') implica de manera clara que desea finalizar el proceso actual."
       }
+    **DATO IMPORTANTE**
+      No se finalizara un proceso solo porque el usuario dio el campo final, el usuario tiene que escribir una afirmación de finalizar el proceso
       Instrucciones finales:
       Ahora analiza la siguiente conversación:
 
