@@ -271,8 +271,6 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
 
     Conversación:
     ${conversationString}
-
-    Ahora dame una respuesta en JSON de acuerdo a tu analisis
    `,
     true
   );
@@ -518,7 +516,7 @@ async function sendMessageChatbot(
     Lista de campos del formulario:
      [
       {"name":"placa del vehiculo","description":"la placa que identifica al vehiculo","value":null},
-      {"name":"nombre completo","description":"nombre completo del usuario","value":null},
+      {"name":"nombre completo","description":"nombre completo del usuario","value":"Marco Gomez Duran"},
       {"name":"precio del vehiculo","description":"precio estimado del vehiculo según el usuario","value":null}
      ]
 
@@ -545,7 +543,7 @@ async function sendMessageChatbot(
     Lista de campos del formulario:
      [
       {"name":"nombre completo","description":"nombre completo del usuario","value":null}
-      {"name":"monto","description":"monto del prestamo que el usuario pide","value":null}
+      {"name":"monto","description":"monto del prestamo que el usuario pide","value":"10 000 soles"}
      ]
 
     Conversación:
@@ -589,7 +587,7 @@ async function sendMessageChatbot(
       `Analiza la siguiente información:
       Nombre del formulario:
       ${clientDB.formProcess}
-      
+
       Lista de campos del formulario:
       ${fieldsAllFirst}
 
@@ -621,12 +619,12 @@ async function sendMessageChatbot(
     }
     await currentFormValueDB.save();
 
-    let fieldsAll = "[";
+    let fieldsAll = "[\n";
     for (const field of currentFormValueDB.fields) {
-      fieldsAll += JSON.stringify(field) + "\n";
+      fieldsAll += `{"name":"${field.name}","description":"${field.description}", "value":"${field.value}"\n`;
     }
     fieldsAll += "]";
-    console.log("-Todos los campos despues de ser modificados\n", fieldsAll);
+    console.log("-Todos los campos despues de ser modificados:\n", fieldsAll);
     let currentField = null;
     for (const field of currentFormValueDB.fields) {
       if (field.value == null) {
@@ -639,52 +637,83 @@ async function sendMessageChatbot(
     );
     if (currentField != null) {
       const chatbotMessage = await generateChatBotMessage(
-        historial,
-        `Eres un asistente diseñado para recopilar el dato de un campo que se te mencionara. 
-        Siempre responderás educadamente en español, enfocándote exclusivamente en obtener los datos necesarios. 
-        Adaptarás tus respuestas al contexto y a la información proporcionada, evitando redundancias o confusiones pero siempre enfocado a obtener el dato especificado.
-         *Informacion importante para usar*:
-            Nombre del proceso actual: ${clientDB.formProcess}
-          Lista de campos admitidos: ${fieldsAll}
-          Campo vacío actual en el cual te tienes que enfocar:
-          Nombre del campo: ${currentField.name}
-          Descripción del campo: ${currentField.description}
-
-          Reglas estrictas que debes seguir:
-          No menciones datos innecesarios:
-          No des informacion del negocio que no se te pidio para alargar la respuesta, se directo.
-          Constantemente tienes que hacer mencion a la obtencion del campo (${currentField.name})
-          si o si cada respuesta tiene que tener la obtencion del campo (${currentField.name})
-          Mantendrás un tono amable, profesional y claro en todas tus respuestas.
-          Evitarás respuestas casuales o irrelevantes. Cada mensaje debe aportar valor a la conversación y avanzar obtencion del campo.
-          Gestión de flujos irrelevantes o desviaciones:
-          Nunca menciones a procesos o similares, que no esten en la lista de proceso admitidos,
-          *Importante*: No hagas preguntas que no sean explicitamente relacionadas a algun campo admitido, ni si quiera de la informacion del negocio
-          La informacion del negocio solo usala como contexto, mas no uses los datos para realizar preguntas
-          Las preguntas siempre estan enfocadas a los campos 
-          Si el cliente responde de forma trivial o desvía la conversación (por ejemplo: "Hola", "Gracias", "Ok"), redirigirás la conversación a la obtencion del campo.
-          Si el cliente aborda un tema no relacionado con el negocio, redirigirás educadamente la conversación hacia los datos necesarios.
-          Evitar redundancias:
-          solo informaras que aceptaras el cambio si el usuario te dice que cambiara un valor y indica con cual, pero siempre luego mencionando la obtencion del campo actual.
-          No repetirás innecesariamente el propósito del proceso ni harás solicitudes redundantes.
-          Formato humano y accesible:
-          Tus respuestas deben ser claras, naturales y comprensibles, sin incluir formato técnico o estructurado como JSON.
-          Explicarás sutilmente por qué solicitas los datos,pero de forma corta y directa, relacionándolos con la finalidad del proceso, para que el cliente entienda su importancia.
-          Estructura de los campos admitidos:
-          Cada campo en la lista tiene la siguiente estructura:
-          {
-            "name": "nombre del campo",
-            "description": "descripción del campo",
-            "value": "valor dado por el usuario o null si está vacío"
-          }
-          Contexto actual extra:
-          Hora actual: ${currentHour}
-          Fecha actual: ${currentDate}
-          Información del negocio: ${BUSINESS_INFO}
-          Dato final importante:
-          Todas las respuestas siempre tienen que tener intencion de obtener el campo actual vacio ${currentField.name}
+        [],
+        `*Eres un experto analizando conversaciones
+    *Tu tarea es analizar una conversación y una lista de campos de un formulario
+    *Crearas una respuesta que se centrara exclusivamente en preguntar al usuario sobre un campo del formulario que se te especificara
+    *Si el mensaje final del usuario contiene datos de otros campos pero que pertenezcan a la lista de campos del formulario, le diras que guardaste dichos datos pero seguiras insistiendo en tomar el campo que te especificaron
+    *En tu respuesta es obligatorio que solicites el campo que se te especifico, pero de forma sutil y humana
+    *IMPORTANTE: cuando crees tu respuesta en base al campo especificado ten en cuenta lo siguiente:
+      - La descripcion de cada campo es importante, ya que tiene información mas detallada sobre el campo
+      - Si el campo en el que te enfocas, de acuerdo a la lista de campos del formulario, es el ultimo, informa al usuario sobre la casi finalizacion del formulario
+    *Ejemplo 1:
+    Nombre del formulario:
+      Solicitud de registro de vehiculo
+    Lista de campos del formulario:
+     [
+      {"name":"placa del vehiculo","description":"la placa que identifica al vehiculo","value":"Marco Gomez Duran"},
+      {"name":"nombre completo","description":"nombre completo del usuario","value":null},
+      {"name":"precio del vehiculo","description":"precio estimado del vehiculo según el usuario","value":null}
+     ]
+    Campo vacio que te enfocaras:
+      {"name":"placa de vehiculo"}
+    Conversación:
+      [
+        {"assistant":"gracias por confiar en nosotros, necesito que me brinde su nombre completo"},
+        {"user":"Marcos Salas Duran"},
+        {"assistant":"Ok, ahora necesito la placa de su vehiculo"},
+        {"user":"disculpa, era Marco Gomez Duran"}    
+      ]
+    Respuesta esperada:
+    "Ok, actualice su nombre, ahora como le decia, requiero la placa de su vehiculo"
+    
+    *Ejemplo 2:
+    Nombre del formulario:
+      Solicitud de prestamo
+    Lista de campos del formulario:
+     [
+      {"name":"nombre completo","description":"nombre completo del usuario","value":null}
+      {"name":"monto","description":"monto del prestamo que el usuario pide","value":"10 000 soles"}
+     ]
+  Campo vacio que te enfocaras:
+      {"name":"nombre completo"}
+    Conversación:
+      [
+        {"assistant":"cual es el monto que requiere para el prestamo?"},
+        {"user":"deseo, 10 000 soles"},
+        {"assistant":"ok, ahora necesito su nombre completo"},
+        {"user":"bueno, mi hermano se llama Jorge Santivan Salas"},
+      ]
+    Respuesta esperada:
+      "necesito el nombre de quien solicitara el prestamo, osea usted"
+    *Ejemplo 3:
+    Nombre del formulario:
+      Eliminación de cuenta
+    Lista de campos del formulario:
+     [
+      {"name":"nombre completo","description":"nombre completo del usuario","value":null}
+      {"name":"razon","description":"razon por la cual eliminara su cuenta","value":"ya no usa la cuenta"}
+     ]
+    Campo vacio que te enfocaras:
+      {"name":"nombre completo"}
+    Conversación:
+      [
+        {"assistant":"ok, ya registre su nombre, ahora digame porque quiere eliminar su cuenta?"},
+        {"user":"es que ya no la uso"},
+      ]
+    Respuesta esperada:
+      "esta bien, solo necesito su nombre para finalizar la eliminacion de cuenta"
 `,
-        clientMessage,
+        `Analiza la siguiente información:
+      Nombre del formulario:
+      ${clientDB.formProcess}
+
+      Lista de campos del formulario:
+      ${fieldsAll}
+
+      Conversación:
+      ${conversationString}
+     `,
         false
       );
       console.log(
