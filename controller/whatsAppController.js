@@ -817,6 +817,9 @@ async function sendMessageChatbot(
       let chatbotMessage = await generateChatBotMessage(
         [],
         `*Eres un experto generando un mensaje inicial que acompañara a un mensaje, responderas analizando un historial de conversacion para que tu respuesta sea coherente
+        *CONTEXTO IMPORTANTE QUE TIENES QUE TOMAR EN CUENTA PARA ARMAR TU MENSAJE:
+        -El usuario actualmente ya tiene todos los datos rellenados
+        -Solo estas atento para cualquier modificacion de dichos datos especificados en (message_save)
         *El mensaje inicial(message_first) nunca tendra una pregunta incluida
         *El mensaje que se te proporcionara para que crees el(message_first) se te proveera, tambien llamado (message_save)
         *FORMATO DE TU RESPUESTA JSON
