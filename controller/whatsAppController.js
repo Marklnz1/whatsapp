@@ -813,16 +813,18 @@ async function sendMessageChatbot(
       let chatbotMessage = await generateChatBotMessage(
         [],
         `*Eres un experto analizando conversaciones y me daras el resultado en formato JSON
-    *Tu tarea es enfocarte en informar al usuario los campos rellenados que tienes del formulario
-    *Tu actualmente tienes todos los campos rellenados, solo mostrar al usuario los campos y que te confirme si son correctos
-    *Le mostraras la informacion en un formato amigable y entendible
-    *Te enfocaras en el ultimo mensaje del usuario
-    *Si el ultimo mensaje del usuario contiene intencion de modificar algun campo del formulario, confirmar el cambio y no refutar si es repetido, y luego mostrar los campos rellenados actualmente
-    *Informar al usuario que no puedes modificar un campo que no pertenezca al formulario si este intenta dar un campo fuera de los campos del formulario
-    *IMPORTANTE: cuando crees tu respuesta en base al campo especificado ten en cuenta lo siguiente:
+      *Objetivos: Solo tienes 3 objetivos principales
+      1. Responder amablemente al usuario sobre su pregunta en su mensaje final
+      2. Acompañar cada respuesta con la informacion de los campos rellenados que tienes del formulario, y realizar la pregunta:
+       ¿Esta conforme y quiere finalizar?
+      3. Responder amablemente que guardaste un dato si es que el usuario te especifico alguno
+    *IMPORTANTE: tu mensaje tiene que tomar en cuenta lo siguiente:
       - La descripcion de cada campo es importante, ya que tiene información mas detallada sobre el campo
       - Nunca le digas al usuario que su dato es repetido o que ya lo tenia registrado
-      - Nunca menciones un dato anterior que fue registrado por el usuario, solo responde de forma directa que guardaste el dato y muestra los campos rellenados para la confirmación
+      - Nunca menciones un dato anterior que fue registrado por el usuario
+      - Si el ultimo mensaje del usuario es una incoherencia o trata de desviar el objetivo principal del formulario, responder su pregunta y preguntar:
+      ¿Quieres que no continue con las preguntas?
+      
       *Ejemplo 1:
     Nombre del formulario:
       Solicitud de registro de vehiculo
@@ -841,11 +843,12 @@ async function sendMessageChatbot(
       ]
     Respuesta esperada:
     {
-        "response": "Esta bien, registre todos los datos, los cuales son:
+        "response": "Listo, ya tengo todos los datos:
                   - Nombre completo: Marco Gomez Duran
                   - Placa de vehiculo: 2H182H
                   - Precio del vehiculo: 20 000 soles
-                  ¿Los datos son correctos? o desea modificar alguno"
+                 ¿Esta conforme y quiere finalizar?
+"
     }
     
     *Ejemplo 2:
@@ -865,10 +868,11 @@ async function sendMessageChatbot(
       ]
     Respuesta esperada:
     {
-        "response":"Esta bien, modifique el prestamo que me indico, le informo que tengo los siguientes datos actualizados:
+        "response":"Modifique el prestamo que me indico, ahora tengo lo siguiente:
                     - Nombre completo: Marco Gomez Duran
                     - monto: 20 000 soles
-                    ¿Esta satisfecho con los datos? o desea cambiar algun otro dato"
+                  ¿Esta conforme y quiere finalizar?
+"
     }
       
     *Ejemplo 3:
@@ -883,19 +887,49 @@ async function sendMessageChatbot(
       [
         {"assistant":"ok, ya registre su nombre, ahora digame porque quiere eliminar su cuenta?"},
         {"user":"es que ya no la uso"},
-        {"assistant":"Listo, le informo que tengo los siguientes datos actualizados:
+        {"assistant":"Ok, esa es su razón, los datos actualizados que tengo son:
                       - Nombre completo: Marco Gomez Duran
                       - Razon : ya no usa la cuenta
-                      ¿Esta satisfecho con los datos? o modificara algun dato"},
-        {"user":"si, corrige mi nombre, es en realidad Marco Gomez Sanchez, ademas la verdarera razon por la que eliminare la cuenta es que no confio en ustedes"},
+                      ¿Esta conforme y quiere finalizar?"},
+        {"user":"Y como realizo la creacion de otra cuenta?"},
 
       ]
      Respuesta esperada:
         {
-          "response": "Listo, actualize los datos que me dio, la información actualizada es:
+          "response": "Para crear otra cuenta necesito que haga lo siguiente:
+                      1.Ingresar a nuestra pagina oficial
+                      2.Rellenar sus datos y confimar
+                      3.Esperar la confirmacion por email
+                      Le informo que todavia no me confirmo lo siguiente:
                       - Nombre completo: Marco Gomez Sanchez
                       - Razon: No confia en la empresa
-                      ¿Esta satisfecho con los datos? o desea cambiar algun otro dato"
+                    ¿Esta conforme y quiere finalizar?"
+        }
+      *Ejemplo 4:
+    Nombre del formulario:
+      Eliminación de cuenta
+      Lista de campos del formulario rellenados que mostraras al usuario:
+     [
+      {"name":"nombre completo","description":"nombre completo del usuario","value":"Marco Gomez Dura"}
+      {"name":"razon","description":"razon por la cual eliminara su cuenta","value":"ya no usa la cuenta"}
+     ]
+    Conversación:
+      [
+        {"assistant":"ok, ya registre su nombre, ahora digame porque quiere eliminar su cuenta?"},
+        {"user":"es que ya no la uso"},
+        {"assistant":"Ok, esa es su razón, los datos actualizados que tengo son:
+                      - Nombre completo: Marco Gomez Duran
+                      - Razon : ya no usa la cuenta
+                      ¿Esta conforme y quiere finalizar?"},
+        {"user":"me gusta el aguacate"},
+
+      ]
+     Respuesta esperada:
+        {
+          "response": "Me gustaria que no se desvie el tema, aun tiene pendiente la confirmacion de la siguiente información:
+                      - Nombre completo: Marco Gomez Sanchez
+                      - Razon: No confia en la empresa
+                    ¿Esta conforme y quiere finalizar?"
         }
         `,
         `Analiza la siguiente información:
