@@ -948,7 +948,7 @@ async function sendMessageChatbot(
       chatbotMessage += "\n" + datosRecopilados;
       let messageMejorado = await generateChatBotMessage(
         [],
-        `Eres un experto mejorando un mensaje especifico que te manden
+        `Eres un experto mejorando un mensaje especifico que te manden y responderas en formato JSON
         *Objetivos:
         -Hacer que un mensaje sea mas humano y amigable, haciendo que sea coherente en toda su oracion
         -Añadir emoticones al mensaje para que sea mas humano pero solo cuando sea necesario
