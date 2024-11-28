@@ -844,7 +844,7 @@ async function sendMessageChatbot(
           - DEBE terminar SIEMPRE con una variación de la frase: "Te muestro los datos que tengo hasta ahora:"
 
         3. RESTRICCIONES:
-          - Longitud máxima: 3 líneas
+          - Longitud máxima: 2 líneas
           - Tono: Conversacional y cercano
           - Enfoque: Mensaje de presentación, no de recopilación
 
