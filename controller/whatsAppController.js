@@ -875,11 +875,9 @@ async function sendMessageChatbot(
       const reason = JSON.parse(data).reason;
       console.log(
         "- Respuesta del bot\n",
-        chatbotMessage,
+        JSON.parse(data),
         "\n- Recopilacion:\n",
         parte_media,
-        "\n reason\n",
-        reason,
         "\nConversacion\n",
         conversationString
       );
