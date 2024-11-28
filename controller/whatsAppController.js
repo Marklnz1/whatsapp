@@ -821,6 +821,11 @@ async function sendMessageChatbot(
       *IMPORTANTE*:
       - Nunca menciones el valor de algun campo que tienes almacenado actualmente, y nunca digas que tienes prohibido mostrar dichos datos al usuario, solo afirma que lo haras y nada mas, de forma breve y corta
       - Nunca le digas al usuario que desvio el tema
+      *FORMATO DE RESPUESTA:
+      {
+        "response":string(respuesta la mensaje final del usuario, de forma breve y corta)
+        "reason":string(razon de porque elegiste esta respuesta)
+      }
       *Ejemplo 1:
     Nombre del formulario:
       Solicitud de registro de vehiculo
