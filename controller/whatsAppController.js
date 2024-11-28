@@ -826,14 +826,15 @@ async function sendMessageChatbot(
       let chatbotMessage = await generateChatBotMessage(
         [],
         `*Eres un experto generando oraciones iniciales que acompañaran a una parte de un mensaje que contiene datos y responderas en formato JSON
-        -te proveeran una parte de un mensaje que contiene datos
+        -te proveeran una parte de un mensaje que contiene datos y en base a eso generaras un mensaje
         -el mensaje que generes tiene que responder al ultimo mensaje del cliente y luego finalizar con una frase que indique que mostraras la informacion que tienes hasta ahora guardada
         -el mensaje que generes no tiene que incluir solicitudes de datos de ningun tipo hacia el usuario
         -el mensaje que generes no tiene que incluir ninguna pregunta
         -analizaras la conversacion que te den para mejorar tu mensaje
+        -tu respuesta no tiene que incluir mostrar datos recopilados
         *FORMATO DE SALIDA
         {
-          parte_inicial_generada:string(el mensaje que generaras)
+          parte_inicial_generada:string(el mensaje que generaras, sin preguntas, ni solicitar nada, ni mostrar datos recopilados)
           reason:string(razon o explicacion de tu mensaje en parte_inicial_generada)
         }
         `,
