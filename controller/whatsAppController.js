@@ -823,95 +823,30 @@ async function sendMessageChatbot(
       const parte_final = "¿Esta conforme y quiere finalizar?";
       let chatbotMessage = await generateChatBotMessage(
         [],
-        `*Eres un experto generando un mensaje inicial que acompañara a un mensaje, responderas analizando un historial de conversacion para que tu respuesta sea coherente
-        -El usuario actualmente ya tiene todos los datos rellenados, pero igual aceptas cambios siempre
-        -Nunca rechaces un cambio del usuario
-        *REGLAS PARA EL MESSAGE_FIRST
-        -message_first no tiene que contener solicitudes de ningun dato al usuario
-        -message_first no tiene que contener preguntas
-        -message_first tiene que contener un mensaje amigable
-        -message_first tiene que ser coherente con el message_save
-        -message_first tiene que responder de forma coherente al ultimo mensaje del usuario en la conversacion, se te especificara el utimo mensaje para evitar confusiones
-        -message_first tiene que tener en cuenta que ya tienes todos los datos del usuario, incluso si la conversacion dice que no
-        -message_first tiene que contener una respuesta humana y amigable, no solo repetir el mensaje del usuario
-        
-        *FORMATO DE TU RESPUESTA JSON
-        :
-      {
-        "message_first":string(respuesta al mensaje del usuario siguiente las reglas establecidas y siendo coherente con message_save)
-        "message_save":string(el mensaje que te dieron para el analisis)
-        "reason":string(explicacion de tu message_first, incluyendo entre parentesis al ultimo mensaje para dejar en claro que respondiste a ese)
-      }
-      *Ejemplo 1:
-    -Conversación:
-      [
-        {"assistant":"gracias por confiar en nosotros, necesito que me brinde su nombre completo"},
-        {"user":"Marco Gomez Duran"},
-        {"assistant":"Ok, ahora como ultimo dato, necesito la placa de su vehiculo"},
-        {"user":"la placa es, 2H182H"}    
-      ]
-    -Ultimo mensaje del usuario:
-    la placa es, 2H182H    
-
-    -Mensaje(message_save) en el cual se basara tu mensaje inicial:
-      
-      Actualmente tengo la siguiente información:
-      Placa: 77777777
-      Nombre completo: 80 Mbps a 50 soles
-      ¿Esta conforme y quiere finalizar?
-
-    Respuesta esperada:
-    {
-        "message_first": "Okey, registre su placa",
-        "message_save": " Actualmente tengo la siguiente información:
-      Placa: 77777777
-      Nombre completo: 80 Mbps a 50 soles
-      ¿Esta conforme y quiere finalizar?"
-      "reason":"En el mensaje_first respondi al ultimo mensaje(la placa es, 2H182H) de forma coherente
-
-    }
-      *Ejemplo 2:
-    -Conversación:
-      [
-        {"assistant":"gracias por confiar en nosotros, necesito que me brinde su nombre completo"},
-        {"user":"Marco Gomez Duran"},
-        {"assistant":"Ok, ahora como ultimo dato, necesito la placa de su vehiculo"},
-        {"user":"holaaaaa"}    
-      ]
-    -Ultimo mensaje del usuario:
-    holaaaaa  
-    -Mensaje(message_save) en el cual se basara tu mensaje inicial:
-      
-      Actualmente tengo la siguiente información:
-      Placa: 77777777
-      Nombre completo: 80 Mbps a 50 soles
-      ¿Esta conforme y quiere finalizar?
-
-    Respuesta esperada:
-    {
-        "message_first": "Hola,¿que tal? ",
-        "message_save": " Actualmente tengo la siguiente información:
-      Placa: 77777777
-      Nombre completo: 80 Mbps a 50 soles
-      ¿Esta conforme y quiere finalizar?"
-      "reason":"En el mensaje_first respondi al ultimo mensaje(holaaaaa) de forma coherente devolviendole el saludo de forma humana
-
-    }
+        `*Eres un experto generando oraciones iniciales que acompañaran a una parte de un mensaje que contiene datos y responderas en formato JSON
+        -te proveeran una parte de un mensaje que contiene datos
+        -el mensaje que generes tiene que responder al ultimo mensaje del cliente y luego finalizar con una frase que indique que mostraras la informacion que tienes hasta ahora guardada
+        -el mensaje que generes no tiene que incluir solicitudes de datos de ningun tipo hacia el usuario
+        -el mensaje que generes no tiene que incluir ninguna pregunta
+        -analizaras la conversacion que te den para mejorar tu mensaje
+        *FORMATO DE SALIDA
+        {
+          parte_inicial_generada:string(el mensaje que generaras)
+          reason:string(razon o explicacion de tu mensaje en parte_inicial_generada)
+        }
         `,
         `Analiza la siguiente información:
     Conversación:
     ${conversationString}
     -Ultimo mensaje del usuario:
     ${clientMessage} 
-    Mensaje(message_save) en el cual se basara tu message_first:
-    Actualmente tengo la siguiente información:
+    Mensaje con los datos con el cual se basara tu respuesta:
     ${parte_media}
-    ${parte_final}
     `,
         true
       );
       const data = chatbotMessage;
-      chatbotMessage = JSON.parse(data).message_first;
+      chatbotMessage = JSON.parse(data).parte_inicial_generada;
       const reason = JSON.parse(data).reason;
       console.log(
         "- Respuesta del bot\n",
@@ -925,67 +860,67 @@ async function sendMessageChatbot(
       );
       const parte_inicial = `${chatbotMessage}\nActualmente tengo la siguiente información:`;
 
-      let messageMejoradoResponse = await generateChatBotMessage(
-        [],
-        `Eres un experto mejorando un mensaje especifico que te mandaran en 2 partes, parte_inicial,parte_media, y responderas en formato JSON
-        *Objetivos:
-        -Mejorar parte_inicial, parte_media del mensaje para que en conjunto sean coherentes
-        -Añadir emoticones unicode al mensaje para que sea mas humano, pero emojis diferentes, no repetitivos ni genericos
-        -En tu mensaje mejorado, sera mostrado al usuario, asi que no pongas explicaciones de las correcciones que realizaste
-        -Toma en cuenta la conversacion que te daran para mejorar tu respuesta
-        *OBLIGATORIO*:
-        -En la parte_inicial que mejoraras, incluye una referencia a una frase en la que indiques que le mostras la informacion que tienes hasta ahora del usuario, de forma sutil y amigable, y forma breve y corta
-        *Formato de entrada:
-        {
-          parte_inicial:string(parte inicial del mensaje)
-          parte_media:string(la parte media del mensaje)
-        }
-        *Procedimiento:
-        
-        Tomaras un historial de conversación, lo analizaras y mejoras cada parte del mensaje, pero de tal forma que en conjunto formen un mensaje coherente
-        *Formato de respuesta:
-          {
-           parte_inicial:string(parte inicial mejorada del mensaje, que incluye una frase que indique que le mostras la informacion que tienes hasta ahora del usuario, de forma breve y corta)
-           parte_media:string(parte media mejorada del mensaje )
-          }
-        `,
-        `Analiza la siguiente información:
+      // let messageMejoradoResponse = await generateChatBotMessage(
+      //   [],
+      //   `Eres un experto mejorando un mensaje especifico que te mandaran en 2 partes, parte_inicial,parte_media, y responderas en formato JSON
+      //   *Objetivos:
+      //   -Mejorar parte_inicial, parte_media del mensaje para que en conjunto sean coherentes
+      //   -Añadir emoticones unicode al mensaje para que sea mas humano, pero emojis diferentes, no repetitivos ni genericos
+      //   -En tu mensaje mejorado, sera mostrado al usuario, asi que no pongas explicaciones de las correcciones que realizaste
+      //   -Toma en cuenta la conversacion que te daran para mejorar tu respuesta
+      //   *OBLIGATORIO*:
+      //   -En la parte_inicial que mejoraras, incluye una referencia a una frase en la que indiques que le mostras la informacion que tienes hasta ahora del usuario, de forma sutil y amigable, y forma breve y corta
+      //   *Formato de entrada:
+      //   {
+      //     parte_inicial:string(parte inicial del mensaje)
+      //     parte_media:string(la parte media del mensaje)
+      //   }
+      //   *Procedimiento:
 
-      Conversación:
-      ${conversationString}
-      
-      Partes del mensaje que mejoraras:
-      {
-        parte_inicial:${parte_inicial}
-        parte_media:${parte_media}
-      }
-      
-      `,
-        true,
-        0.5
-      );
+      //   Tomaras un historial de conversación, lo analizaras y mejoras cada parte del mensaje, pero de tal forma que en conjunto formen un mensaje coherente
+      //   *Formato de respuesta:
+      //     {
+      //      parte_inicial:string(parte inicial mejorada del mensaje, que incluye una frase que indique que le mostras la informacion que tienes hasta ahora del usuario, de forma breve y corta)
+      //      parte_media:string(parte media mejorada del mensaje )
+      //     }
+      //   `,
+      //   `Analiza la siguiente información:
 
-      const datamejorada = JSON.parse(messageMejoradoResponse);
-      const parte_inicial_mejorada = datamejorada.parte_inicial;
-      const parte_media_mejorada = datamejorada.parte_media;
-      const parte_final_mejorada = datamejorada.parte_final;
-      console.log(
-        "PARTES ANTES DE LA MEJORA:\nparte_inicial\n",
-        parte_inicial,
-        "\nparte_media:\n",
-        parte_media,
-        "\nparte_final\n",
-        parte_final
-      );
-      console.log(
-        "PARTES DESPUES DE LA MEJORA:\nparte_inicial\n",
-        parte_inicial_mejorada,
-        "\nparte_media:\n",
-        parte_media_mejorada,
-        "\nparte_final\n",
-        parte_final_mejorada
-      );
-      chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${parte_inicial_mejorada}\n${parte_media}\n${parte_final}`;
+      // Conversación:
+      // ${conversationString}
+
+      // Partes del mensaje que mejoraras:
+      // {
+      //   parte_inicial:${parte_inicial}
+      //   parte_media:${parte_media}
+      // }
+
+      // `,
+      //   true,
+      //   0.5
+      // );
+
+      // const datamejorada = JSON.parse(messageMejoradoResponse);
+      // const parte_inicial_mejorada = datamejorada.parte_inicial;
+      // const parte_media_mejorada = datamejorada.parte_media;
+      // const parte_final_mejorada = datamejorada.parte_final;
+      // console.log(
+      //   "PARTES ANTES DE LA MEJORA:\nparte_inicial\n",
+      //   parte_inicial,
+      //   "\nparte_media:\n",
+      //   parte_media,
+      //   "\nparte_final\n",
+      //   parte_final
+      // );
+      // console.log(
+      //   "PARTES DESPUES DE LA MEJORA:\nparte_inicial\n",
+      //   parte_inicial_mejorada,
+      //   "\nparte_media:\n",
+      //   parte_media_mejorada,
+      //   "\nparte_final\n",
+      //   parte_final_mejorada
+      // );
+      chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${parte_inicial_generada}\n${parte_media}\n${parte_final}`;
       const newMessage = new Message({
         client: clientDB._id,
         wid: null,
