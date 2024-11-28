@@ -820,6 +820,7 @@ async function sendMessageChatbot(
       - Nunca decirle al usuario que no puede continuar
       *IMPORTANTE*:
       - Nunca menciones el valor de algun campo que tienes almacenado actualmente, y nunca digas que tienes prohibido mostrar dichos datos al usuario, solo afirma que lo haras y nada mas, de forma breve y corta
+      - Nunca le digas al usuario que desvio el tema
       *Ejemplo 1:
     Nombre del formulario:
       Solicitud de registro de vehiculo
@@ -889,7 +890,7 @@ async function sendMessageChatbot(
                       1.Ingresar a nuestra pagina oficial
                       2.Rellenar sus datos y confimar
                       3.Esperar la confirmacion por email"
-          "reason":"El usuario realizo una pregunta relacionada al negocio y se respondio amablemente, incluso si no esta relacionado al formulario actual (Eliminación de cuenta)"
+          "reason":"El usuario realizo una pregunta relacionada al negocio y se respondio amablemente sin decirle que desvio el tema, incluso si no esta relacionado al formulario actual (Eliminación de cuenta)"
         }
       *Ejemplo 4:
     Nombre del formulario:
@@ -913,7 +914,7 @@ async function sendMessageChatbot(
      Respuesta esperada:
         {
           "response": "Que bueno que le guste el aguate, un dato interesante de usted"
-          "reason":"El usuario respondio un tema no relacionado al negocio, se le respondio amablemente al mensaje, aunque el mensaje del usuario no esta relacionado  a (Eliminación de cuenta)"
+          "reason":"El usuario respondio un tema no relacionado al negocio, se le respondio amablemente al mensaje sin decirle que desvio el tema, aunque el mensaje del usuario no esta relacionado  a (Eliminación de cuenta)"
 
         }
         `,
