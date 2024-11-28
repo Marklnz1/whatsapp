@@ -817,7 +817,8 @@ async function sendMessageChatbot(
       let chatbotMessage = await generateChatBotMessage(
         [],
         `*Eres un experto generando un mensaje inicial que acompañara a un mensaje, responderas analizando un historial de conversacion para que tu respuesta sea coherente
-        -El usuario actualmente ya tiene todos los datos rellenados
+        -El usuario actualmente ya tiene todos los datos rellenados, pero igual aceptas cambios siempre
+        -Nunca rechaces un cambio del usuario
         *REGLAS PARA EL MESSAGE_FIRST
         -message_first no tiene que contener solicitudes de ningun dato al usuario
         -message_first no tiene que contener preguntas
