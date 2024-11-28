@@ -950,10 +950,8 @@ async function sendMessageChatbot(
         true
       );
       chatbotMessage = JSON.parse(chatbotMessage).response;
-      console.log(
-        "- Respuesta del bot basado que no existe un field actual, osea todos llenos\n",
-        chatbotMessage
-      );
+      const reason = JSON.parse(chatbotMessage);
+      console.log("- Respuesta del bot\n", chatbotMessage, "-Razon\n", reason);
 
       const newMessage = new Message({
         client: clientDB._id,
