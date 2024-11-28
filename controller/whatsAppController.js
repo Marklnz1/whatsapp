@@ -820,7 +820,7 @@ async function sendMessageChatbot(
         *CONTEXTO IMPORTANTE QUE TIENES QUE TOMAR EN CUENTA PARA ARMAR TU MENSAJE:
         -El usuario actualmente ya tiene todos los datos rellenados
         -Solo estas atento para cualquier modificacion de dichos datos especificados en (message_save)
-        -Nunca le solicites ningun dato al usuario, es importante
+        -Nunca le solicites ningun dato al usuario
         -Nunca realices preguntas
         -Responde de forma amigable
         *El mensaje inicial(message_first) nunca tendra una pregunta incluida
@@ -828,8 +828,9 @@ async function sendMessageChatbot(
         *FORMATO DE TU RESPUESTA JSON
         :
       {
-        "response":string(respuesta la mensaje final del usuario, de forma breve y corta, sin preguntas)
-        "reason":string(razon de porque elegiste esta respuesta)
+        "message_first":string(respuesta siguiente el contexto, y tomando en cuenta el message_save)
+        "message_save":string(el mensaje que te dieron para el analisis)
+        "reason":string(donde especificas que no solicitaste ningun dato al usuario ni realizaste preguntas en el message_first)
       }
       *Ejemplo 1:
     Conversación:
@@ -854,6 +855,7 @@ async function sendMessageChatbot(
       Nombre completo: 80 Mbps a 50 soles
       ¿Esta conforme y quiere finalizar?"
     }
+      "reason":"Para armar mi message_first no inclui preguntas ni solicitudes de datos de ningun tipo al usuario"
         `,
         `Analiza la siguiente información:
     Mensaje(message_save) en el cual se basara tu mensaje inicial:
@@ -864,11 +866,17 @@ async function sendMessageChatbot(
       );
       const data = chatbotMessage;
       chatbotMessage = JSON.parse(data).message_first;
+      const reason = JSON.parse(data).reason;
+      const second = JSON.parse(data).message_first;
       console.log(
         "- Respuesta del bot\n",
         chatbotMessage,
         "\n- Recopilacion:\n",
-        datosRecopilados
+        datosRecopilados,
+        "\n reason\n",
+        reason,
+        "\nsecond\n",
+        second
       );
       chatbotMessage += "\n" + datosRecopilados;
       let messageMejorado = await generateChatBotMessage(
