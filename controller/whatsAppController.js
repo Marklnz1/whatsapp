@@ -858,7 +858,7 @@ async function sendMessageChatbot(
         "\nConversacion\n",
         conversationString
       );
-      const parte_inicial = `${chatbotMessage}\nActualmente tengo la siguiente información:`;
+      const parte_inicial = `${chatbotMessage}`;
 
       // let messageMejoradoResponse = await generateChatBotMessage(
       //   [],
@@ -920,7 +920,7 @@ async function sendMessageChatbot(
       //   "\nparte_final\n",
       //   parte_final_mejorada
       // );
-      chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${parte_inicial_generada}\n${parte_media}\n${parte_final}`;
+      chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${parte_inicial}\n${parte_media}\n${parte_final}`;
       const newMessage = new Message({
         client: clientDB._id,
         wid: null,
