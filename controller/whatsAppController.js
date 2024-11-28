@@ -980,7 +980,7 @@ async function sendMessageChatbot(
         "\n",
         parte_final_mejorada
       );
-      chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${chatbotMessage}\n${parte_inicial_mejorada}\n${parte_media_mejorada}\n${parte_final_mejorada}`;
+      chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${parte_inicial_mejorada}\n${parte_media_mejorada}\n${parte_final_mejorada}`;
       const newMessage = new Message({
         client: clientDB._id,
         wid: null,
