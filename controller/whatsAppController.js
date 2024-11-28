@@ -904,7 +904,6 @@ async function sendMessageChatbot(
     -Ultimo mensaje del usuario:
     ${clientMessage} 
     Mensaje(message_save) en el cual se basara tu message_first:
-    ${chatbotMessage}
     Actualmente tengo la siguiente información:
     ${datosRecopilados}
     `,
