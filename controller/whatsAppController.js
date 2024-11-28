@@ -819,7 +819,7 @@ async function sendMessageChatbot(
       let datosRecopilados =
         "Actualmente tengo la siguiente información lol:\n";
       for (const field of currentFormValueDB.fields) {
-        datosRecopilados += `-*${field.name}*: ${field.value}\n`;
+        datosRecopilados += `- *${field.name}*: ${field.value}\n`;
       }
       datosRecopilados += "¿Esta conforme y quiere finalizar?";
       let chatbotMessage = await generateChatBotMessage(
