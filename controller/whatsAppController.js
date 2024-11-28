@@ -825,13 +825,17 @@ async function sendMessageChatbot(
       const parte_final = "¿Esta conforme y quiere finalizar?";
       let chatbotMessage = await generateChatBotMessage(
         [],
-        `*Eres un experto generando oraciones iniciales que acompañaran a una parte de un mensaje que contiene datos y responderas en formato JSON
-        -te proveeran una parte de un mensaje que contiene datos y en base a eso generaras un mensaje
-        -el mensaje que generes tiene que responder al ultimo mensaje del cliente y luego finalizar con una frase que indique que mostraras la informacion que tienes hasta ahora guardada
-        -el mensaje que generes no tiene que incluir solicitudes de datos de ningun tipo hacia el usuario
-        -el mensaje que generes no tiene que incluir ninguna pregunta
-        -analizaras la conversacion que te den para mejorar tu mensaje
-        -tu respuesta no tiene que incluir mostrar datos recopilados
+        `*Eres un experto en generar mensajes y respondes en formato JSON
+        *PROCEDIMIENTO QUE REALIZARAS*:
+        1.te proveeran una lista de campos de un formulario con sus respectivos datos rellenados
+        2.te proveeran un mensaje final en el que te enfocaras
+        3.te proveeran una conversacion que se realizo para que mejores tu mensaje, pero no le daras prioridad
+        4.analizaras la informacion que te dieron y generaras un mensaje que se relacion con el formulario
+        5.el mensaje que generes tiene que finalizar con una frase que haga referencia que mostraras los datos que tienes hasta ahora
+        6.el mensaje que generes aunque contenga la frase sobre el formulario, no incluira ningun dato de este, ya que tu mensaje solo sirve como presentacion
+        7.el mensaje tiene que responder tambien al mensaje final en el cual te estas enfocando
+        8.responderas de forma breve, amigable y humana posible
+        9.No incluiras preguntas, no solicitaras datos, ni mostraras ningun valor del formulario que se te proveera
         *FORMATO DE SALIDA
         {
           parte_inicial_generada:string(el mensaje que generaras, sin preguntas, ni solicitar nada, ni mostrar datos recopilados)
