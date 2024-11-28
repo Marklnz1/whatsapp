@@ -816,12 +816,11 @@ async function sendMessageChatbot(
       await newMessage.save();
       return newMessage;
     } else {
-      let datosRecopilados =
-        "Actualmente tengo la siguiente información lol:\n";
+      let datosRecopilados = "Actualmente tengo la siguiente información:\n\n";
       for (const field of currentFormValueDB.fields) {
         datosRecopilados += `- *${field.name}*: ${field.value}\n`;
       }
-      datosRecopilados += "¿Esta conforme y quiere finalizar?";
+      datosRecopilados += "\n¿Esta conforme y quiere finalizar?";
       let chatbotMessage = await generateChatBotMessage(
         [],
         `*Eres un experto generando un mensaje inicial que acompañara a un mensaje, responderas analizando un historial de conversacion para que tu respuesta sea coherente
