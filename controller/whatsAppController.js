@@ -946,6 +946,32 @@ async function sendMessageChatbot(
         datosRecopilados
       );
       chatbotMessage += "\n" + datosRecopilados;
+      let messageMejorado = await generateChatBotMessage(
+        [],
+        `Eres un experto mejorando un mensaje especifico que te manden
+        *Objetivos:
+        -Hacer que un mensaje sea mas humano y amigable, haciendo que sea coherente en toda su oracion
+        -Añadir emoticones al mensaje para que sea mas humano pero solo cuando sea necesario
+        -Mejorar el formato de presentacion de datos, si es que estan presentes en el mensaje
+        *Procedimient:
+        Tomaras un historial de conversación, lo analizaras y mejoras el mensaje que te indiquen para humanizarlo
+        *Formato de respuesta:
+          {
+            message:string(el mensaje mejorado)
+          }
+        `,
+        `Analiza la siguiente información:
+
+      Conversación:
+      ${conversationString}
+      
+      Mensaje que mejoraras:
+      ${chatbotMessage}
+      `,
+        true
+      );
+      chatbotMessage = JSON.parse(messageMejorado).message;
+
       const newMessage = new Message({
         client: clientDB._id,
         wid: null,
