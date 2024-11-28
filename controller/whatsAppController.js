@@ -830,7 +830,7 @@ async function sendMessageChatbot(
         1. Recibirás tres elementos de información:
           - Una lista de campos de formulario con datos rellenados
           - Un mensaje final principal en el que te enfocarás
-          - Una conversación previa de contexto (prioridad secundaria)
+          - Una conversación previa de contexto (no lo tomaras en cuenta)
 
         2. REGLAS PARA GENERAR EL MENSAJE:
           - El mensaje debe ser breve, amigable y natural
@@ -859,6 +859,8 @@ async function sendMessageChatbot(
         - No debe contener signos de interrogación
         - No debe contener datos del formulario
         - Debe mantener un tono amigable y natural
+        - Solo se debe enfocar en el ultimo mensaje del usuario que te indiquen
+        - No tomar en cuenta la conversación que te provean
         `,
         `Analiza la siguiente información:
     Conversación:
