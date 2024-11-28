@@ -812,19 +812,13 @@ async function sendMessageChatbot(
         [],
         `*Eres un experto analizando conversaciones y me daras el resultado en formato JSON
       *Objetivos: tienes 6 objetivos principales:
-      - Si el usuario desvia el tema respondele como un amigo de forma humana y carismatica, nunca le menciones su error
-      - Si el usuario trata de desviar el formulario actual, con saludo, comentarios positivos, insultos etc, responder amablemente a dicho mensaje de forma breve y corta, pero nunca decirle que no peude continuar
-      - Si el usuario se trata de desviar del formulario actual, pero el tema esta relacionado con el negocio, responder su duda o consulta
-      - Si el usuario indica la modificación de un campo, verificar que ese campo este en la lista de campos validos del formulario actual
-      - Cuando el usuario da un nuevo dato, luego de la verificacion, indicar que actualizaste dicho campo
-      - Nunca decirle al usuario que no puede continuar
-      *IMPORTANTE*:
-      - Nunca menciones el valor de algun campo que tienes almacenado actualmente, y nunca digas que tienes prohibido mostrar dichos datos al usuario, solo afirma que lo haras y nada mas, de forma breve y corta
-      - Nunca le digas al usuario que desvio el tema
-      - Tu respuesta nunca tiene que tener una pregunta
+      - Responde de forma amigable al usuario, de forma corta y concisa, sin preguntas
+      - nunca incluyas preguntas en tus respuestas
+      - confirma cualquier modificacion de datos que esten en la lista de campos validos del formulario actual, de lo contrario dile que no puedes hacerlo
+
       *FORMATO DE RESPUESTA:
       {
-        "response":string(respuesta la mensaje final del usuario, de forma breve y corta, nunca incluyas una pregunta)
+        "response":string(respuesta la mensaje final del usuario, de forma breve y corta, sin preguntas)
         "reason":string(razon de porque elegiste esta respuesta)
       }
       *Ejemplo 1:
@@ -846,7 +840,7 @@ async function sendMessageChatbot(
     Respuesta esperada:
     {
         "response": "Okey, registre su placa",
-        "reason":"El usuario dio su numero de placa porque se le solicito, solo se confirmo el registro, el campo es valido para el formulario actual (Solicitud de registro de vehiculo)"
+        "reason":"Se le respondio sin usar preguntas, El usuario dio su numero de placa porque se le solicito, solo se confirmo el registro, el campo es valido para el formulario actual (Solicitud de registro de vehiculo)"
     }
     
     *Ejemplo 2:
@@ -867,7 +861,7 @@ async function sendMessageChatbot(
     Respuesta esperada:
     {
         "response":"Listo, ya guarde su nombre completo y modifique el valor de su prestamo"
-        "reason":"Se le confirmo al usuario el guardado de su nombre completo y la mofificacion de su prestamo, los cuales son campos validos del formulario actual (Solicitud de prestamo)"
+        "reason":"Se le respondio sin usar preguntas, Se le confirmo al usuario el guardado de su nombre completo y la mofificacion de su prestamo, los cuales son campos validos del formulario actual (Solicitud de prestamo)"
 
     }
       
@@ -896,7 +890,7 @@ async function sendMessageChatbot(
                       1.Ingresar a nuestra pagina oficial
                       2.Rellenar sus datos y confimar
                       3.Esperar la confirmacion por email"
-          "reason":"El usuario realizo una pregunta relacionada al negocio y se respondio amablemente sin decirle que desvio el tema, incluso si no esta relacionado al formulario actual (Eliminación de cuenta)"
+          "reason":"Se le respondio sin usar preguntas, El usuario realizo una pregunta relacionada al negocio y se respondio amablemente sin decirle que desvio el tema, incluso si no esta relacionado al formulario actual (Eliminación de cuenta)"
         }
       *Ejemplo 4:
     Nombre del formulario:
@@ -920,7 +914,7 @@ async function sendMessageChatbot(
      Respuesta esperada:
         {
           "response": "Que bueno que le guste el aguate, un dato interesante de usted"
-          "reason":"El usuario desvio el tema, pero no se le dijo que lo hizo para no incomodarlo, se le respondio de acuerdo a su mensaje como un amigo"
+          "reason":"Se le respondio sin usar preguntas, El usuario desvio el tema, pero no se le dijo que lo hizo para no incomodarlo, se le respondio de acuerdo a su mensaje como un amigo"
         }
         `,
         `Analiza la siguiente información:
