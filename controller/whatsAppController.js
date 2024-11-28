@@ -820,6 +820,9 @@ async function sendMessageChatbot(
         *CONTEXTO IMPORTANTE QUE TIENES QUE TOMAR EN CUENTA PARA ARMAR TU MENSAJE:
         -El usuario actualmente ya tiene todos los datos rellenados
         -Solo estas atento para cualquier modificacion de dichos datos especificados en (message_save)
+        -Nunca le solicites ningun dato al usuario, es importante
+        -Nunca realices preguntas
+        -Responde de forma amigable
         *El mensaje inicial(message_first) nunca tendra una pregunta incluida
         *El mensaje que se te proporcionara para que crees el(message_first) se te proveera, tambien llamado (message_save)
         *FORMATO DE TU RESPUESTA JSON
