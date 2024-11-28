@@ -170,7 +170,7 @@ async function generateChatBotMessage(historial, system, text, json) {
       },
     ],
     model: GROQ_MODEL,
-    temperature: 0.3,
+    temperature: 0.5,
   };
   if (json) {
     dataConfig.stream = false;
