@@ -816,11 +816,11 @@ async function sendMessageChatbot(
       await newMessage.save();
       return newMessage;
     } else {
-      let datosRecopilados = "";
+      let parte_media = "";
       for (const field of currentFormValueDB.fields) {
-        datosRecopilados += `- *${field.name}*: ${field.value}\n`;
+        parte_media += `- *${field.name}*: ${field.value}\n`;
       }
-      datosRecopilados += "\n¿Esta conforme y quiere finalizar?";
+      const parte_final = "¿Esta conforme y quiere finalizar?";
       let chatbotMessage = await generateChatBotMessage(
         [],
         `*Eres un experto generando un mensaje inicial que acompañara a un mensaje, responderas analizando un historial de conversacion para que tu respuesta sea coherente
@@ -905,7 +905,8 @@ async function sendMessageChatbot(
     ${clientMessage} 
     Mensaje(message_save) en el cual se basara tu message_first:
     Actualmente tengo la siguiente información:
-    ${datosRecopilados}
+    ${parte_media}
+    ${parte_final}
     `,
         true
       );
@@ -916,31 +917,38 @@ async function sendMessageChatbot(
         "- Respuesta del bot\n",
         chatbotMessage,
         "\n- Recopilacion:\n",
-        datosRecopilados,
+        parte_media,
         "\n reason\n",
         reason,
         "\nConversacion\n",
         conversationString
       );
-      const messagePrimeraParte = `${chatbotMessage}\nActualmente tengo la siguiente información:`;
+      const parte_inicial = `${chatbotMessage}\nActualmente tengo la siguiente información:`;
 
-      chatbotMessage += "\n" + datosRecopilados;
-      let messageMejorado = await generateChatBotMessage(
+      let messageMejoradoResponse = await generateChatBotMessage(
         [],
         `Eres un experto mejorando un mensaje especifico que te manden y responderas en formato JSON
         *Objetivos:
         -Hacer que un mensaje sea mas humano y amigable, haciendo que sea coherente en toda su oracion
         -Se original en la respuesta, que no sea algo generico
         -Responde como amigo pero coherente, sin que se pierda la idea del mensaje original, incluso si corriges incoherencias
-        -No corrigas la ortografia, solo corrige las incoherencias de las frases
         -Añadir emoticones unicode al mensaje para que sea mas humano, pero emojis diferentes, no repetitivos ni genericos
         -Mejorar el formato de presentacion de datos, si es que estan presentes en el mensaje
         -En tu mensaje mejorado, sera mostrado al usuario, asi que no pongas explicaciones de las correcciones que realizaste
-        *Procedimient:
-        Tomaras un historial de conversación, lo analizaras y mejoras el mensaje que te indiquen para humanizarlo
+        *Formato de entrada:
+        {
+          parte_inicial:string(parte inicial del mensaje)
+          parte_media:string(la parte media del mensaje)
+          parte_inicial:string(parte final del mensaje)
+        }
+        *Procedimiento:
+        
+        Tomaras un historial de conversación, lo analizaras y mejoras cada parte del mensaje, pero de tal forma que en conjunto formen un mensaje coherente
         *Formato de respuesta:
           {
-            message:string(el mensaje mejorado, lista para mostrar al usuario)
+           parte_inicial:string(parte inicial mejorada del mensaje)
+           parte_media:string(la parte media mejorada del mensaje)
+           parte_inicial:string(parte final mejorada del mensaje)
           }
         `,
         `Analiza la siguiente información:
@@ -948,15 +956,28 @@ async function sendMessageChatbot(
       Conversación:
       ${conversationString}
       
-      Mensaje que mejoraras:
-      ${messagePrimeraParte}
+      Partes del mensaje que mejoraras:
+      {
+        parte_inicial:${parte_inicial}
+        parte_media:${parte_media}
+        parte_final:${parte_final}
+      }
+      
       `,
         true,
         0.5
       );
-      console.log("MENSJAE QUE MEJORO:\n", messagePrimeraParte);
-      chatbotMessage = JSON.parse(messageMejorado).message;
-      chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${chatbotMessage}\n${datosRecopilados}`;
+      console.log(
+        "PARTES MEJORADAS DEL MENSAJE:\n",
+        parte_inicial,
+        parte_media,
+        parte_final
+      );
+      const datamejorada = JSON.parse(messageMejoradoResponse);
+      const parte_inicial_mejorada = datamejorada.parte_inicial;
+      const parte_media_mejorada = datamejorada.parte_media;
+      const parte_final_mejorada = datamejorada.parte_final;
+      chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${chatbotMessage}\n${parte_inicial_mejorada}\n${parte_media_mejorada}\n${parte_final_mejorada}`;
       const newMessage = new Message({
         client: clientDB._id,
         wid: null,
