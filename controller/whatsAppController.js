@@ -816,7 +816,7 @@ async function sendMessageChatbot(
       - Si el usuario se trata de desviar del formulario actual, pero el tema esta relacionado con el negocio, responder su duda o consulta
       - Si el usuario indica la modificación de un campo, verificar que ese campo este en la lista de campos validos del formulario actual
       - Cuando el usuario da un nuevo dato, luego de la verificacion, indicar que actualizaste dicho campo
-      
+      - Nunca decirle al usuario que no puedes continuar con la solictud, responder amablemente a saludos, etc
       *Ejemplo 1:
     Nombre del formulario:
       Solicitud de registro de vehiculo
@@ -936,9 +936,9 @@ async function sendMessageChatbot(
       console.log(
         "- Respuesta del bot\n",
         chatbotMessage,
-        "-Razon\n",
+        "\n-Razon\n",
         reason,
-        "- Recopilacion:\n",
+        "\n- Recopilacion:\n",
         datosRecopilados
       );
       chatbotMessage += "\n" + datosRecopilados;
