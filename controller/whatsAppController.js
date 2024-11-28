@@ -816,7 +816,7 @@ async function sendMessageChatbot(
       await newMessage.save();
       return newMessage;
     } else {
-      let datosRecopilados = "Actualmente tengo la siguiente información:\n\n";
+      let datosRecopilados = "";
       for (const field of currentFormValueDB.fields) {
         datosRecopilados += `- *${field.name}*: ${field.value}\n`;
       }
@@ -904,6 +904,8 @@ async function sendMessageChatbot(
     -Ultimo mensaje del usuario:
     ${clientMessage} 
     Mensaje(message_save) en el cual se basara tu message_first:
+    ${chatbotMessage}
+    Actualmente tengo la siguiente información:
     ${datosRecopilados}
     `,
         true
@@ -921,6 +923,8 @@ async function sendMessageChatbot(
         "\nConversacion\n",
         conversationString
       );
+      const messagePrimeraParte = `${chatbotMessage}\nActualmente tengo la siguiente información:`;
+
       chatbotMessage += "\n" + datosRecopilados;
       let messageMejorado = await generateChatBotMessage(
         [],
@@ -946,13 +950,13 @@ async function sendMessageChatbot(
       ${conversationString}
       
       Mensaje que mejoraras:
-      ${chatbotMessage}
+      ${messagePrimeraParte}
       `,
         true,
         0.5
       );
-      // chatbotMessage = JSON.parse(messageMejorado).message;
-      chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${chatbotMessage}`;
+      chatbotMessage = JSON.parse(messageMejorado).message;
+      chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${chatbotMessage}\n${datosRecopilados}`;
       const newMessage = new Message({
         client: clientDB._id,
         wid: null,
