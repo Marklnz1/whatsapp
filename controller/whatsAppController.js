@@ -855,7 +855,7 @@ async function sendMessageChatbot(
       Placa: 77777777
       Nombre completo: 80 Mbps a 50 soles
       ¿Esta conforme y quiere finalizar?"
-      "reason":"En el mensaje_first respondi al mensaje(la placa es, 2H182H) de forma coherente
+      "reason":"En el mensaje_first respondi al ultimo mensaje(la placa es, 2H182H) de forma coherente
 
     }
       *Ejemplo 2:
@@ -880,12 +880,12 @@ async function sendMessageChatbot(
       Placa: 77777777
       Nombre completo: 80 Mbps a 50 soles
       ¿Esta conforme y quiere finalizar?"
-      "reason":"En el mensaje_first respondi al mensaje(holaaaaa) de forma coherente devolviendole el saludo de forma humana
+      "reason":"En el mensaje_first respondi al ultimo mensaje(holaaaaa) de forma coherente devolviendole el saludo de forma humana
 
     }
         `,
         `Analiza la siguiente información:
-    Mensaje(message_save) en el cual se basara tu mensaje inicial:
+    Mensaje(message_save) en el cual se basara tu message_first:
     ${datosRecopilados}
       Conversación:
       ${conversationString}`,
@@ -900,7 +900,9 @@ async function sendMessageChatbot(
         "\n- Recopilacion:\n",
         datosRecopilados,
         "\n reason\n",
-        reason
+        reason,
+        "\nConversacion\n",
+        conversationString
       );
       chatbotMessage += "\n" + datosRecopilados;
       let messageMejorado = await generateChatBotMessage(
