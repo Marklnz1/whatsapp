@@ -931,7 +931,8 @@ async function sendMessageChatbot(
       const data = chatbotMessage;
       chatbotMessage = JSON.parse(data).response;
       const reason = JSON.parse(data).reason;
-      let datosRecopilados = "Actualmente tengo la siguiente información:\n";
+      let datosRecopilados =
+        "Actualmente tengo la siguiente información lol:\n";
       for (const field of currentFormValueDB.fields) {
         datosRecopilados += `${field.name}: ${field.value}\n`;
       }
