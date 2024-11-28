@@ -954,6 +954,7 @@ async function sendMessageChatbot(
         true,
         0.5
       );
+      console.log("MENSJAE QUE MEJORO:\n", messagePrimeraParte);
       chatbotMessage = JSON.parse(messageMejorado).message;
       chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${chatbotMessage}\n${datosRecopilados}`;
       const newMessage = new Message({
