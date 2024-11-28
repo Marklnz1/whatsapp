@@ -857,14 +857,10 @@ async function sendMessageChatbot(
         true
       );
       const data = chatbotMessage;
-      chatbotMessage = JSON.parse(data).response;
-      const reason = JSON.parse(data).reason;
-
+      chatbotMessage = JSON.parse(data).message_first;
       console.log(
         "- Respuesta del bot\n",
         chatbotMessage,
-        "\n-Razon\n",
-        reason,
         "\n- Recopilacion:\n",
         datosRecopilados
       );
