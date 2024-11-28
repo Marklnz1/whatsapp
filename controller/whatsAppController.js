@@ -934,7 +934,7 @@ async function sendMessageChatbot(
         -En tu mensaje mejorado, sera mostrado al usuario, asi que no pongas explicaciones de las correcciones que realizaste
         -Toma en cuenta la conversacion que te daran para mejorar tu respuesta
         *OBLIGATORIO*:
-        -En la parte_incial del mensaje, si o si tienes que poner una frase donde indiques que mostraras los datos que tienes hasta el momento de forma original y sutil, humana no generica:
+        -En la parte_incial del mensaje, si o si tienes que poner una frase donde indiques que mostraras los datos que tienes hasta el momento:
         *Formato de entrada:
         {
           parte_inicial:string(parte inicial del mensaje)
