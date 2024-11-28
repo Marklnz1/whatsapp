@@ -660,8 +660,6 @@ async function sendMessageChatbot(
         if (extractFields[key]) {
           fieldDB.value = extractFields[key];
         }
-      } else {
-        currentFormValueDB.push({ name: key, value: extractFields[key] });
       }
     }
     await currentFormValueDB.save();
@@ -813,19 +811,12 @@ async function sendMessageChatbot(
       let chatbotMessage = await generateChatBotMessage(
         [],
         `*Eres un experto analizando conversaciones y me daras el resultado en formato JSON
-      *Objetivos: Solo tienes 3 objetivos principales
-      1. Responder amablemente al usuario sobre su pregunta en su mensaje final
-      2. Acompañar cada respuesta con la informacion de los campos rellenados que tienes del formulario, y realizar la pregunta:
-       ¿Esta conforme y quiere finalizar?
-      3. Responder amablemente que guardaste un dato si es que el usuario te especifico alguno
-    *IMPORTANTE: tu mensaje tiene que tomar en cuenta lo siguiente:
-      - La descripcion de cada campo es importante, ya que tiene información mas detallada sobre el campo
-      - Nunca le digas al usuario que su dato es repetido o que ya lo tenia registrado
-      - Nunca menciones un dato anterior que fue registrado por el usuario
-      - Si el ultimo mensaje del usuario es una incoherencia o trata de desviar el objetivo principal del formulario, responder su pregunta y preguntar:
-      ¿Quieres que no continue con las preguntas?
-      - Los datos que mencionaras para la confirmacion tienen que ser iguales a los campos validos del formulario
-      - No importa si en el historial de lo conversación se hace mencion a otros campos, tu solo tienes permiso para mostrarle los campos validos del formulario actual
+      *Objetivos: tienes 3 objetivos principales:
+      - Si el usuario se trata de desviar del formulario actual a un tema que esta fuera de la información del negocio, informar al usuario amablemente que no respondes temas fuera del negocio
+      - Si el usuario se trata de desviar del formulario actual, pero el tema esta relacionado con el negocio, responder su duda o consulta
+      - Si el usuario indica la modificación de un campo, verificar que ese campo este en la lista de campos validos del formulario actual
+      - Cuando el usuario da un nuevo dato, luego de la verificacion, indicar que actualizaste dicho campo
+      
       *Ejemplo 1:
     Nombre del formulario:
       Solicitud de registro de vehiculo
@@ -844,13 +835,8 @@ async function sendMessageChatbot(
       ]
     Respuesta esperada:
     {
-        "response": "Listo, ya tengo todos los datos:
-                  - Nombre completo: Marco Gomez Duran
-                  - Placa de vehiculo: 2H182H
-                  - Precio del vehiculo: 20 000 soles
-                 ¿Esta conforme y quiere finalizar?",
-        "reason":"En la respuesta incluyo los campos del formulario actual(Solicitud de registro de vehiculo), los cuales son "nombre"y "monto""
-
+        "response": "Okey, registre su placa",
+        "reason":"El usuario dio su numero de placa porque se le solicito, solo se confirmo el registro, el campo es valido para el formulario actual (Solicitud de registro de vehiculo)"
     }
     
     *Ejemplo 2:
@@ -870,11 +856,8 @@ async function sendMessageChatbot(
       ]
     Respuesta esperada:
     {
-        "response":"Modifique el prestamo que me indico, ahora tengo lo siguiente:
-                    - Nombre completo: Marco Gomez Duran
-                    - monto: 20 000 soles
-                  ¿Esta conforme y quiere finalizar?"
-        "reason":"En la respuesta incluyo los campos del formulario actual(Solicitud de prestamo), los cuales son "nombre"y "monto""
+        "response":"Listo, ya guarde su nombre completo y modifique el valor de su prestamo"
+        "reason":"Se le confirmo al usuario el guardado de su nombre completo y la mofificacion de su prestamo, los cuales son campos validos del formulario actual (Solicitud de prestamo)"
 
     }
       
@@ -902,12 +885,8 @@ async function sendMessageChatbot(
           "response": "Para crear otra cuenta necesito que haga lo siguiente:
                       1.Ingresar a nuestra pagina oficial
                       2.Rellenar sus datos y confimar
-                      3.Esperar la confirmacion por email
-                      Le informo que todavia no me confirmo lo siguiente:
-                      - Nombre completo: Marco Gomez Sanchez
-                      - Razon: No confia en la empresa
-                    ¿Esta conforme y quiere finalizar?"
-          "reason":"En la respuesta incluyo los campos del formulario actual(Eliminación de cuenta), los cuales son "nombre completo"y "razon""
+                      3.Esperar la confirmacion por email"
+          "reason":"El usuario realizo una pregunta relacionada al negocio y se respondio amablemente, incluso si no esta relacionado al formulario actual (Eliminación de cuenta)"
         }
       *Ejemplo 4:
     Nombre del formulario:
@@ -930,11 +909,8 @@ async function sendMessageChatbot(
       ]
      Respuesta esperada:
         {
-          "response": "Me gustaria que no se desvie el tema, aun tiene pendiente la confirmacion de la siguiente información:
-                      - Nombre completo: Marco Gomez Sanchez
-                      - Razon: No confia en la empresa
-                    ¿Esta conforme y quiere finalizar?"
-          "reason":"En la respuesta incluyo los campos del formulario actual(Eliminación de cuenta), los cuales son "nombre completo"y "razon""
+          "response": "Que bueno que le guste el aguate, pero no puedo desviar mis respuestas a temas no relacionadas al negocio"
+          "reason":"El usuario respondio un tema no relacionado al negocio, se le indico amablemente una respuesta, el mensaje del usuario no esta relacionado para nada al formulario actual(Eliminación de cuenta)"
 
         }
         `,
@@ -952,8 +928,20 @@ async function sendMessageChatbot(
       const data = chatbotMessage;
       chatbotMessage = JSON.parse(data).response;
       const reason = JSON.parse(data).reason;
-      console.log("- Respuesta del bot\n", chatbotMessage, "-Razon\n", reason);
-
+      let datosRecopilados = "Actualmente tengo la siguiente información:\n";
+      for (const field of currentFormValueDB.fields) {
+        datosRecopilados += `${field.name}: ${field.value}\n`;
+      }
+      datosRecopilados += "¿Esta conforme y quiere finalizar?";
+      console.log(
+        "- Respuesta del bot\n",
+        chatbotMessage,
+        "-Razon\n",
+        reason,
+        "- Recopilacion:\n",
+        datosRecopilados
+      );
+      chatbotMessage += "\n" + datosRecopilados;
       const newMessage = new Message({
         client: clientDB._id,
         wid: null,
