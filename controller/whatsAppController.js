@@ -831,7 +831,7 @@ async function sendMessageChatbot(
       {
         "message_first":string(respuesta al mensaje del usuario siguiente las reglas establecidas y siendo coherente con message_save)
         "message_save":string(el mensaje que te dieron para el analisis)
-        "reason":string(donde especificas que no solicitaste ningun dato al usuario ni realizaste preguntas en el message_first)
+        "reason":string(explicacion de tu message_first, incluyendo entre parentesis al ultimo mensaje para dejar en claro que respondiste a ese)
       }
       *Ejemplo 1:
     Conversación:
@@ -894,16 +894,13 @@ async function sendMessageChatbot(
       const data = chatbotMessage;
       chatbotMessage = JSON.parse(data).message_first;
       const reason = JSON.parse(data).reason;
-      const second = JSON.parse(data).message_first;
       console.log(
         "- Respuesta del bot\n",
         chatbotMessage,
         "\n- Recopilacion:\n",
         datosRecopilados,
         "\n reason\n",
-        reason,
-        "\nsecond\n",
-        second
+        reason
       );
       chatbotMessage += "\n" + datosRecopilados;
       let messageMejorado = await generateChatBotMessage(
