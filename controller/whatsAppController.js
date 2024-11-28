@@ -934,7 +934,7 @@ async function sendMessageChatbot(
         -En tu mensaje mejorado, sera mostrado al usuario, asi que no pongas explicaciones de las correcciones que realizaste
         -Toma en cuenta la conversacion que te daran para mejorar tu respuesta
         *OBLIGATORIO*:
-        -En la parte_inicial que mejoraras, incluye una referencia a una frase en la que indiques que le mostras la informacion que tienes hasta ahora del usuario, de forma sutil y amigable
+        -En la parte_inicial que mejoraras, incluye una referencia a una frase en la que indiques que le mostras la informacion que tienes hasta ahora del usuario, de forma sutil y amigable, y forma breve y corta
         *Formato de entrada:
         {
           parte_inicial:string(parte inicial del mensaje)
@@ -945,7 +945,7 @@ async function sendMessageChatbot(
         Tomaras un historial de conversación, lo analizaras y mejoras cada parte del mensaje, pero de tal forma que en conjunto formen un mensaje coherente
         *Formato de respuesta:
           {
-           parte_inicial:string(parte inicial mejorada del mensaje, que incluye una frase que indique que le mostras la informacion que tienes hasta ahora del usuario)
+           parte_inicial:string(parte inicial mejorada del mensaje, que incluye una frase que indique que le mostras la informacion que tienes hasta ahora del usuario, de forma breve y corta)
            parte_media:string(parte media mejorada del mensaje )
           }
         `,
