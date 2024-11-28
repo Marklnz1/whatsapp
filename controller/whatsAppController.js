@@ -816,7 +816,7 @@ async function sendMessageChatbot(
       await newMessage.save();
       return newMessage;
     } else {
-      let parte_media = "";
+      let parte_media = "\n";
       for (const field of currentFormValueDB.fields) {
         parte_media += `- *${field.name}*: ${field.value}\n`;
       }
