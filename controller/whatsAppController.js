@@ -947,6 +947,9 @@ async function sendMessageChatbot(
         *Formato de respuesta:
           {
            parte_inicial:string(parte inicial mejorada del mensaje que incluye una conexion directa con la parte_media)
+           parte_media:string(parte media mejorada del mensaje )
+           parte_final:string(parte final mejorada del mensaje )
+
           }
         `,
         `Analiza la siguiente información:
