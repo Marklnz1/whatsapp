@@ -817,18 +817,16 @@ async function sendMessageChatbot(
       let chatbotMessage = await generateChatBotMessage(
         [],
         `*Eres un experto generando un mensaje inicial que acompañara a un mensaje, responderas analizando un historial de conversacion para que tu respuesta sea coherente
-        *CONTEXTO IMPORTANTE QUE TIENES QUE TOMAR EN CUENTA PARA ARMAR TU MENSAJE:
         -El usuario actualmente ya tiene todos los datos rellenados
-        -Solo estas atento para cualquier modificacion de dichos datos especificados en (message_save)
-        -Nunca le solicites ningun dato al usuario
-        -Nunca realices preguntas
-        -Responde de forma amigable
-        *El mensaje inicial(message_first) nunca tendra una pregunta incluida
-        *El mensaje que se te proporcionara para que crees el(message_first) se te proveera, tambien llamado (message_save)
+        *REGLAS PARA EL MESSAGE_FIRST
+        -message_first no tiene que contener solicitudes de ningun dato al usuario
+        -message_first no tiene que contener preguntas
+        -message_first tiene que contener un mensaje amigable
+        -message_first tiene que ser coherente con el message_save
         *FORMATO DE TU RESPUESTA JSON
         :
       {
-        "message_first":string(respuesta siguiente el contexto, y tomando en cuenta el message_save)
+        "message_first":string(respuesta al mensaje del usuario siguiente las reglas establecidas y siendo coherente con message_save)
         "message_save":string(el mensaje que te dieron para el analisis)
         "reason":string(donde especificas que no solicitaste ningun dato al usuario ni realizaste preguntas en el message_first)
       }
