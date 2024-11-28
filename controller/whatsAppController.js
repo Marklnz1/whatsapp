@@ -825,29 +825,46 @@ async function sendMessageChatbot(
       const parte_final = "¿Esta conforme y quiere finalizar?";
       let chatbotMessage = await generateChatBotMessage(
         [],
-        `*Eres un experto en generar mensajes y respondes en formato JSON
-        *PROCEDIMIENTO QUE REALIZARAS*:
-        1.te proveeran una lista de campos de un formulario con sus respectivos datos rellenados
-        2.te proveeran un mensaje final en el que te enfocaras
-        3.te proveeran una conversacion que se realizo para que mejores tu mensaje, pero no le daras prioridad
-        4.analizaras la informacion que te dieron y generaras un mensaje que se relacion con el formulario
-        5.el mensaje que generes tiene que finalizar con una frase que haga referencia que mostraras los datos que tienes hasta ahora
-        6.el mensaje que generes aunque contenga la frase sobre el formulario, no incluira ningun dato de este, ya que tu mensaje solo sirve como presentacion
-        7.el mensaje tiene que responder tambien al mensaje final en el cual te estas enfocando
-        8.responderas de forma breve, amigable y humana posible
-        9.No incluiras preguntas, no solicitaras datos, ni mostraras ningun valor del formulario que se te proveera
-        *FORMATO DE SALIDA
+        `PROCEDIMIENTO QUE REALIZARAS:
+        1. Recibirás tres elementos de información:
+          - Una lista de campos de formulario con datos rellenados
+          - Un mensaje final principal en el que te enfocarás
+          - Una conversación previa de contexto (prioridad secundaria)
+
+        2. REGLAS PARA GENERAR EL MENSAJE:
+          - El mensaje debe ser breve, amigable y natural
+          - Debe relacionarse con el contexto del formulario
+          - Debe responder al mensaje final principal
+          - NO debe incluir:
+            • Preguntas
+            • Solicitudes de información
+            • Datos específicos del formulario
+            • Valores recopilados
+          - DEBE terminar SIEMPRE con una variación de la frase: "Te muestro los datos que tengo hasta ahora:"
+
+        3. RESTRICCIONES:
+          - Longitud máxima: 3 líneas
+          - Tono: Conversacional y cercano
+          - Enfoque: Mensaje de presentación, no de recopilación
+
+        FORMATO DE SALIDA REQUERIDO:
         {
-          parte_inicial_generada:string(el mensaje que generaras, sin preguntas, ni solicitar nada, ni mostrar datos recopilados)
-          reason:string(razon o explicacion de tu mensaje en parte_inicial_generada)
+            "parte_inicial_generada": string (mensaje que cumple todas las reglas anteriores y SIEMPRE termina con la frase sobre mostrar datos),
+            "reason": string (explicación concisa de por qué el mensaje es efectivo)
         }
+
+        VALIDACIÓN:
+        - El mensaje en parte_inicial_generada DEBE terminar con una frase sobre mostrar los datos
+        - No debe contener signos de interrogación
+        - No debe contener datos del formulario
+        - Debe mantener un tono amigable y natural
         `,
         `Analiza la siguiente información:
     Conversación:
     ${conversationString}
     -Ultimo mensaje del usuario:
     ${clientMessage} 
-    Mensaje con los datos con el cual se basara tu respuesta:
+    Mensaje con los campos rellenados del formulario que analizaras:
     ${parte_media}
     `,
         true
