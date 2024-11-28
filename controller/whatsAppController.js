@@ -952,7 +952,7 @@ async function sendMessageChatbot(
         true,
         0.5
       );
-      chatbotMessage = JSON.parse(messageMejorado).message;
+      // chatbotMessage = JSON.parse(messageMejorado).message;
       chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${chatbotMessage}`;
       const newMessage = new Message({
         client: clientDB._id,
