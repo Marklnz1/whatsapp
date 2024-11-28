@@ -967,16 +967,19 @@ async function sendMessageChatbot(
         true,
         0.5
       );
-      console.log(
-        "PARTES MEJORADAS DEL MENSAJE:\n",
-        parte_inicial,
-        parte_media,
-        parte_final
-      );
+
       const datamejorada = JSON.parse(messageMejoradoResponse);
       const parte_inicial_mejorada = datamejorada.parte_inicial;
       const parte_media_mejorada = datamejorada.parte_media;
       const parte_final_mejorada = datamejorada.parte_final;
+      console.log(
+        "PARTES MEJORADAS DEL MENSAJE:\n",
+        parte_inicial_mejorada,
+        "\n",
+        parte_media_mejorada,
+        "\n",
+        parte_final_mejorada
+      );
       chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${chatbotMessage}\n${parte_inicial_mejorada}\n${parte_media_mejorada}\n${parte_final_mejorada}`;
       const newMessage = new Message({
         client: clientDB._id,
