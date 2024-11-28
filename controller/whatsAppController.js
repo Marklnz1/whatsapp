@@ -949,8 +949,9 @@ async function sendMessageChatbot(
       ${conversationString}`,
         true
       );
-      chatbotMessage = JSON.parse(chatbotMessage).response;
-      const reason = JSON.parse(chatbotMessage);
+      const data = chatbotMessage;
+      chatbotMessage = JSON.parse(data).response;
+      const reason = JSON.parse(data).reason;
       console.log("- Respuesta del bot\n", chatbotMessage, "-Razon\n", reason);
 
       const newMessage = new Message({
