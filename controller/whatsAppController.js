@@ -975,17 +975,17 @@ async function sendMessageChatbot(
       console.log(
         "PARTES ANTES DE LA MEJORA:\nparte_inicial\n",
         parte_inicial,
-        "parte_media:\n",
+        "\nparte_media:\n",
         parte_media,
-        "parte_final\n",
+        "\nparte_final\n",
         parte_final
       );
       console.log(
         "PARTES DESPUES DE LA MEJORA:\nparte_inicial\n",
         parte_inicial_mejorada,
-        "parte_media:\n",
+        "\nparte_media:\n",
         parte_media_mejorada,
-        "parte_final\n",
+        "\nparte_final\n",
         parte_final_mejorada
       );
       chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${parte_inicial_mejorada}\n${parte_media}\n${parte_final_mejorada}`;
