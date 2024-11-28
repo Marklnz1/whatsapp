@@ -823,6 +823,8 @@ async function sendMessageChatbot(
         -message_first no tiene que contener preguntas
         -message_first tiene que contener un mensaje amigable
         -message_first tiene que ser coherente con el message_save
+        _message_first tiene que responder de forma coherente al ultimo mensaje del usuario en la conversacion
+        -message_first tiene que tener en cuenta que ya tienes todos los datos del usuario, incluso si la conversacion dice que no
         *FORMATO DE TU RESPUESTA JSON
         :
       {
@@ -852,8 +854,34 @@ async function sendMessageChatbot(
       Placa: 77777777
       Nombre completo: 80 Mbps a 50 soles
       ¿Esta conforme y quiere finalizar?"
+      "reason":"En el mensaje_first respondi al mensaje(la placa es, 2H182H) de forma coherente
+
     }
-      "reason":"Para armar mi message_first no inclui preguntas ni solicitudes de datos de ningun tipo al usuario"
+      *Ejemplo 2:
+    Conversación:
+      [
+        {"assistant":"gracias por confiar en nosotros, necesito que me brinde su nombre completo"},
+        {"user":"Marco Gomez Duran"},
+        {"assistant":"Ok, ahora como ultimo dato, necesito la placa de su vehiculo"},
+        {"user":"holaaaaa"}    
+      ]
+    Mensaje(message_save) en el cual se basara tu mensaje inicial:
+      
+      Actualmente tengo la siguiente información:
+      Placa: 77777777
+      Nombre completo: 80 Mbps a 50 soles
+      ¿Esta conforme y quiere finalizar?
+
+    Respuesta esperada:
+    {
+        "message_first": "Hola,¿que tal? ",
+        "message_save": " Actualmente tengo la siguiente información:
+      Placa: 77777777
+      Nombre completo: 80 Mbps a 50 soles
+      ¿Esta conforme y quiere finalizar?"
+      "reason":"En el mensaje_first respondi al mensaje(holaaaaa) de forma coherente devolviendole el saludo
+
+    }
         `,
         `Analiza la siguiente información:
     Mensaje(message_save) en el cual se basara tu mensaje inicial:
