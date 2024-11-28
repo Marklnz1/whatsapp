@@ -929,12 +929,12 @@ async function sendMessageChatbot(
         [],
         `Eres un experto mejorando un mensaje especifico que te mandaran en 3 partes, parte_inicial,parte_media y parte_final, y responderas en formato JSON
         *Objetivos:
-        -Hacer que la parte_inicial que ten den de un mensaje sea mas humano y amigable, haciendo que sea coherente en conjunto con las demas partes (parte_media y parte_final)
+        -Mejorar parte_inicial, parte_media y parte_final del mensaje para que en conjunto sean coherentes
         -Añadir emoticones unicode al mensaje para que sea mas humano, pero emojis diferentes, no repetitivos ni genericos
         -En tu mensaje mejorado, sera mostrado al usuario, asi que no pongas explicaciones de las correcciones que realizaste
         -Toma en cuenta la conversacion que te daran para mejorar tu respuesta
         *OBLIGATORIO*:
-        -En la parte_incial del mensaje, si o si tienes que poner una frase donde indiques que mostraras los datos que tienes hasta el momento:
+        -En la parte_incial del mensaje, si o si tienes que poner una frase donde indiques que mostraras los datos que tienes hasta el momento, tal como esta en la parte original parte_inicial:
         *Formato de entrada:
         {
           parte_inicial:string(parte inicial del mensaje)
