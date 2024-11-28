@@ -825,6 +825,7 @@ async function sendMessageChatbot(
         -message_first tiene que ser coherente con el message_save
         _message_first tiene que responder de forma coherente al ultimo mensaje del usuario en la conversacion
         -message_first tiene que tener en cuenta que ya tienes todos los datos del usuario, incluso si la conversacion dice que no
+        _message_first tiene que contener una respuesta humana y amigable, no solo repetir el mensaje del usuario
         *FORMATO DE TU RESPUESTA JSON
         :
       {
@@ -879,7 +880,7 @@ async function sendMessageChatbot(
       Placa: 77777777
       Nombre completo: 80 Mbps a 50 soles
       ¿Esta conforme y quiere finalizar?"
-      "reason":"En el mensaje_first respondi al mensaje(holaaaaa) de forma coherente devolviendole el saludo
+      "reason":"En el mensaje_first respondi al mensaje(holaaaaa) de forma coherente devolviendole el saludo de forma humana
 
     }
         `,
