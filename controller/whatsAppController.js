@@ -808,28 +808,24 @@ async function sendMessageChatbot(
       await newMessage.save();
       return newMessage;
     } else {
+      let datosRecopilados =
+        "Actualmente tengo la siguiente información lol:\n";
+      for (const field of currentFormValueDB.fields) {
+        datosRecopilados += `${field.name}: ${field.value}\n`;
+      }
+      datosRecopilados += "¿Esta conforme y quiere finalizar?";
       let chatbotMessage = await generateChatBotMessage(
         [],
-        `*Eres un experto analizando conversaciones y me daras el resultado en formato JSON
-      *Objetivos: tienes 6 objetivos principales:
-      - Responde de forma amigable al usuario, de forma corta y concisa, sin preguntas
-      - nunca incluyas preguntas en tus respuestas
-      - confirma cualquier modificacion de datos que esten en la lista de campos validos del formulario actual, de lo contrario dile que no puedes hacerlo
-
-      *FORMATO DE RESPUESTA:
+        `*Eres un experto generando un mensaje inicial que acompañara a un mensaje, responderas analizando un historial de conversacion para que tu respuesta sea coherente
+        *El mensaje inicial(message_first) nunca tendra una pregunta incluida
+        *El mensaje que se te proporcionara para que crees el(message_first) se te proveera, tambien llamado (message_save)
+        *FORMATO DE TU RESPUESTA JSON
+        :
       {
         "response":string(respuesta la mensaje final del usuario, de forma breve y corta, sin preguntas)
         "reason":string(razon de porque elegiste esta respuesta)
       }
       *Ejemplo 1:
-    Nombre del formulario:
-      Solicitud de registro de vehiculo
-   Lista de campos del formulario rellenados que mostraras al usuario:
-     [
-      {"name":"placa del vehiculo","description":"la placa que identifica al vehiculo","value":"2H182H"},
-      {"name":"nombre completo","description":"nombre completo del usuario","value":"Marco Gomez Duran"},
-      {"name":"precio del vehiculo","description":"precio estimado del vehiculo según el usuario","value":"20 000 soles"}
-     ]
     Conversación:
       [
         {"assistant":"gracias por confiar en nosotros, necesito que me brinde su nombre completo"},
@@ -837,93 +833,25 @@ async function sendMessageChatbot(
         {"assistant":"Ok, ahora como ultimo dato, necesito la placa de su vehiculo"},
         {"user":"la placa es, 2H182H"}    
       ]
-    Respuesta esperada:
-    {
-        "response": "Okey, registre su placa",
-        "reason":"Se le respondio sin usar preguntas, El usuario dio su numero de placa porque se le solicito, solo se confirmo el registro, el campo es valido para el formulario actual (Solicitud de registro de vehiculo)"
-    }
-    
-    *Ejemplo 2:
-    Nombre del formulario:
-      Solicitud de prestamo
-  Lista de campos del formulario rellenados que mostraras al usuario:
-     [
-      {"name":"nombre completo","description":"nombre completo del usuario","value":"Marco Gomez Duran"}
-      {"name":"monto","description":"monto del prestamo que el usuario pide","value":"10 000 soles"}
-     ]
-    Conversación:
-      [
-        {"assistant":"cual es el monto que requiere para el prestamo?"},
-        {"user":"deseo, 10 000 soles"},
-        {"assistant":"ok, ahora necesito su nombre completo"},
-        {"user":"es Marco Gomez Duran, pero modifica mi prestamo, quiero que sea de 20 000 soles"},
-      ]
-    Respuesta esperada:
-    {
-        "response":"Listo, ya guarde su nombre completo y modifique el valor de su prestamo"
-        "reason":"Se le respondio sin usar preguntas, Se le confirmo al usuario el guardado de su nombre completo y la mofificacion de su prestamo, los cuales son campos validos del formulario actual (Solicitud de prestamo)"
-
-    }
+    Mensaje(message_save) en el cual se basara tu mensaje inicial:
       
-    *Ejemplo 3:
-    Nombre del formulario:
-      Eliminación de cuenta
-      Lista de campos del formulario rellenados que mostraras al usuario:
-     [
-      {"name":"nombre completo","description":"nombre completo del usuario","value":"Marco Gomez Dura"}
-      {"name":"razon","description":"razon por la cual eliminara su cuenta","value":"ya no usa la cuenta"}
-     ]
-    Conversación:
-      [
-        {"assistant":"ok, solo digame donde esta ubicado},
-        {"user":"en jr lima 222"},
-        {"assistant":"Ok registre su ubicación, los datos actualizados que tengo son:
-                      - Ubicacion: jr lima 222
-                      - Razon: motivo de viaje
-                      ¿Esta conforme y quiere finalizar?"},
-        {"user":"Y como realizo la creacion de otra cuenta?"},
+      Actualmente tengo la siguiente información:
+      Placa: 77777777
+      Nombre completo: 80 Mbps a 50 soles
+      ¿Esta conforme y quiere finalizar?
 
-      ]
-     Respuesta esperada:
-        {
-          "response": "Para crear otra cuenta necesito que haga lo siguiente:
-                      1.Ingresar a nuestra pagina oficial
-                      2.Rellenar sus datos y confimar
-                      3.Esperar la confirmacion por email"
-          "reason":"Se le respondio sin usar preguntas, El usuario realizo una pregunta relacionada al negocio y se respondio amablemente sin decirle que desvio el tema, incluso si no esta relacionado al formulario actual (Eliminación de cuenta)"
-        }
-      *Ejemplo 4:
-    Nombre del formulario:
-      Eliminación de cuenta
-      Lista de campos del formulario rellenados que mostraras al usuario:
-     [
-      {"name":"nombre completo","description":"nombre completo del usuario","value":"Marco Gomez Dura"}
-      {"name":"razon","description":"razon por la cual eliminara su cuenta","value":"ya no usa la cuenta"}
-     ]
-    Conversación:
-      [
-        {"assistant":"ok, ya registre su nombre, ahora digame porque quiere eliminar su cuenta?"},
-        {"user":"es que ya no la uso"},
-        {"assistant":"Ok, esa es su razón, los datos actualizados que tengo son:
-                      - Nombre completo: Marco Gomez Duran
-                      - Razon : ya no usa la cuenta
-                      ¿Esta conforme y quiere finalizar?"},
-        {"user":"me gusta el aguacate"},
-
-      ]
-     Respuesta esperada:
-        {
-          "response": "Que bueno que le guste el aguate, un dato interesante de usted"
-          "reason":"Se le respondio sin usar preguntas, El usuario desvio el tema, pero no se le dijo que lo hizo para no incomodarlo, se le respondio de acuerdo a su mensaje como un amigo"
-        }
+    Respuesta esperada:
+    {
+        "message_first": "Okey, registre su placa",
+        "message_save": " Actualmente tengo la siguiente información:
+      Placa: 77777777
+      Nombre completo: 80 Mbps a 50 soles
+      ¿Esta conforme y quiere finalizar?"
+    }
         `,
         `Analiza la siguiente información:
-      Nombre del formulario:
-      ${clientDB.formProcess}
-
-      Lista de campos del formulario rellenados que mostraras al usuario:
-      ${fieldsAll}
-
+    Mensaje(message_save) en el cual se basara tu mensaje inicial:
+    ${datosRecopilados}
       Conversación:
       ${conversationString}`,
         true
@@ -931,12 +859,7 @@ async function sendMessageChatbot(
       const data = chatbotMessage;
       chatbotMessage = JSON.parse(data).response;
       const reason = JSON.parse(data).reason;
-      let datosRecopilados =
-        "Actualmente tengo la siguiente información lol:\n";
-      for (const field of currentFormValueDB.fields) {
-        datosRecopilados += `${field.name}: ${field.value}\n`;
-      }
-      datosRecopilados += "¿Esta conforme y quiere finalizar?";
+
       console.log(
         "- Respuesta del bot\n",
         chatbotMessage,
