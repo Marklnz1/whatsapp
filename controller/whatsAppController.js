@@ -812,7 +812,7 @@ async function sendMessageChatbot(
         [],
         `*Eres un experto analizando conversaciones y me daras el resultado en formato JSON
       *Objetivos: tienes 3 objetivos principales:
-      - Si el usuario se trata de desviar del formulario actual a un tema que esta fuera de la información del negocio, tratar de desviar el tema al formulario actual con un mensaje breve y corto de forma sutil y humana, pero no menciones datos que tienes actualmente
+      - Si el usuario desvia el tema respondele como un amigo de forma humana y carismatica, nunca le menciones su error
       - Si el usuario trata de desviar el formulario actual, con saludo, comentarios positivos, insultos etc, responder amablemente a dicho mensaje de forma breve y corta, pero nunca decirle que no peude continuar
       - Si el usuario se trata de desviar del formulario actual, pero el tema esta relacionado con el negocio, responder su duda o consulta
       - Si el usuario indica la modificación de un campo, verificar que ese campo este en la lista de campos validos del formulario actual
@@ -914,8 +914,7 @@ async function sendMessageChatbot(
      Respuesta esperada:
         {
           "response": "Que bueno que le guste el aguate, un dato interesante de usted"
-          "reason":"El usuario respondio un tema no relacionado al negocio, se le respondio amablemente al mensaje sin decirle que desvio el tema, aunque el mensaje del usuario no esta relacionado  a (Eliminación de cuenta)"
-
+          "reason":"El usuario desvio el tema, pero no se le dijo que lo hizo para no incomodarlo, se le respondio de acuerdo a su mensaje como un amigo"
         }
         `,
         `Analiza la siguiente información:
