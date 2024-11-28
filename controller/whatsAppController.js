@@ -825,7 +825,8 @@ async function sendMessageChatbot(
       const parte_final = "¿Esta conforme y quiere finalizar?";
       let chatbotMessage = await generateChatBotMessage(
         [],
-        `PROCEDIMIENTO QUE REALIZARAS:
+        `RESPONDERAS EN FORMATO JSON
+        PROCEDIMIENTO QUE REALIZARAS:
         1. Recibirás tres elementos de información:
           - Una lista de campos de formulario con datos rellenados
           - Un mensaje final principal en el que te enfocarás
@@ -847,7 +848,7 @@ async function sendMessageChatbot(
           - Tono: Conversacional y cercano
           - Enfoque: Mensaje de presentación, no de recopilación
 
-        FORMATO DE SALIDA REQUERIDO:
+        FORMATO DE SALIDA EN FORMATO JSON REQUERIDO:
         {
             "parte_inicial_generada": string (mensaje que cumple todas las reglas anteriores y SIEMPRE termina con la frase sobre mostrar datos),
             "reason": string (explicación concisa de por qué el mensaje es efectivo)
