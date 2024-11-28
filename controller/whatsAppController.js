@@ -824,7 +824,8 @@ async function sendMessageChatbot(
       - Nunca menciones un dato anterior que fue registrado por el usuario
       - Si el ultimo mensaje del usuario es una incoherencia o trata de desviar el objetivo principal del formulario, responder su pregunta y preguntar:
       ¿Quieres que no continue con las preguntas?
-      
+      - Los datos que mencionaras para la confirmacion tienen que ser iguales a los campos validos del formulario
+      - No importa si en el historial de lo conversación se hace mencion a otros campos, tu solo tienes permiso para mostrarle los campos validos del formulario actual
       *Ejemplo 1:
     Nombre del formulario:
       Solicitud de registro de vehiculo
@@ -847,8 +848,9 @@ async function sendMessageChatbot(
                   - Nombre completo: Marco Gomez Duran
                   - Placa de vehiculo: 2H182H
                   - Precio del vehiculo: 20 000 soles
-                 ¿Esta conforme y quiere finalizar?
-"
+                 ¿Esta conforme y quiere finalizar?",
+        "reason":"En la respuesta incluyo los campos del formulario actual(Solicitud de registro de vehiculo), los cuales son "nombre"y "monto""
+
     }
     
     *Ejemplo 2:
@@ -871,8 +873,9 @@ async function sendMessageChatbot(
         "response":"Modifique el prestamo que me indico, ahora tengo lo siguiente:
                     - Nombre completo: Marco Gomez Duran
                     - monto: 20 000 soles
-                  ¿Esta conforme y quiere finalizar?
-"
+                  ¿Esta conforme y quiere finalizar?"
+        "reason":"En la respuesta incluyo los campos del formulario actual(Solicitud de prestamo), los cuales son "nombre"y "monto""
+
     }
       
     *Ejemplo 3:
@@ -885,11 +888,11 @@ async function sendMessageChatbot(
      ]
     Conversación:
       [
-        {"assistant":"ok, ya registre su nombre, ahora digame porque quiere eliminar su cuenta?"},
-        {"user":"es que ya no la uso"},
-        {"assistant":"Ok, esa es su razón, los datos actualizados que tengo son:
-                      - Nombre completo: Marco Gomez Duran
-                      - Razon : ya no usa la cuenta
+        {"assistant":"ok, solo digame donde esta ubicado},
+        {"user":"en jr lima 222"},
+        {"assistant":"Ok registre su ubicación, los datos actualizados que tengo son:
+                      - Ubicacion: jr lima 222
+                      - Razon: motivo de viaje
                       ¿Esta conforme y quiere finalizar?"},
         {"user":"Y como realizo la creacion de otra cuenta?"},
 
@@ -904,6 +907,7 @@ async function sendMessageChatbot(
                       - Nombre completo: Marco Gomez Sanchez
                       - Razon: No confia en la empresa
                     ¿Esta conforme y quiere finalizar?"
+          "reason":"En la respuesta incluyo los campos del formulario actual(Eliminación de cuenta), los cuales son "nombre completo"y "razon""
         }
       *Ejemplo 4:
     Nombre del formulario:
@@ -930,6 +934,8 @@ async function sendMessageChatbot(
                       - Nombre completo: Marco Gomez Sanchez
                       - Razon: No confia en la empresa
                     ¿Esta conforme y quiere finalizar?"
+          "reason":"En la respuesta incluyo los campos del formulario actual(Eliminación de cuenta), los cuales son "nombre completo"y "razon""
+
         }
         `,
         `Analiza la siguiente información:
