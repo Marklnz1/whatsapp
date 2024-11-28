@@ -156,7 +156,14 @@ const messageTypeIsMedia = (type) => {
     type == "sticker"
   );
 };
-async function generateChatBotMessage(historial, system, text, json) {
+async function generateChatBotMessage(
+  historial,
+  system,
+  text,
+  json,
+  temperature
+) {
+  temperature ??= 0.5;
   const dataConfig = {
     messages: [
       {
@@ -170,7 +177,7 @@ async function generateChatBotMessage(historial, system, text, json) {
       },
     ],
     model: GROQ_MODEL,
-    temperature: 0.5,
+    temperature: temperature,
   };
   if (json) {
     dataConfig.stream = false;
@@ -920,7 +927,9 @@ async function sendMessageChatbot(
         `Eres un experto mejorando un mensaje especifico que te manden y responderas en formato JSON
         *Objetivos:
         -Hacer que un mensaje sea mas humano y amigable, haciendo que sea coherente en toda su oracion
-        -Añadir emoticones al mensaje para que sea mas humano pero solo cuando sea necesario
+        -Se original en la respuesta, que no sea algo generico
+        -Responde como amigo pero coherente, sin que se pierda la idea del mensaje original, incluso si corriges incoherencias
+        -Añadir emoticones unicode al mensaje para que sea mas humano siempre
         -Mejorar el formato de presentacion de datos, si es que estan presentes en el mensaje
         *Procedimient:
         Tomaras un historial de conversación, lo analizaras y mejoras el mensaje que te indiquen para humanizarlo
@@ -937,7 +946,8 @@ async function sendMessageChatbot(
       Mensaje que mejoraras:
       ${chatbotMessage}
       `,
-        true
+        true,
+        1
       );
       chatbotMessage = JSON.parse(messageMejorado).message;
 
