@@ -946,9 +946,7 @@ async function sendMessageChatbot(
         Tomaras un historial de conversación, lo analizaras y mejoras cada parte del mensaje, pero de tal forma que en conjunto formen un mensaje coherente
         *Formato de respuesta:
           {
-           parte_inicial:string(parte inicial mejorada del mensaje)
-           parte_media:string(la parte media mejorada del mensaje)
-           parte_inicial:string(parte final mejorada del mensaje)
+           parte_inicial:string(parte inicial mejorada del mensaje que incluye una conexion directa con la parte_media)
           }
         `,
         `Analiza la siguiente información:
@@ -959,8 +957,6 @@ async function sendMessageChatbot(
       Partes del mensaje que mejoraras:
       {
         parte_inicial:${parte_inicial}
-        parte_media:${parte_media}
-        parte_final:${parte_final}
       }
       
       `,
