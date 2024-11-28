@@ -481,10 +481,12 @@ async function sendMessageChatbot(
     await clientDB.save();
   } else {
     console.log("- El proceso actual es:\n", clientDB.formProcess);
-    const { finish, reason } = await isEndCurrentForm(
-      conversationString,
-      clientMessage
-    );
+    // const { finish, reason } = await isEndCurrentForm(
+    //   conversationString,
+    //   clientMessage
+    // );
+    const finish = false;
+    const reason = "PRUEBA NO FINALIZAR NUNCA";
     console.log("- Se terminara el proceso actual?\n", finish);
     console.log("- Razon de la decision:\n", reason);
 
