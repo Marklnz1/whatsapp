@@ -823,9 +823,10 @@ async function sendMessageChatbot(
         -message_first no tiene que contener preguntas
         -message_first tiene que contener un mensaje amigable
         -message_first tiene que ser coherente con el message_save
-        _message_first tiene que responder de forma coherente al ultimo mensaje del usuario en la conversacion
+        -message_first tiene que responder de forma coherente al ultimo mensaje del usuario en la conversacion, se te especificara el utimo mensaje para evitar confusiones
         -message_first tiene que tener en cuenta que ya tienes todos los datos del usuario, incluso si la conversacion dice que no
-        _message_first tiene que contener una respuesta humana y amigable, no solo repetir el mensaje del usuario
+        -message_first tiene que contener una respuesta humana y amigable, no solo repetir el mensaje del usuario
+        
         *FORMATO DE TU RESPUESTA JSON
         :
       {
@@ -834,14 +835,17 @@ async function sendMessageChatbot(
         "reason":string(explicacion de tu message_first, incluyendo entre parentesis al ultimo mensaje para dejar en claro que respondiste a ese)
       }
       *Ejemplo 1:
-    Conversación:
+    -Conversación:
       [
         {"assistant":"gracias por confiar en nosotros, necesito que me brinde su nombre completo"},
         {"user":"Marco Gomez Duran"},
         {"assistant":"Ok, ahora como ultimo dato, necesito la placa de su vehiculo"},
         {"user":"la placa es, 2H182H"}    
       ]
-    Mensaje(message_save) en el cual se basara tu mensaje inicial:
+    -Ultimo mensaje del usuario:
+    la placa es, 2H182H    
+
+    -Mensaje(message_save) en el cual se basara tu mensaje inicial:
       
       Actualmente tengo la siguiente información:
       Placa: 77777777
@@ -859,14 +863,16 @@ async function sendMessageChatbot(
 
     }
       *Ejemplo 2:
-    Conversación:
+    -Conversación:
       [
         {"assistant":"gracias por confiar en nosotros, necesito que me brinde su nombre completo"},
         {"user":"Marco Gomez Duran"},
         {"assistant":"Ok, ahora como ultimo dato, necesito la placa de su vehiculo"},
         {"user":"holaaaaa"}    
       ]
-    Mensaje(message_save) en el cual se basara tu mensaje inicial:
+    -Ultimo mensaje del usuario:
+    holaaaaa  
+    -Mensaje(message_save) en el cual se basara tu mensaje inicial:
       
       Actualmente tengo la siguiente información:
       Placa: 77777777
@@ -885,10 +891,13 @@ async function sendMessageChatbot(
     }
         `,
         `Analiza la siguiente información:
+    Conversación:
+    ${conversationString}
+    -Ultimo mensaje del usuario:
+    ${clientMessage} 
     Mensaje(message_save) en el cual se basara tu message_first:
     ${datosRecopilados}
-      Conversación:
-      ${conversationString}`,
+    `,
         true
       );
       const data = chatbotMessage;
