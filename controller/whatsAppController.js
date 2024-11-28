@@ -863,8 +863,6 @@ async function sendMessageChatbot(
         - No tomar en cuenta la conversación que te provean
         `,
         `Analiza la siguiente información:
-    Conversación:
-    ${conversationString}
     -Ultimo mensaje del usuario:
     ${clientMessage} 
     Mensaje con los campos rellenados del formulario que analizaras:
