@@ -927,9 +927,9 @@ async function sendMessageChatbot(
 
       let messageMejoradoResponse = await generateChatBotMessage(
         [],
-        `Eres un experto mejorando un mensaje especifico que te mandaran en 3 partes, parte_inicial,parte_media y parte_final, y responderas en formato JSON
+        `Eres un experto mejorando un mensaje especifico que te mandaran en 2 partes, parte_inicial,parte_media, y responderas en formato JSON
         *Objetivos:
-        -Mejorar parte_inicial, parte_media y parte_final del mensaje para que en conjunto sean coherentes
+        -Mejorar parte_inicial, parte_media del mensaje para que en conjunto sean coherentes
         -Añadir emoticones unicode al mensaje para que sea mas humano, pero emojis diferentes, no repetitivos ni genericos
         -En tu mensaje mejorado, sera mostrado al usuario, asi que no pongas explicaciones de las correcciones que realizaste
         -Toma en cuenta la conversacion que te daran para mejorar tu respuesta
@@ -939,7 +939,6 @@ async function sendMessageChatbot(
         {
           parte_inicial:string(parte inicial del mensaje)
           parte_media:string(la parte media del mensaje)
-          parte_inicial:string(parte final del mensaje)
         }
         *Procedimiento:
         
@@ -948,8 +947,6 @@ async function sendMessageChatbot(
           {
            parte_inicial:string(parte inicial mejorada del mensaje, que incluye una frase que indique que le mostras la informacion que tienes hasta ahora del usuario)
            parte_media:string(parte media mejorada del mensaje )
-           parte_final:string(parte final mejorada del mensaje )
-
           }
         `,
         `Analiza la siguiente información:
@@ -960,6 +957,7 @@ async function sendMessageChatbot(
       Partes del mensaje que mejoraras:
       {
         parte_inicial:${parte_inicial}
+        parte_media:${parte_media}
       }
       
       `,
