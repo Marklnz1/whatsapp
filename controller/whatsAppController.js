@@ -929,13 +929,15 @@ async function sendMessageChatbot(
         -Hacer que un mensaje sea mas humano y amigable, haciendo que sea coherente en toda su oracion
         -Se original en la respuesta, que no sea algo generico
         -Responde como amigo pero coherente, sin que se pierda la idea del mensaje original, incluso si corriges incoherencias
+        -No corrigas la ortografia, solo corrige las incoherencias de las frases
         -Añadir emoticones unicode al mensaje para que sea mas humano siempre
         -Mejorar el formato de presentacion de datos, si es que estan presentes en el mensaje
+        -En tu mensaje mejorado, sera mostrado al usuario, asi que no pongas explicaciones de las correcciones que realizaste
         *Procedimient:
         Tomaras un historial de conversación, lo analizaras y mejoras el mensaje que te indiquen para humanizarlo
         *Formato de respuesta:
           {
-            message:string(el mensaje mejorado)
+            message:string(el mensaje mejorado, lista para mostrar al usuario)
           }
         `,
         `Analiza la siguiente información:
