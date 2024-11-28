@@ -313,6 +313,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
   return JSON.parse(responseFormName);
 }
 async function isEndCurrentForm(conversationString, currentForm) {
+  //AVECES FALLA LA GENERACION DE UN MENSAJE JSON POR PARTE DE GROQ
   const responseFormName = await generateChatBotMessage(
     [],
     `*Eres un experto analizando conversaciones y devuelves los resultados en formato JSON
@@ -930,7 +931,7 @@ async function sendMessageChatbot(
         -Se original en la respuesta, que no sea algo generico
         -Responde como amigo pero coherente, sin que se pierda la idea del mensaje original, incluso si corriges incoherencias
         -No corrigas la ortografia, solo corrige las incoherencias de las frases
-        -Añadir emoticones unicode al mensaje para que sea mas humano siempre
+        -Añadir emoticones unicode al mensaje para que sea mas humano, pero emojis diferentes, no repetitivos ni genericos
         -Mejorar el formato de presentacion de datos, si es que estan presentes en el mensaje
         -En tu mensaje mejorado, sera mostrado al usuario, asi que no pongas explicaciones de las correcciones que realizaste
         *Procedimient:
@@ -949,7 +950,7 @@ async function sendMessageChatbot(
       ${chatbotMessage}
       `,
         true,
-        1
+        0.5
       );
       chatbotMessage = JSON.parse(messageMejorado).message;
 
