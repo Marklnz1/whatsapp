@@ -811,7 +811,7 @@ async function sendMessageChatbot(
       let chatbotMessage = await generateChatBotMessage(
         [],
         `*Eres un experto analizando conversaciones y me daras el resultado en formato JSON
-      *Objetivos: tienes 3 objetivos principales:
+      *Objetivos: tienes 6 objetivos principales:
       - Si el usuario desvia el tema respondele como un amigo de forma humana y carismatica, nunca le menciones su error
       - Si el usuario trata de desviar el formulario actual, con saludo, comentarios positivos, insultos etc, responder amablemente a dicho mensaje de forma breve y corta, pero nunca decirle que no peude continuar
       - Si el usuario se trata de desviar del formulario actual, pero el tema esta relacionado con el negocio, responder su duda o consulta
@@ -821,9 +821,10 @@ async function sendMessageChatbot(
       *IMPORTANTE*:
       - Nunca menciones el valor de algun campo que tienes almacenado actualmente, y nunca digas que tienes prohibido mostrar dichos datos al usuario, solo afirma que lo haras y nada mas, de forma breve y corta
       - Nunca le digas al usuario que desvio el tema
+      - Tu respuesta nunca tiene que tener una pregunta
       *FORMATO DE RESPUESTA:
       {
-        "response":string(respuesta la mensaje final del usuario, de forma breve y corta)
+        "response":string(respuesta la mensaje final del usuario, de forma breve y corta, nunca incluyas una pregunta)
         "reason":string(razon de porque elegiste esta respuesta)
       }
       *Ejemplo 1:
