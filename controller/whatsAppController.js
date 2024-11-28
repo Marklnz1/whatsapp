@@ -927,14 +927,14 @@ async function sendMessageChatbot(
 
       let messageMejoradoResponse = await generateChatBotMessage(
         [],
-        `Eres un experto mejorando un mensaje especifico que te manden y responderas en formato JSON
+        `Eres un experto mejorando un mensaje especifico que te mandaran en 3 partes, inicial,media y final, y responderas en formato JSON
         *Objetivos:
-        -Hacer que un mensaje sea mas humano y amigable, haciendo que sea coherente en toda su oracion
+        -Hacer que un mensaje entregado por partes sea mas humano y amigable, haciendo que sea coherente en conjunto en toda su oracion
         -Se original en la respuesta, que no sea algo generico
-        -Responde como amigo pero coherente, sin que se pierda la idea del mensaje original, incluso si corriges incoherencias
+        -Responde como amigo pero que las 3 partes unidas en conjunto(parte_inicial,parte_media y parte_final), sean coherentes
         -Añadir emoticones unicode al mensaje para que sea mas humano, pero emojis diferentes, no repetitivos ni genericos
-        -Mejorar el formato de presentacion de datos, si es que estan presentes en el mensaje
         -En tu mensaje mejorado, sera mostrado al usuario, asi que no pongas explicaciones de las correcciones que realizaste
+        -Que tu mejora tome en cuenta que la parte_inicial tiene que tener conexion con la parte_media, y la parte_final con lo anterior
         *Formato de entrada:
         {
           parte_inicial:string(parte inicial del mensaje)
