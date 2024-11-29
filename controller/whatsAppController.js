@@ -439,6 +439,36 @@ async function isEndCurrentForm(conversationString, currentForm) {
   );
   return JSON.parse(responseFormName);
 }
+async function extraerInformacionNegocioDeMensaje(message) {
+  const info = await generateChatBotMessage(
+    [],
+    `Eres un experto analizando mensajes
+    Tu tarea es simplemente extraer un conjunto de datos de la informacion de un negocio que se mencionan en el mensaje que se te proporcionara
+    Ejemplo:
+    *Información del negocio:
+      nuestro horario es de 6 a 8pm
+      tenemos disponible solo 2 cuartos
+      nuestros sponsors son:
+        - adidas
+        - toyota
+        - amazon
+    *Mensaje que analizaras:
+      y que tal los sponsor?
+    *RESPUESTA QUE SE ESPERA:
+    Sponsor:
+    - adidas
+    - toyota
+    - amazon
+  `,
+    `*Analiza el siguiente mensaje:
+    ${message}
+    *La informacion del negocio es:
+    ${BUSINESS_INFO}
+   `,
+    false
+  );
+  return info;
+}
 async function sendMessageChatbot(
   historial,
   clientDB,
@@ -749,6 +779,13 @@ async function sendMessageChatbot(
         parte_media += `- *${field.name}*: ${field.value}\n`;
       }
       const parte_final = "¿Esta conforme y quiere finalizar?";
+      const info_negocio_resumida = await extraerInformacionNegocioDeMensaje(
+        clientMessage
+      );
+      console.log(
+        "LA INFORMACION DEL NEGOCIO RELACIONADA AL MENSAJE ES \n",
+        info
+      );
       let chatbotMessage = await generateChatBotMessage(
         [],
         `Tienes razón. Vamos a enfatizar aún más la estructura obligatoria del mensaje haciendo más explícito el formato y añadiendo una sección de ejemplos correctos e incorrectos:
