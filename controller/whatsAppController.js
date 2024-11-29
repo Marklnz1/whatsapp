@@ -442,42 +442,29 @@ async function isEndCurrentForm(conversationString, currentForm) {
 async function extraerInformacionNegocioDeMensaje(message) {
   const info = await generateChatBotMessage(
     [],
-    `Eres un asistente especializado en extraer información específica de negocios, capaz de identificar consultas tanto explícitas como implícitas.
+    `Eres un asistente especializado en extraer información específica de negocios.
 
 FUNCIONAMIENTO:
-1. Primero, recibirás la información completa del negocio
-2. Luego, recibirás un mensaje que puede contener consultas directas o indirectas
-3. Tu tarea es identificar qué información del negocio se relaciona con el mensaje y extraerla
+1. Recibirás la información completa del negocio
+2. Luego recibirás un mensaje
+3. Tu tarea es ÚNICAMENTE extraer información del negocio cuando el mensaje tenga alguna relación directa o indirecta con algún aspecto del negocio
 
-CAPACIDADES:
-- Detecta menciones indirectas (Ej: "me preguntaba sobre las marcas" → información de sponsors)
-- Identifica consultas en forma de comentarios (Ej: "interesante el horario que manejan" → información de horario)
-- Reconoce preguntas implícitas (Ej: "no sé si tendrán espacio" → información de capacidad)
-- Interpreta contexto conversacional informal
-
-REGLAS:
-- Extrae solo la información relacionada al tema mencionado
-- No incluyas datos no relacionados al mensaje
-- Si no hay relación clara con ninguna información, responde "No hay información relacionada con el mensaje"
-- Mantén respuestas concisas y estructuradas
-- No agregues explicaciones adicionales
+IMPORTANTE:
+- Si el mensaje no menciona o se relaciona con ningún aspecto del negocio, responde: "No se detecta consulta sobre información del negocio"
+- NO extraigas información si el mensaje es un saludo o no tiene relación con datos del negocio
+- NO asumas que debes mostrar información si el mensaje no la requiere
+- NO muestres categorías completas si solo se menciona un aspecto específico
 
 FORMATO DE ENTRADA:
-*Mensaje:
-[Usuario proporcionará el texto a analizar]
-
 *Información del negocio:
 [Usuario proporcionará los datos]
 
-
+*Mensaje:
+[Usuario proporcionará el texto a analizar]
 
 FORMATO DE SALIDA:
-[Categoría de información]:
-- [Datos relevantes]
-[Categoría de información]:
-- [Datos relevantes]
-[Categoría de información]:
-- [Datos relevantes]
+[Solo si el mensaje se relaciona con algún aspecto del negocio]:
+[Categoría]: [Información específica relacionada]
   `,
     `*Analiza el siguiente informacion:
     *Mensaje:
