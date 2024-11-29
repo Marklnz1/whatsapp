@@ -825,7 +825,9 @@ async function sendMessageChatbot(
       const parte_final = "¿Esta conforme y quiere finalizar?";
       let chatbotMessage = await generateChatBotMessage(
         [],
-        `RESPONDERAS EN FORMATO JSON
+        `Tienes razón. Vamos a enfatizar aún más la estructura obligatoria del mensaje haciendo más explícito el formato y añadiendo una sección de ejemplos correctos e incorrectos:
+
+RESPONDERAS EN FORMATO JSON
 
 PROCEDIMIENTO QUE REALIZARAS:
 
@@ -833,44 +835,44 @@ DATOS DE ENTRADA QUE RECIBIRAS:
 Una lista con campos y datos de un formulario
 Un mensaje final del usuario (PRIORIDAD PRINCIPAL)
 Una conversación previa (IGNORAR COMPLETAMENTE)
-REGLAS OBLIGATORIAS PARA TU MENSAJE:
-Responder SOLO al mensaje final del usuario
-Ser breve (máximo 2 líneas)
-Usar tono amigable y natural
-NUNCA incluir:
-• Preguntas de ningún tipo
-• Peticiones de información
-• Datos del formulario recibido
-• Valores recopilados
-LA ÚLTIMA FRASE DEBE CONTENER EL CONCEPTO DE MOSTRAR DATOS. Ejemplos válidos:
-• "Déjame mostrarte la información que tengo hasta el momento:"
-• "Te comparto los datos recopilados hasta ahora:"
-• "Estos son los datos que he registrado hasta el momento:"
-• "A continuación te muestro la información guardada:"
-(DEBE MANTENER LA ESENCIA DE MOSTRAR/COMPARTIR DATOS)
-ESTRUCTURA DEL MENSAJE:
-Primera parte: Respuesta natural al mensaje del usuario
-Segunda parte: Variación natural de la frase para mostrar datos
-Las dos partes deben estar unidas de forma fluida
-VALIDACIONES OBLIGATORIAS:
-El mensaje DEBE terminar con una frase sobre mostrar datos
-Confirmar que no hay signos de interrogación
-Asegurar que no se incluyen datos del formulario
-Comprobar que el tono es natural
-Validar que solo se responde al último mensaje
-Confirmar que se ignora la conversación previa
+ESTRUCTURA OBLIGATORIA DEL MENSAJE:
+[Respuesta al usuario] + [Frase sobre mostrar datos] EJEMPLOS CORRECTOS:
+"Entiendo tu mensaje perfectamente. Te muestro los datos registrados hasta ahora:"
+"Me alegro de saludarte. A continuación verás la información recopilada:"
+"Gracias por tu mensaje. Estos son los datos que tengo guardados:" EJEMPLOS INCORRECTOS:
+"Te muestro los datos registrados hasta ahora. Espero que estés bien."
+"Hola, ¿cómo estás? Te mostraré la información."
+"Bienvenido al sistema."
+REGLAS OBLIGATORIAS:
+Máximo 2 líneas
+Sin preguntas ni solicitudes
+Sin datos del formulario
+SIEMPRE terminar con frase sobre mostrar datos
+Ignorar conversación previa
+VARIACIONES PERMITIDAS PARA LA FRASE FINAL:
+"Te muestro los datos que tengo hasta ahora:"
+"A continuación verás la información recopilada:"
+"Estos son los datos registrados hasta el momento:"
+"Te comparto la información guardada:"
+(DEBE SER LA ÚLTIMA PARTE DEL MENSAJE)
 FORMATO DE RESPUESTA:
 {
-"parte_inicial_generada": "Tu mensaje + frase sobre mostrar datos",
+"parte_inicial_generada": "Respuesta al usuario + FRASE SOBRE MOSTRAR DATOS",
 "reason": "Explicación breve de por qué el mensaje es efectivo"
 }
 
+VALIDACIÓN FINAL:
+✓ El mensaje DEBE terminar con frase sobre mostrar datos
+✓ No incluye preguntas ni datos del formulario
+✓ Responde solo al último mensaje
+✓ Tono natural y amigable
+✓ Máximo 2 líneas
+
 IMPORTANTE:
 
-La frase final DEBE comunicar que se mostrarán datos
-Se permiten variaciones naturales de la frase final
-La respuesta SIEMPRE debe estar en formato JSON
-No se permiten variaciones en el formato de respuesta
+Si el mensaje no termina con una frase sobre mostrar datos, LA RESPUESTA ES INCORRECTA
+El formato JSON es obligatorio
+La frase final sobre mostrar datos NO es opcional
         `,
         `Analiza la siguiente información:
     -Ultimo mensaje del usuario:
