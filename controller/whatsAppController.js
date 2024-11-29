@@ -784,7 +784,7 @@ async function sendMessageChatbot(
       );
       console.log(
         "LA INFORMACION DEL NEGOCIO RELACIONADA AL MENSAJE ES \n",
-        info
+        info_negocio_resumida
       );
       let chatbotMessage = await generateChatBotMessage(
         [],
