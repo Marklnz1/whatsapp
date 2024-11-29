@@ -846,15 +846,16 @@ VARIACIONES PERMITIDAS PARA LA FRASE FINAL:
 "A continuación verás la información recopilada:"
 "Estos son los datos registrados hasta el momento:"
 "Te comparto la información guardada:"
+
 (DEBE SER LA ÚLTIMA PARTE DEL MENSAJE)
-FORMATO DE RESPUESTA:
-{
+FORMATO DE RESPUESTA:{
 "parte_inicial_generada": "Respuesta al usuario + FRASE SOBRE MOSTRAR DATOS",
 "reason": "Explicación breve de por qué el mensaje es efectivo"
 }
 
 VALIDACIÓN FINAL:
-✓ El mensaje DEBE terminar con frase sobre mostrar datos
+✓ El mensaje DEBE terminar con una variacion de las frases finales permitidas
+✓ La frase final no tiene que mostrar ningun dato recopilado
 ✓ No incluye preguntas ni datos del formulario
 ✓ Responde al último mensaje que se te indicara del usuario
 ✓ Tono natural y amigable
