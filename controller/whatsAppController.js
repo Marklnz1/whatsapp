@@ -551,11 +551,10 @@ async function sendMessageChatbot(
     const responseFormName = await generateChatBotMessage(
       [],
       `*Eres un experto analizando conversaciones y devuelves los resultados en formato JSON
-    *Tu tarea es analizar una conversación y una lista de campos de un formulario
-    *Extraeras valores o datos de la conversación que sirvan para completar los campos de tu formulario
-    *Si en la conversacion varios datos pueden ser validos para un campo del formulario, se toma el ultimo o mas reciente
-    *Solo se toman los datos que analizando la conversación, el usuario tenga intenciones de brindarlas para completar el formulario
-    *En la respuesta solo aparecen los campos de los cuales se pudo extraer información
+    *Tu tarea es analizar un mensaje y una lista de campos de un formulario
+    *Extraeras valores del mensaje que sirvan para completar los campos de tu formulario
+    *Si en el mensaje existen varios datos que pueden ser validos para un campo del formulario, se toma el ultimo
+    *Solo trabajaras con los campos del formulario, no extraeras otro dato
     *IMPORTANTE: cuando realices el analisis y extraigas los datos, siempre toma en cuenta lo siguiente:
       - La descripcion de cada campo es importante, ya que tiene información mas detallada sobre el campo
       - En la conversación, se tiene que tomar en cuenta tambien al assistant, y analizar si este acepta el dato como valido, para que asi puedas extraer dicho dato
@@ -567,80 +566,7 @@ async function sendMessageChatbot(
         "fieldName3": string(valor extraido para el fieldName3),
         "fieldName4": string(valor extraido para el fieldName4),
       }
-    *Ejemplo 1:
-    Nombre del formulario:
-      Solicitud de registro de vehiculo
-    Lista de campos del formulario:
-     [
-      {"name":"placa del vehiculo","description":"la placa que identifica al vehiculo","value":null},
-      {"name":"nombre completo","description":"nombre completo del usuario","value":"Marco Gomez Duran"},
-      {"name":"precio del vehiculo","description":"precio estimado del vehiculo según el usuario","value":null}
-     ]
-
-    Conversación:
-      [
-        {"assistant":"gracias por confiar en nosotros, necesito que me brinde su nombre completo"},
-        {"user":"Marcos Salas Duran"},
-        {"assistant":"Ok, ahora necesito la placa de su vehiculo"},
-        {"user":"disculpa, era Marco Gomez Duran"}    
-        {"assistant":"Ok, actualice su nombre, ahora como le decia, requiero la placa de su vehiculo"},
-        {"user":"Ok, es 8UJB2214"},
-
-      ]
-    Respuesta esperada:
-    {
-      "placa del vehiculo":"8UJB2214",
-      "nombre completo":"Marco Gomez Duran",
-      "precio del vehiculo":null  
-    }
-    
-    *Ejemplo 2:
-    Nombre del formulario:
-      Solicitud de prestamo
-    Lista de campos del formulario:
-     [
-      {"name":"nombre completo","description":"nombre completo del usuario","value":null}
-      {"name":"monto","description":"monto del prestamo que el usuario pide","value":"10 000 soles"}
-     ]
-
-    Conversación:
-      [
-        {"assistant":"cual es el monto que requiere para el prestamo?"},
-        {"user":"deseo, 10 000 soles"},
-        {"assistant":"ok, ahora necesito su nombre completo"},
-        {"user":"bueno, mi hermano se llama Jorge Santivan Salas"},
-        {"assistant":"necesito el nombre de quien solicitara el prestamo, osea usted"},
-        {"user":"entonces no le brindare nada"}    
-        {"assistant":"Ok, finalizare el formulario de Solicitud de prestamo"},
-        {"user":"bueno"},
-
-      ]
-    Respuesta esperada:
-      {
-        "nombre completo":null,
-        "monto":"10 000 soles"
-      }
-    *Ejemplo 3:
-    Nombre del formulario:
-      Eliminación de cuenta
-    Lista de campos del formulario:
-     [
-      {"name":"nombre completo","description":"nombre completo del usuario","value":"Lucas marquez gomez"}
-      {"name":"razon","description":"razon por la cual eliminara su cuenta","value":null}
-     ]
-
-    Conversación:
-      [
-        {"assistant":"ok, ya registre su nombre, ahora digame porque quiere eliminar su cuenta?"},
-        {"user":"no necesito decirle la razón"},
-        {"assistant":"no se preocupe, es opcional, procedere con la eliminación"},
-        {"user":"esta bien, gracias"}
-      ]
-    Respuesta esperada:
-      {
-        "nombre completo":null,
-        "razon":null
-      }`,
+    `,
       `Analiza la siguiente información:
       Nombre del formulario:
       ${clientDB.formProcess}
@@ -648,8 +574,8 @@ async function sendMessageChatbot(
       Lista de campos del formulario:
       ${fieldsAllFirst}
 
-      Conversación:
-      ${conversationString}
+      Mensaje que usaras para la extraccion de datos:
+      ${clientMessage}
      `,
       true
     );
