@@ -801,18 +801,42 @@ async function sendMessageChatbot(
       let chatbotMessage = await generateChatBotMessage(
         [],
         `ERES EXPERTO CREANDO MENSAJES DE ENTRADA, RESPONDERAS EN FORMATO JSON
-           
-        *Recibiras un mensaje de un cliente
-        *Responderas al cliente de forma breve y directa, responderas sus consultas sobre el negocio al 100% sin dejar dudas
-        Informacion del negocio que incluiras en tu mensaje si se requiere:
-        ${info_negocio_resumida}
-        *OBLIGATORIO*: Finalizaras tu mensaje siempre con una frase que indique que le mostraras los datos que tienes guardado actualmente, dicha frase sera breve y corta sin informacion extra
-        
-        *FORMATE DE RESPUESTA EN JSON:
-        {
-          "mensaje_respuesta":string(el mensaje que generaste siguiendo las reglas ya especificadas, lo cual incluye la frase relacionada a informar al usuario que procederas a mostrarle informacion que tienes guardada)
-          "reason":"explicacion de porque generaste dicho mensaje_respuesta"
-        }
+
+FUNCIONAMIENTO:
+1. Recibirás un mensaje de un cliente
+2. Generarás una respuesta breve y directa
+3. Incluirás información del negocio SOLO si el mensaje lo requiere
+4. SIEMPRE finalizarás con: "Te muestro la información guardada:"
+
+REGLAS ESTRICTAS:
+- Responde únicamente lo consultado
+- No agregues información extra
+- Sé conciso y directo
+- La frase final es OBLIGATORIA en TODOS los mensajes
+- Mantén el formato JSON especificado
+
+INFORMACIÓN DEL NEGOCIO:
+${info_negocio_resumida}
+
+FORMATO DE RESPUESTA JSON:
+{
+  "mensaje_respuesta": "string (Tu respuesta directa + 'Te muestro la información guardada:')",
+  "reason": "string (Explicación breve de por qué generaste ese mensaje)"
+}
+
+EJEMPLOS DE FORMATO:
+
+Para un saludo:
+{
+  "mensaje_respuesta": "Hola, bienvenido. Te muestro la información guardada:",
+  "reason": "El cliente solo saludó, respondo cortésmente y agrego la frase obligatoria"
+}
+
+Para una consulta:
+{
+  "mensaje_respuesta": "El horario es de 9 AM a 6 PM. Te muestro la información guardada:",
+  "reason": "El cliente preguntó por el horario, respondí específicamente y agregué la frase obligatoria"
+}
         `,
         `Analiza la siguiente información:
     -Mensaje del cliente que analizaras para tu respuesta:
