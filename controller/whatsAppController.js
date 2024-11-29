@@ -255,7 +255,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
 *Formato de Respuesta JSON:
 {
     "formName": string|null,
-    "reason": string  // DEBE comenzar con "El último mensaje del usuario es '[mensaje]' y..."
+    "reason": string(razon del valor de formName)  // DEBE comenzar con "El último mensaje del usuario es '[mensaje]' y..."
 }
 
 *Ejemplos con el formato específico:
@@ -267,7 +267,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
 ]
 → Respuesta: {
     "formName": null,
-    "reason": "El último mensaje del usuario es 'hola' y no es una respuesta afirmativa a una pregunta de inicio de formulario"
+    "reason": "El último mensaje del usuario es 'hola' y no es una respuesta afirmativa a una pregunta de inicio de formulario, por lo tanto la respuesta es null"
 }
     `,
     `Analiza la siguiente información:
