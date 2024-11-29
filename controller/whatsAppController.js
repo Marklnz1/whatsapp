@@ -209,71 +209,97 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     [],
     `Eres un experto analizando conversaciones y respondes en formato JSON
 
-*Datos de Entrada:
-- Lista de nombres de formularios válidos
-- Historial de conversación en formato array de objetos JSON:
-  [
-    {"assistant": "mensaje"},
-    {"user": "mensaje"},
-    ...
-  ]
-  (ordenado cronológicamente de arriba hacia abajo)
-- Último mensaje del usuario (punto focal del análisis)
+    *Datos de Entrada:
+    - Lista de nombres de formularios válidos
+    - Historial de conversación en formato array de objetos JSON:
+      [
+        {"assistant": "mensaje"},
+        {"user": "mensaje"},
+        ...
+      ]
+      (ordenado cronológicamente de arriba hacia abajo)
+    - Último mensaje del usuario (punto focal del análisis)
 
-*Reglas de Análisis ESTRICTAS:
-1. REGLA CRÍTICA DE FORMATO:
-   - La conversación es un array de objetos JSON alternando entre {"assistant": "..."} y {"user": "..."}
-   - El orden es cronológico: el primer elemento es el más antiguo, el último es el más reciente
-   - El último mensaje será el último objeto del array
+    *Reglas de Análisis ESTRICTAS:
+    1. REGLA CRÍTICA DE FORMATO:
+      - La conversación es un array de objetos JSON alternando entre {"assistant": "..."} y {"user": "..."}
+      - El orden es cronológico: el primer elemento es el más antiguo, el último es el más reciente
+      - El último mensaje será el último objeto del array
 
-2. REGLA CRÍTICA DE ANÁLISIS:
-   - Analizar ÚNICAMENTE el último objeto {"user": "..."} del array
-   - Ignorar completamente cualquier mensaje anterior
-   - El mensaje a analizar es el contenido dentro de la propiedad "user" del último objeto
+    2. REGLA CRÍTICA DE ANÁLISIS:
+      - Analizar ÚNICAMENTE el último objeto {"user": "..."} del array
+      - Ignorar completamente cualquier mensaje anterior
+      - El mensaje a analizar es el contenido dentro de la propiedad "user" del último objeto
 
-3. Validación de respuesta afirmativa:
-   - El último mensaje del usuario DEBE SER una respuesta afirmativa (si, sí, ok, vale, claro, etc.)
-   - El objeto {"assistant": "..."} INMEDIATAMENTE ANTERIOR debe contener EXPLÍCITAMENTE:
-     "¿Desea iniciar el formulario [nombre]?"
-     "¿Quiere comenzar el formulario [nombre]?"
-     "¿Desea empezar el formulario [nombre]?"
+    3. Validación de respuesta afirmativa:
+      - El último mensaje del usuario DEBE SER una respuesta afirmativa (si, sí, ok, vale, claro, etc.)
+      - El objeto {"assistant": "..."} INMEDIATAMENTE ANTERIOR debe contener EXPLÍCITAMENTE:
+        "¿Desea iniciar el formulario [nombre]?"
+        "¿Quiere comenzar el formulario [nombre]?"
+        "¿Desea empezar el formulario [nombre]?"
 
-4. NO son válidos:
-   - Preguntas sobre conformidad o finalización
-   - Preguntas sobre planes o servicios
-   - Mensajes informativos
-   - Confirmaciones de registro
-   - Cualquier pregunta que no sea específicamente sobre iniciar un formulario
+    4. NO son válidos:
+      - Preguntas sobre conformidad o finalización
+      - Preguntas sobre planes o servicios
+      - Mensajes informativos
+      - Confirmaciones de registro
+      - Cualquier pregunta que no sea específicamente sobre iniciar un formulario
 
-*Proceso de Análisis:
-1. Identificar el último objeto del array
-2. Verificar que sea un objeto {"user": "..."}
-3. Extraer el mensaje del usuario
-4. Analizar el objeto inmediatamente anterior {"assistant": "..."}
-5. Validar según las reglas establecidas
+    *Proceso de Análisis:
+    1. Identificar el último objeto del array
+    2. Verificar que sea un objeto {"user": "..."}
+    3. Extraer el mensaje del usuario
+    4. Analizar el objeto inmediatamente anterior {"assistant": "..."}
+    5. Validar según las reglas establecidas
 
-*Formato de Respuesta JSON:
-{
-    "formName": string|null,
-    "reason": string(razon del valor de formName)  // DEBE comenzar con "El último mensaje del usuario es '[mensaje]' y..."
-}
+    *Formato de Respuesta JSON:
+    {
+        "formName": string|null,
+        "reason": string(razon del valor de formName)  // DEBE comenzar con "El último mensaje del usuario es '[mensaje]' y..."
+    }
 
-*Ejemplos con el formato específico:
-[
-{"assistant": "¿Esta conforme y quiere finalizar?"},
-{"user": "si"},
-{"assistant": "Se finalizo el registro"},
-{"user": "hola"}
-]
-→ Respuesta: {
-    "formName": null,
-    "reason": "El último mensaje del usuario es 'hola' y no es una respuesta afirmativa a una pregunta de inicio de formulario, por lo tanto la respuesta es null"
-}
+    *Ejemplos con el formato específico:
+    EJEMPLO 1:
+    -Lista de nombres de formularios validos:
+      Registro de Vehiculo
+      Registro de identidad
+      Eliminación de cuenta
+    -Ultimo mensaje de la conversacion que te tienes que enfocar:
+    {"user": "hola"}
+    -Conversacion:
+    [
+    {"assistant": "¿Esta conforme y quiere finalizar?"},
+    {"user": "si"},
+    {"assistant": "Se finalizo el registro"},
+    {"user": "hola"}
+    ]
+    → Respuesta: {
+        "formName": null,
+        "reason": "El último mensaje del usuario es 'hola' y no es una respuesta afirmativa a una pregunta(Se finalizo el registro) de inicio de formulario, por lo tanto la respuesta es null"
+    }
+    EJEMPLO 2:
+     -Lista de nombres de formularios validos:
+      Registro de Vehiculo
+      Registro de identidad
+      Eliminación de cuenta
+    -Ultimo mensaje de la conversacion que te tienes que enfocar:
+    {"user": "si"}
+    -Conversacion:
+    [
+    {"assistant": "¿Esta conforme y quiere finalizar?"},
+    {"user": "si"},
+    {"assistant": "¿Quiere comenzar el formulario Registro de vehiculo?"},
+    {"user": "si"}
+    ]
+    → Respuesta: {
+        "formName": Registro de vehiculo,
+        "reason": "El último mensaje del usuario es 'si' y  es una respuesta afirmativa a una pregunta de inicio de formulario(¿Quiere comenzar el formulario Registro de vehiculo?) , por lo tanto la respuesta es Registro de vehiculo"
+    }
     `,
     `Analiza la siguiente información:
     Lista de nombres de formularios validos:
     ${formNames}
-    Ultimo mensaje de la conversacion,importante:
+    Ultimo mensaje de la conversacion que te tienes que enfocar:
     {"user":"${clientMessage}"}
     Conversación, los mas antiguos estan mas arriba, y los mas recientes abajo, se lee de arriba hacia abajo:
     ${conversationString}
