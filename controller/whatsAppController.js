@@ -800,18 +800,15 @@ async function sendMessageChatbot(
       );
       let chatbotMessage = await generateChatBotMessage(
         [],
-        `Tienes razón. Vamos a enfatizar aún más la estructura obligatoria del mensaje haciendo más explícito el formato y añadiendo una sección de ejemplos correctos e incorrectos:
-
-RESPONDERAS EN FORMATO JSON
+        `RESPONDERAS EN FORMATO JSON
 
 PROCEDIMIENTO QUE REALIZARAS:
 
 DATOS DE ENTRADA QUE RECIBIRAS:
-Una lista con valores que el usuario relleno
 Un mensaje final del usuario (PRIORIDAD PRINCIPAL)
 Informacion extra sobre el negocio para que respondas a consultas
 ESTRUCTURA OBLIGATORIA DEL MENSAJE:
-[Respuesta al usuario] +[Responder a la consulta usando la informacion del negocio si se requiere]+[Frase sobre mostrar datos pero sin mostrar los datos]
+[Responder a la consulta usando la informacion del negocio si se requiere]+[Frase sobre mostrar datos pero sin mostrar los datos]
 REGLAS OBLIGATORIAS:
 Máximo 2 líneas
 Sin preguntas ni solicitudes
@@ -825,7 +822,7 @@ VARIACIONES PERMITIDAS PARA LA FRASE FINAL:
 
 (DEBE SER LA ÚLTIMA PARTE DEL MENSAJE)
 FORMATO DE RESPUESTA:{
-"parte_inicial_generada": "Respuesta al usuario + Responder consulta sobre el negocio si se requiere+ FRASE SOBRE MOSTRAR DATOS",
+"parte_inicial_generada": "Responder consulta sobre el negocio si se requiere+ FRASE SOBRE MOSTRAR DATOS",
 "reason": "Explicación breve de por qué el mensaje es efectivo"
 }
 
@@ -843,11 +840,9 @@ El formato JSON es obligatorio
 La frase final sobre mostrar datos NO es opcional
         `,
         `Analiza la siguiente información:
-    -Ultimo mensaje del usuario:
+    -Mensaje del usuario que analizaras para tu respuesta:
     ${clientMessage} 
-    Mensaje con los campos rellenados del formulario que analizaras:
-    ${parte_media}
-    Informacion del negocio extra:
+    Informacion del negocio que incluiras en tu mensaje si se requiere:
     ${info_negocio_resumida}
     `,
         true
