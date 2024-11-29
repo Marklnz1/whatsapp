@@ -809,6 +809,7 @@ PROCEDIMIENTO QUE REALIZARAS:
 DATOS DE ENTRADA QUE RECIBIRAS:
 Una lista con campos y datos de un formulario
 Un mensaje final del usuario (PRIORIDAD PRINCIPAL)
+Informacion extra sobre el negocio para que respondas mejor (OPCIONAL)
 ESTRUCTURA OBLIGATORIA DEL MENSAJE:
 [Respuesta al usuario] +[Frase sobre mostrar datos]
 REGLAS OBLIGATORIAS:
@@ -847,6 +848,8 @@ La frase final sobre mostrar datos NO es opcional
     ${clientMessage} 
     Mensaje con los campos rellenados del formulario que analizaras:
     ${parte_media}
+    Informacion del negocio extra:
+    ${info_negocio_resumida}
     `,
         true
       );
