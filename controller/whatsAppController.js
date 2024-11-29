@@ -826,41 +826,48 @@ async function sendMessageChatbot(
       let chatbotMessage = await generateChatBotMessage(
         [],
         `RESPONDERAS EN FORMATO JSON
+
         PROCEDIMIENTO QUE REALIZARAS:
-        1. Recibirás tres elementos de información:
-          - Una lista de campos de formulario con datos rellenados
-          - Un mensaje final principal en el que te enfocarás
-          - Una conversación previa de contexto (no lo tomaras en cuenta)
 
-        2. REGLAS PARA GENERAR EL MENSAJE:
-          - El mensaje debe ser breve, amigable y natural
-          - Debe relacionarse con el contexto del formulario
-          - Debe responder al mensaje final principal
-          - NO debe incluir:
-            • Preguntas
-            • Solicitudes de información
-            • Datos específicos del formulario
-            • Valores recopilados
-          - DEBE terminar SIEMPRE con una variación de la frase: "Te muestro los datos que tengo hasta ahora:"
-
-        3. RESTRICCIONES:
-          - Longitud máxima: 2 líneas
-          - Tono: Conversacional y cercano
-          - Enfoque: Mensaje de presentación, no de recopilación
-
-        FORMATO DE SALIDA EN FORMATO JSON REQUERIDO:
+        DATOS DE ENTRADA QUE RECIBIRAS:
+        Una lista con campos y datos de un formulario
+        Un mensaje final del usuario (PRIORIDAD PRINCIPAL)
+        Una conversación previa (IGNORAR COMPLETAMENTE)
+        REGLAS OBLIGATORIAS PARA TU MENSAJE:
+        Responder SOLO al mensaje final del usuario
+        Ser breve (máximo 2 líneas)
+        Usar tono amigable y natural
+        NUNCA incluir:
+        • Preguntas de ningún tipo
+        • Peticiones de información
+        • Datos del formulario recibido
+        • Valores recopilados
+        SIEMPRE terminar con: "Te muestro los datos que tengo hasta ahora:"
+        (Puedes variar levemente esta frase pero manteniendo el mismo significado)
+        RESTRICCIONES ADICIONALES:
+        No hacer referencia a la conversación previa
+        No solicitar aclaraciones
+        No usar condicionales
+        No mencionar el formulario directamente
+        VALIDACIONES OBLIGATORIAS:
+        Verificar que el mensaje termine con la frase sobre mostrar datos
+        Confirmar que no hay signos de interrogación
+        Asegurar que no se incluyen datos del formulario
+        Comprobar que el tono es natural
+        Validar que solo se responde al último mensaje
+        Confirmar que se ignora la conversación previa
+        FORMATO DE RESPUESTA:
         {
-            "parte_inicial_generada": string (mensaje que cumple todas las reglas anteriores y SIEMPRE termina con la frase sobre mostrar datos),
-            "reason": string (explicación concisa de por qué el mensaje es efectivo)
+        "parte_inicial_generada": "Tu mensaje cumpliendo todas las reglas",
+        "reason": "Explicación breve de por qué el mensaje es efectivo"
         }
 
-        VALIDACIÓN:
-        - El mensaje en parte_inicial_generada DEBE terminar con una frase sobre mostrar los datos
-        - No debe contener signos de interrogación
-        - No debe contener datos del formulario
-        - Debe mantener un tono amigable y natural
-        - Solo se debe enfocar en el ultimo mensaje del usuario que te indiquen
-        - No tomar en cuenta la conversación que te provean
+        IMPORTANTE:
+
+        El mensaje debe ser una respuesta natural al último mensaje del usuario
+        La respuesta SIEMPRE debe estar en formato JSON
+        La frase final sobre mostrar datos es OBLIGATORIA
+        No se permiten variaciones en el formato de respuesta
         `,
         `Analiza la siguiente información:
     -Ultimo mensaje del usuario:
