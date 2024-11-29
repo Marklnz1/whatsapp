@@ -222,7 +222,7 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
      FORMATO DE RESPUESTA JSON:
      {
       formName:string|null(nombre de formulario al cual el assistente hace referencia y el usuario respondio afirmativamente)
-      reason:string(obligatorio, razon de tu respuesta en formName, tanto si es null o si es un nombre valido)
+      reason:string(obligatorio, razon de tu respuesta en formName, tanto si es null o si es un nombre valido, se tiene que mencionar al ultimo mensaje del usuario)
      }
     `,
     `Analiza la siguiente información:
