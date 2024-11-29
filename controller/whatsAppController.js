@@ -207,105 +207,28 @@ function obtenerSaludo() {
 async function getChatbotForm(conversationString, clientMessage, formNames) {
   const responseFormName = await generateChatBotMessage(
     [],
-    `*Eres un experto analizando conversaciones y devuelves los resultados en formato JSON
-    *Tu tarea es analizar una conversación y una lista de nombres de formularios
-    *De acuerdo al contexto de la conversación, determinaras si el ultimo mensaje del usuario, tiene intenciones de realizar un formulario que pertenezca a la lista proporcionada
-    *IMPORTANTE:El campo reason tiene que tener sentido con el campo formName, es decir:
-     - si en el campo reason dice que no se pudo obtener un nombre de formulario o similares, en el formName tiene que estar null
-     - no seas inconsistente con la relacion entre el campo reason y el campo formName
-    *IMPORTANTE*: 
-    - Si las intenciones del usuario no son claras, entonces no eligas ningun formulario, ya que se tiene que estar seguro
-    - Lo importante es el ultimo mensaje del usuario, osea el mas reciente para el analisis
-     *Formato de respuesta JSON:
-          {
-            "formName": string | null (nombre del formulario, este valor es al que hace referencia el campo reason)
-            "reason": string(razón de la decision de la elección de un nombre de usuario o null)
-          }
-     *IMPORTANTE*: 
-     - Nunca devolver el valor de formName dando como excusa que se estuvo rellenando anteriormente, el ultimo mensaje del cliente es el que manda
-    *Ejemplo 1:
-    Lista de nombres de formularios:
-     Solicitud de eliminación de cuenta
-     Formulario de registro de vehiculo
-     Solicitud de registro de identidad
-
-
-    Conversación:
-      [
-        {"assistant":"gracias por su registro exitoso"},
-        {"user":"ok, me gustaria saber su horario disponible"},
-        {"assistant":"nuestro horario es de 10:00 AM a 2:00 PM"},
-        {"user":"ok, como elimino mi cuenta?"}    
-      ]
-    Respuesta esperada:
-      {
-        "formName": null
-        "reason": "El usuario con su ultimo mensaje (ok, como elimino mi cuenta?) solo esta preguntando,no se dara valor a un formulario rellenado anteriormente en la conversacion para el formName , y sus intenciones de iniciar algun formulario no son claras, por lo tanto el valor de formName es null"
-      }
-    
-    *Ejemplo 2:
-    Lista de nombres de formularios:
-     Solicitud de registro de identidad
-     Solicitud de prestamo de dinero
-     Formulario de apreciación
-
-    Conversación:
-      [
-        {"assistant":"esperamos que nos contacte"},
-        {"user":"gracias, dame info de los montos de prestamos que ofrece"},
-        {"assistant":"ofrecemos solo montos de 2000 dolares, ¿Desea realizar el prestamo?"},
-        {"user":"si"}    
-      ]
-    Respuesta esperada:
-      {
-        "formName": "Solicitud de prestamo de dinero"
-        "reason": "El usuario con su ultimo mensaje (si), no se dara valor a un formulario rellenado anteriormente en la conversacion para el formName, tiene intenciones de realizar un prestamo ya que responde a una pregunta con esa intención, esto corresponde al formulario (Solicitud de prestamo de dinero)"
-      }
-    *Ejemplo 3:
-    Lista de nombres de formularios:
-     Solicitud de registro de identidad
-     Solicitud de prestamo de dinero
-     Formulario de apreciación
-
-    Conversación:
-      [
-        {"assistant":"que tenga un buen dia"},
-        {"user":"okey, y atienden a las 9:00 PM"},
-        {"assistant":"No, solo hasta las 6:00 PM"},
-        {"user":"ok, y que pasa si no realizo el pago de mi prestamo?"}    
-      ]
-    Respuesta esperada:
-      {
-        "formName": null
-        "reason": "El usuario con su ultimo mensaje (ok, y que pasa si no realizo el pago de mi prestamo?), no se dara valor a un formulario rellenado anteriormente en la conversacion para el formName, solo esta preguntando, y sus intenciones de iniciar algun formulario no son claras, por lo tanto el formName es null"
-      }
-     *Ejemplo 4:
-    Lista de nombres de formularios:
-     Solicitud de registro de identidad
-     Solicitud de prestamo de dinero
-     Formulario de apreciación
-
-    Conversación:
-      [
-        {"assistant":"Esta bien, registre el nuevo dato, los datos que tengo son:
-                      - DNI:81823123
-                      - Nombre Completo:"Juan Gomez Sanches
-                      Los datos son correctos? o desea modificar alguno"},
-        {"user":"si"},
-        {"assistant":"Se finalizo el registro de Solicitud de registro de identidad"},
-        {"user":"Hola"}    
-      ]
-    Respuesta esperada:
-      {
-        "formName": null
-        "reason": "El usuario con su ultimo mensaje (Hola),no se dara valor a un formulario rellenado anteriormente en la conversacion para el formName, solo esta saludando, incluso si anteriormente estuvo rellenando un formulario, actualmente no hay intenciones de iniciar ninguno, por lo tanto el formName es null"
-      }
+    `Eres un experto analizando conversaciones y respondes en formato JSON
+     *Datos de Entrada:
+     - Se te proveera una lista de nombres de formularios
+     - Se te proveera una conversacion, los mensajes mas antiguos estan arriba, y los mas recientes abajo
+     *Procedimiento:
+     - Tu objetivo es priorizar y analizar en ultimo mensaje del usuario(user)
+     - Deberas verificar si el ultimo mensaje del usuario(user) es una respuesta afirmativa a una pregunta sobre comenzar un formulario que realizo el asistente(assistant)
+     - Si el ultimo corresponde a una respuesta afirmativa deberas analizar a cual formulario de la lista de nombres de formularios validos pregunto el asistente(assistant), y ponerla en tu respuesta4
+     - Tambien daras la razon de tu respuesta 
+     *Importante:
+     - El asistente(assistant), tiene que realizar la pregunta de comenzar el formulario, sino no es valida la respuesta afirmativa del usuario(user)
+     FORMATO DE RESPUESTA JSON:
+     {
+      formName:string|null(nombre de formulario al cual el assistente hace referencia y el usuario respondio afirmativamente)
+      reason:string(obligatorio, razon de tu respuesta en formName, tanto si es null o si es un nombre valido)
+     }
     `,
     `Analiza la siguiente información:
-    Lista de nombres de formularios:
+    Lista de nombres de formularios validos:
     ${formNames}
 
-    Conversación:
+    Conversación, los mas antiguos estan mas arriba, y los mas recientes abajo, se lee de arriba hacia abajo:
     ${conversationString}
    `,
     true
