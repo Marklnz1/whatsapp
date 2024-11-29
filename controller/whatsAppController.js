@@ -807,7 +807,11 @@ async function sendMessageChatbot(
         Informacion del negocio que incluiras en tu mensaje si se requiere:
         ${info_negocio_resumida}
         *OBLIGATORIO*: Finalizaras tu mensaje siempre con una frase que indique que le mostraras los datos que tienes guardado actualmente, dicha frase sera breve y corta sin informacion extra
-
+        *FORMATE DE RESPUESTA EN JSON:
+        {
+          "mensaje_respuesta":string(el mensaje que generaste siguiendo las reglas ya especificadas)
+          "reason":"explicacion de porque generaste dicho mensaje_respuesta"
+        }
         `,
         `Analiza la siguiente información:
     -Mensaje del cliente que analizaras para tu respuesta:
@@ -817,7 +821,7 @@ async function sendMessageChatbot(
         true
       );
       const data = chatbotMessage;
-      chatbotMessage = JSON.parse(data).parte_inicial_generada;
+      chatbotMessage = JSON.parse(data).mensaje_respuesta;
       const reason = JSON.parse(data).reason;
       console.log(
         "- Respuesta del bot\n",
