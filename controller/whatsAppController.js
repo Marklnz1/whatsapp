@@ -208,22 +208,36 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
   const responseFormName = await generateChatBotMessage(
     [],
     `Eres un experto analizando conversaciones y respondes en formato JSON
-     *Datos de Entrada:
-     - Se te proveera una lista de nombres de formularios
-     - Se te proveera una conversacion, los mensajes mas antiguos estan arriba, y los mas recientes abajo
-     - Se te proveera el ultimo mensaje para dejarlo mas claro, incluso si este ya esta en la conversacion 
-     *Procedimiento:
-     - Tu objetivo es priorizar y analizar en ultimo mensaje del usuario(user), el que se te proveera para mas claridad
-     - Deberas verificar si el ultimo mensaje del usuario(user) es una respuesta afirmativa a una pregunta sobre comenzar un formulario que realizo el asistente(assistant)
-     - Si el ultimo corresponde a una respuesta afirmativa deberas analizar a cual formulario de la lista de nombres de formularios validos pregunto el asistente(assistant), y ponerla en tu respuesta4
-     - Tambien daras la razon de tu respuesta 
-     *Importante:
-     - El asistente(assistant), tiene que realizar la pregunta de comenzar el formulario, sino no es valida la respuesta afirmativa del usuario(user)
-     FORMATO DE RESPUESTA JSON:
-     {
-      formName:string|null(nombre de formulario al cual el assistente hace referencia y el usuario respondio afirmativamente)
-      reason:string(obligatorio, razon de tu respuesta en formName, tanto si es null o si es un nombre valido, se tiene que mencionar al ultimo mensaje del usuario)
-     }
+
+*Datos de Entrada:
+- Lista de nombres de formularios válidos
+- Historial de conversación (ordenado cronológicamente de arriba hacia abajo)
+- Último mensaje del usuario (punto focal del análisis)
+
+*Reglas de Análisis:
+1. PRIORIDAD ABSOLUTA: Analizar ÚNICAMENTE el último mensaje proporcionado
+2. Orden de lectura: La conversación se lee de ARRIBA (más antiguo) hacia ABAJO (más reciente)
+3. Validación de respuesta afirmativa:
+   - Solo es válida si responde directamente a una pregunta del asistente sobre INICIAR un formulario
+   - La pregunta del asistente debe ser la mensaje inmediatamente anterior
+   - No son válidas respuestas afirmativas a otros tipos de preguntas
+
+*Proceso de Análisis:
+1. Identificar el último mensaje del usuario
+2. Verificar el mensaje inmediatamente anterior del asistente
+3. Determinar si ese mensaje anterior contiene una pregunta sobre iniciar un formulario
+4. Si cumple las condiciones, identificar qué formulario de la lista se mencionó
+
+*Formato de Respuesta JSON:
+{
+    "formName": string|null,  // Nombre del formulario SOLO si el último mensaje es una respuesta afirmativa válida
+    "reason": string          // Explicación que DEBE mencionar específicamente el último mensaje del usuario
+}
+
+*Ejemplos de Análisis:
+- Si el último mensaje es "si" pero no responde a una pregunta de inicio de formulario → formName: null
+- Si el último mensaje es "hola" → formName: null
+- Si el último mensaje es "si" respondiendo a "¿Desea iniciar el formulario X?" → formName: "X"
     `,
     `Analiza la siguiente información:
     Lista de nombres de formularios validos:
