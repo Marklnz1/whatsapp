@@ -843,9 +843,6 @@ Sin preguntas ni solicitudes
 Sin datos del formulario
 SIEMPRE terminar con frase sobre mostrar datos
 Ignorar conversación previa
-EJEMPLO DE LA FRASE FINAL, GENERARAS VARIACIONES:
-"Te muestro los datos que tengo hasta ahora:"
-(DEBE SER LA ÚLTIMA PARTE DEL MENSAJE)
 FORMATO DE RESPUESTA:
 {
 "parte_inicial_generada": "Respuesta al usuario + FRASE SOBRE MOSTRAR DATOS",
