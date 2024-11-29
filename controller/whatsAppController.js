@@ -834,7 +834,6 @@ PROCEDIMIENTO QUE REALIZARAS:
 DATOS DE ENTRADA QUE RECIBIRAS:
 Una lista con campos y datos de un formulario
 Un mensaje final del usuario (PRIORIDAD PRINCIPAL)
-Una conversación previa (IGNORAR COMPLETAMENTE)
 ESTRUCTURA OBLIGATORIA DEL MENSAJE:
 [Respuesta al usuario] +[Frase sobre mostrar datos]
 REGLAS OBLIGATORIAS:
@@ -842,7 +841,6 @@ Máximo 2 líneas
 Sin preguntas ni solicitudes
 Sin datos del formulario
 SIEMPRE terminar con frase sobre mostrar datos
-Ignorar conversación previa
 VARIACIONES PERMITIDAS PARA LA FRASE FINAL:
 "Te muestro los datos que tengo hasta ahora:"
 "A continuación verás la información recopilada:"
@@ -858,7 +856,7 @@ FORMATO DE RESPUESTA:
 VALIDACIÓN FINAL:
 ✓ El mensaje DEBE terminar con frase sobre mostrar datos
 ✓ No incluye preguntas ni datos del formulario
-✓ Responde solo al último mensaje
+✓ Responde al último mensaje que se te indicara del usuario
 ✓ Tono natural y amigable
 ✓ Máximo 2 líneas
 
@@ -869,8 +867,6 @@ El formato JSON es obligatorio
 La frase final sobre mostrar datos NO es opcional
         `,
         `Analiza la siguiente información:
-    -Conversacion:
-    ${conversationString}
     -Ultimo mensaje del usuario:
     ${clientMessage} 
     Mensaje con los campos rellenados del formulario que analizaras:
