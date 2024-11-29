@@ -837,12 +837,11 @@ Un mensaje final del usuario (PRIORIDAD PRINCIPAL)
 Una conversación previa (IGNORAR COMPLETAMENTE)
 ESTRUCTURA OBLIGATORIA DEL MENSAJE:
 [Respuesta al usuario] + [Frase sobre mostrar datos] EJEMPLOS CORRECTOS:
-"Entiendo tu mensaje perfectamente. Te muestro los datos registrados hasta ahora:"
-"Me alegro de saludarte. A continuación verás la información recopilada:"
-"Gracias por tu mensaje. Estos son los datos que tengo guardados:" EJEMPLOS INCORRECTOS:
+"Ok cambiare tu dni. Te muestro los datos registrados hasta ahora:"
+"No puedo contar chistes, lo siento. A continuación verás la información recopilada:"
+"Gracias por el halago. Estos son los datos que tengo guardados:" EJEMPLOS INCORRECTOS:
 "Te muestro los datos registrados hasta ahora. Espero que estés bien."
 "Hola, ¿cómo estás? Te mostraré la información."
-"Bienvenido al sistema."
 REGLAS OBLIGATORIAS:
 Máximo 2 líneas
 Sin preguntas ni solicitudes
