@@ -836,13 +836,19 @@ Una lista con campos y datos de un formulario
 Un mensaje final del usuario (PRIORIDAD PRINCIPAL)
 Una conversación previa (IGNORAR COMPLETAMENTE)
 ESTRUCTURA OBLIGATORIA DEL MENSAJE:
-[Respuesta al usuario] +[conector que une ambas frases de forma coherente y sutil] + [Frase sobre mostrar datos]
+[Respuesta al usuario] +[Frase sobre mostrar datos]
 REGLAS OBLIGATORIAS:
 Máximo 2 líneas
 Sin preguntas ni solicitudes
 Sin datos del formulario
 SIEMPRE terminar con frase sobre mostrar datos
 Ignorar conversación previa
+VARIACIONES PERMITIDAS PARA LA FRASE FINAL:
+"Te muestro los datos que tengo hasta ahora:"
+"A continuación verás la información recopilada:"
+"Estos son los datos registrados hasta el momento:"
+"Te comparto la información guardada:"
+(DEBE SER LA ÚLTIMA PARTE DEL MENSAJE)
 FORMATO DE RESPUESTA:
 {
 "parte_inicial_generada": "Respuesta al usuario + FRASE SOBRE MOSTRAR DATOS",
