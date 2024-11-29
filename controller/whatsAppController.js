@@ -800,50 +800,19 @@ async function sendMessageChatbot(
       );
       let chatbotMessage = await generateChatBotMessage(
         [],
-        `RESPONDERAS EN FORMATO JSON
+        `ERES EXPERTO CREANDO MENSAJES DE ENTRADA, RESPONDERAS EN FORMATO JSON
+           
+        *Recibiras un mensaje de un cliente
+        *Responderas al cliente de forma breve y directa, responderas sus consultas sobre el negocio al 100% sin dejar dudas
+        Informacion del negocio que incluiras en tu mensaje si se requiere:
+        ${info_negocio_resumida}
+        *OBLIGATORIO*: Finalizaras tu mensaje siempre con una frase que indique que le mostraras los datos que tienes guardado actualmente, dicha frase sera breve y corta sin informacion extra
 
-PROCEDIMIENTO QUE REALIZARAS:
-
-DATOS DE ENTRADA QUE RECIBIRAS:
-Un mensaje final del usuario (PRIORIDAD PRINCIPAL)
-Informacion extra sobre el negocio para que respondas a consultas
-ESTRUCTURA OBLIGATORIA DEL MENSAJE:
-[Responder a la consulta usando la informacion del negocio si se requiere]+[Frase sobre mostrar datos pero sin mostrar los datos]
-REGLAS OBLIGATORIAS:
-Máximo 2 líneas
-Sin preguntas ni solicitudes
-Sin datos del formulario
-SIEMPRE terminar con frase sobre mostrar datos
-VARIACIONES PERMITIDAS PARA LA FRASE FINAL:
-"Te muestro los datos que tengo hasta ahora:"
-"A continuación verás la información recopilada:"
-"Estos son los datos registrados hasta el momento:"
-"Te comparto la información guardada:"
-
-(DEBE SER LA ÚLTIMA PARTE DEL MENSAJE)
-FORMATO DE RESPUESTA:{
-"parte_inicial_generada": "Responder consulta sobre el negocio si se requiere+ FRASE SOBRE MOSTRAR DATOS",
-"reason": "Explicación breve de por qué el mensaje es efectivo"
-}
-
-VALIDACIÓN FINAL:
-✓ El mensaje DEBE terminar con una variacion de las frases finales permitidas
-✓ La frase final no tiene que mostrar ningun dato recopilado
-✓ No incluye preguntas ni datos del formulario
-✓ Responde al último mensaje que se te indicara del usuario
-✓ Tono natural y amigable
-
-IMPORTANTE:
-
-Si el mensaje no termina con una frase sobre mostrar datos, LA RESPUESTA ES INCORRECTA
-El formato JSON es obligatorio
-La frase final sobre mostrar datos NO es opcional
         `,
         `Analiza la siguiente información:
-    -Mensaje del usuario que analizaras para tu respuesta:
+    -Mensaje del cliente que analizaras para tu respuesta:
     ${clientMessage} 
-    Informacion del negocio que incluiras en tu mensaje si se requiere:
-    ${info_negocio_resumida}
+ 
     `,
         true
       );
