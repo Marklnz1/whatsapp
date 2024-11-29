@@ -804,7 +804,7 @@ async function sendMessageChatbot(
         clientMessage
       );
       console.log(
-        "LA INFORMACION DEL NEGOCIO RELACIONADA AL MENSAJE ES \n",
+        `LA INFORMACION DEL NEGOCIO RELACIONADA AL MENSAJE(${clientMessage}) ES \n`,
         info_negocio_resumida,
         "\n",
         "FINNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"
