@@ -807,16 +807,15 @@ RESPONDERAS EN FORMATO JSON
 PROCEDIMIENTO QUE REALIZARAS:
 
 DATOS DE ENTRADA QUE RECIBIRAS:
-Una lista con campos y sus valores de un formulario
+Una lista con valores que el usuario relleno
 Un mensaje final del usuario (PRIORIDAD PRINCIPAL)
-Informacion extra sobre el negocio para que respondas mejor (OPCIONAL)
+Informacion extra sobre el negocio para que respondas a consultas
 ESTRUCTURA OBLIGATORIA DEL MENSAJE:
-[Respuesta al usuario de forma humana, ya sea respondera  un saludo o a una consulta,etc] +[Frase sobre mostrar datos pero sin mostrar los datos del formulario pero si del negocio si se te solicita]
+[Respuesta al usuario] +[Responder a la consulta usando la informacion del negocio si se requiere]+[Frase sobre mostrar datos pero sin mostrar los datos]
 REGLAS OBLIGATORIAS:
 Máximo 2 líneas
 Sin preguntas ni solicitudes
-Sin mostrar valores del formulario
-Si mostras informacion del negocio si se te solicita
+Sin datos del formulario
 SIEMPRE terminar con frase sobre mostrar datos
 VARIACIONES PERMITIDAS PARA LA FRASE FINAL:
 "Te muestro los datos que tengo hasta ahora:"
@@ -826,7 +825,7 @@ VARIACIONES PERMITIDAS PARA LA FRASE FINAL:
 
 (DEBE SER LA ÚLTIMA PARTE DEL MENSAJE)
 FORMATO DE RESPUESTA:{
-"parte_inicial_generada": "Respuesta al usuario + FRASE SOBRE MOSTRAR DATOS",
+"parte_inicial_generada": "Respuesta al usuario + Responder consulta sobre el negocio si se requiere+ FRASE SOBRE MOSTRAR DATOS",
 "reason": "Explicación breve de por qué el mensaje es efectivo"
 }
 
@@ -836,7 +835,6 @@ VALIDACIÓN FINAL:
 ✓ No incluye preguntas ni datos del formulario
 ✓ Responde al último mensaje que se te indicara del usuario
 ✓ Tono natural y amigable
-✓ Máximo 2 líneas
 
 IMPORTANTE:
 
