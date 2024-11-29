@@ -807,9 +807,10 @@ async function sendMessageChatbot(
         Informacion del negocio que incluiras en tu mensaje si se requiere:
         ${info_negocio_resumida}
         *OBLIGATORIO*: Finalizaras tu mensaje siempre con una frase que indique que le mostraras los datos que tienes guardado actualmente, dicha frase sera breve y corta sin informacion extra
+        
         *FORMATE DE RESPUESTA EN JSON:
         {
-          "mensaje_respuesta":string(el mensaje que generaste siguiendo las reglas ya especificadas)
+          "mensaje_respuesta":string(el mensaje que generaste siguiendo las reglas ya especificadas, lo cual incluye la frase relacionada a informar al usuario que procederas a mostrarle informacion que tienes guardada)
           "reason":"explicacion de porque generaste dicho mensaje_respuesta"
         }
         `,
