@@ -836,22 +836,15 @@ Una lista con campos y datos de un formulario
 Un mensaje final del usuario (PRIORIDAD PRINCIPAL)
 Una conversación previa (IGNORAR COMPLETAMENTE)
 ESTRUCTURA OBLIGATORIA DEL MENSAJE:
-[Respuesta al usuario] + [Frase sobre mostrar datos] EJEMPLOS CORRECTOS:
-"[mensaje enfocandose en responder al usuario de forma inteligente y amigable]. Te muestro los datos registrados hasta ahora:"
-"[mensaje enfocandose en responder al usuario de forma inteligente y amigable]. A continuación verás la información recopilada:"
-"[mensaje enfocandose en responder al usuario de forma inteligente y amigable]. Estos son los datos que tengo guardados:" EJEMPLOS INCORRECTOS:
-"[mensaje enfocandose en responder al usuario de forma inteligente y amigable].Te mostraré la información."
+[Respuesta al usuario] +[conector que une ambas frases de forma coherente y sutil] + [Frase sobre mostrar datos]
 REGLAS OBLIGATORIAS:
 Máximo 2 líneas
 Sin preguntas ni solicitudes
 Sin datos del formulario
 SIEMPRE terminar con frase sobre mostrar datos
 Ignorar conversación previa
-VARIACIONES PERMITIDAS PARA LA FRASE FINAL:
+EJEMPLO DE LA FRASE FINAL, GENERARAS VARIACIONES:
 "Te muestro los datos que tengo hasta ahora:"
-"A continuación verás la información recopilada:"
-"Estos son los datos registrados hasta el momento:"
-"Te comparto la información guardada:"
 (DEBE SER LA ÚLTIMA PARTE DEL MENSAJE)
 FORMATO DE RESPUESTA:
 {
