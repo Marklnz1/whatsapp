@@ -212,17 +212,59 @@ async function getChatbotForm(
 ) {
   const responseFormName = await generateChatBotMessage(
     [],
-    `Eres un experto analizando mensajes y respondes en formato JSON
-    -Se te proveera un mensaje del sistema y un mensaje del usuario
-    -Tu objetivo es analizar si el mensaje del usuario responde afirmativamente a la pregunta de inicio de formulario en el mensaje del sistema
-    *IMPORTANTE*:El mensaje del sistema debe incluir la siguiente frase=>¿Desea comenzar el formulario [nombre de un formulario]?
-    -Si el mensaje del sistema no incluye una pregunta de inicio de formulario entonces no devolveras ningun formulario
-    -Si el mensaje del usuario no es una respuesta afirmativo explicita a la pregunta del sistema, entonces no devolveras ningun formulario
-    FORMATO DE RESPUESTA JSON:
-    {
-      formName:string|null(formName del formulario que el usuario respondio afirmativamente)
-          rease:string(razon de tu respuesta en formName)//tiene que tener el formato=> El usuario respondio afirmativamente a la pregunta del sistema que empieza con ¿Desea comenzar el formulario [nombre de un formulario valido]?
-    }
+    `Eres un experto analizando mensajes y respondes estrictamente en formato JSON.
+
+REGLAS:
+
+1. FORMATO DEL MENSAJE DEL SISTEMA:
+   - Solo es válido si contiene EXACTAMENTE una pregunta con este formato:
+   "¿Desea comenzar el formulario [nombre]?"
+   - La pregunta debe estar completa, sin variaciones
+   - Los corchetes deben ser reemplazados por un nombre válido
+   - Cualquier otra variación invalida el mensaje
+
+2. RESPUESTAS VÁLIDAS DEL USUARIO:
+   - Solo se consideran afirmativas las siguientes respuestas que sean variantes de:
+     * "si"
+     * "sí"
+     * "ok"
+     * "vale"
+     * "adelante"
+     * "por supuesto"
+   - No son válidas respuestas parciales o con texto adicional
+   - No distingue mayúsculas/minúsculas
+
+3. FORMATO DE RESPUESTA JSON:
+{
+    "formName": string | null,
+    "reason": string
+}
+
+REGLAS DE RESPUESTA:
+- formName: 
+  * Si el mensaje del sistema y la respuesta son válidos: nombre del formulario
+  * En cualquier otro caso: null
+
+- reason:
+  * Si formName no es null: "El usuario respondió afirmativamente a la pregunta del sistema que empieza con ¿Desea comenzar el formulario [nombre]?"
+  * Si el mensaje del sistema es inválido: "El mensaje del sistema no contiene una pregunta válida de inicio de formulario"
+  * Si la respuesta no es afirmativa: "El usuario no respondió afirmativamente"
+
+EJEMPLOS:
+
+Mensaje sistema: "¿Desea comenzar el formulario registro?"
+Respuesta: "si"
+{
+    "formName": "registro",
+    "reason": "El usuario respondió afirmativamente a la pregunta del sistema que empieza con ¿Desea comenzar el formulario registro?"
+}
+
+Mensaje sistema: "¿Quieres iniciar el formulario?"
+Respuesta: "si"
+{
+    "formName": null,
+    "reason": "El mensaje del sistema no contiene una pregunta válida de inicio de formulario"
+}
     `,
     `Analiza la siguiente información:
     Lista de nombres de formularios validos:
