@@ -456,11 +456,13 @@ IMPORTANTE:
 - NO muestres categorías completas si solo se menciona un aspecto específico
 
 FORMATO DE ENTRADA:
+*Mensaje:
+[Usuario proporcionará el texto a analizar]
+
 *Información del negocio:
 [Usuario proporcionará los datos]
 
-*Mensaje:
-[Usuario proporcionará el texto a analizar]
+
 
 FORMATO DE SALIDA:
 [Solo si el mensaje se relaciona con algún aspecto del negocio]:
