@@ -211,8 +211,9 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
      *Datos de Entrada:
      - Se te proveera una lista de nombres de formularios
      - Se te proveera una conversacion, los mensajes mas antiguos estan arriba, y los mas recientes abajo
+     - Se te proveera el ultimo mensaje para dejarlo mas claro, incluso si este ya esta en la conversacion 
      *Procedimiento:
-     - Tu objetivo es priorizar y analizar en ultimo mensaje del usuario(user)
+     - Tu objetivo es priorizar y analizar en ultimo mensaje del usuario(user), el que se te proveera para mas claridad
      - Deberas verificar si el ultimo mensaje del usuario(user) es una respuesta afirmativa a una pregunta sobre comenzar un formulario que realizo el asistente(assistant)
      - Si el ultimo corresponde a una respuesta afirmativa deberas analizar a cual formulario de la lista de nombres de formularios validos pregunto el asistente(assistant), y ponerla en tu respuesta4
      - Tambien daras la razon de tu respuesta 
@@ -227,7 +228,8 @@ async function getChatbotForm(conversationString, clientMessage, formNames) {
     `Analiza la siguiente información:
     Lista de nombres de formularios validos:
     ${formNames}
-
+    Ultimo mensaje de la conversacion,importante:
+    {"user":"${clientMessage}"}
     Conversación, los mas antiguos estan mas arriba, y los mas recientes abajo, se lee de arriba hacia abajo:
     ${conversationString}
    `,
