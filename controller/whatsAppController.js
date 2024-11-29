@@ -207,50 +207,68 @@ function obtenerSaludo() {
 async function getChatbotForm(conversationString, clientMessage, formNames) {
   const responseFormName = await generateChatBotMessage(
     [],
-    `stata
-
-Copiar
-Eres un experto analizando conversaciones y respondes en formato JSON
+    `Eres un experto analizando conversaciones y respondes en formato JSON
 
 *Datos de Entrada:
 - Lista de nombres de formularios válidos
-- Historial de conversación (ordenado cronológicamente de arriba hacia abajo)
+- Historial de conversación en formato array de objetos JSON:
+  [
+    {"assistant": "mensaje"},
+    {"user": "mensaje"},
+    ...
+  ]
+  (ordenado cronológicamente de arriba hacia abajo)
 - Último mensaje del usuario (punto focal del análisis)
 
-*Reglas de Análisis:
-1. PRIORIDAD ABSOLUTA: Analizar ÚNICAMENTE el último mensaje proporcionado
-2. Orden de lectura: La conversación se lee de ARRIBA (más antiguo) hacia ABAJO (más reciente)
+*Reglas de Análisis ESTRICTAS:
+1. REGLA CRÍTICA DE FORMATO:
+   - La conversación es un array de objetos JSON alternando entre {"assistant": "..."} y {"user": "..."}
+   - El orden es cronológico: el primer elemento es el más antiguo, el último es el más reciente
+   - El último mensaje será el último objeto del array
+
+2. REGLA CRÍTICA DE ANÁLISIS:
+   - Analizar ÚNICAMENTE el último objeto {"user": "..."} del array
+   - Ignorar completamente cualquier mensaje anterior
+   - El mensaje a analizar es el contenido dentro de la propiedad "user" del último objeto
+
 3. Validación de respuesta afirmativa:
    - El último mensaje del usuario DEBE SER una respuesta afirmativa (si, sí, ok, vale, claro, etc.)
-   - NO son válidas preguntas, dudas o solicitudes de información del usuario
-   - El mensaje anterior del asistente DEBE CONTENER EXPLÍCITAMENTE una pregunta tipo:
-     * "¿Desea iniciar el formulario [nombre]?"
-     * "¿Quiere comenzar el formulario [nombre]?"
-     * "¿Desea empezar el formulario [nombre]?"
-   - NO son válidas preguntas del asistente como:
-     * "¿Tiene dudas sobre el formulario [nombre]?"
-     * "¿Necesita ayuda con el formulario [nombre]?"
-     * "¿Quiere más información sobre [nombre]?"
-     * Preguntas sobre otros servicios o temas
+   - El objeto {"assistant": "..."} INMEDIATAMENTE ANTERIOR debe contener EXPLÍCITAMENTE:
+     "¿Desea iniciar el formulario [nombre]?"
+     "¿Quiere comenzar el formulario [nombre]?"
+     "¿Desea empezar el formulario [nombre]?"
+
+4. NO son válidos:
+   - Preguntas sobre conformidad o finalización
+   - Preguntas sobre planes o servicios
+   - Mensajes informativos
+   - Confirmaciones de registro
+   - Cualquier pregunta que no sea específicamente sobre iniciar un formulario
 
 *Proceso de Análisis:
-1. Identificar si el último mensaje del usuario es una respuesta afirmativa
-2. Si no es una respuesta afirmativa → formName: null
-3. Si es una respuesta afirmativa:
-   - Verificar el mensaje inmediatamente anterior del asistente
-   - Confirmar que contiene EXPLÍCITAMENTE una pregunta de inicio de formulario
-   - Identificar el nombre del formulario mencionado en la pregunta
+1. Identificar el último objeto del array
+2. Verificar que sea un objeto {"user": "..."}
+3. Extraer el mensaje del usuario
+4. Analizar el objeto inmediatamente anterior {"assistant": "..."}
+5. Validar según las reglas establecidas
 
 *Formato de Respuesta JSON:
 {
-    "formName": string|null,  // Nombre del formulario SOLO si se cumplen TODAS las condiciones
-    "reason": string          // Explicación que DEBE mencionar el último mensaje y por qué es válido o no
+    "formName": string|null,
+    "reason": string  // DEBE comenzar con "El último mensaje del usuario es '[mensaje]' y..."
 }
 
-*Ejemplos:
-Usuario: "¿Cómo funciona el formulario X?" → formName: null (es una pregunta, no una respuesta afirmativa)
-Usuario: "si" (después de "¿Tiene dudas sobre el formulario X?") → formName: null (no es pregunta de inicio)
-Usuario: "si" (después de "¿Desea iniciar el formulario X?") → formName: "X" (cumple todas las condiciones)
+*Ejemplos con el formato específico:
+[
+{"assistant": "¿Esta conforme y quiere finalizar?"},
+{"user": "si"},
+{"assistant": "Se finalizo el registro"},
+{"user": "hola"}
+]
+→ Respuesta: {
+    "formName": null,
+    "reason": "El último mensaje del usuario es 'hola' y no es una respuesta afirmativa a una pregunta de inicio de formulario"
+}
     `,
     `Analiza la siguiente información:
     Lista de nombres de formularios validos:
