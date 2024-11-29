@@ -857,7 +857,7 @@ Para una consulta:
       //   "\nparte_final\n",
       //   parte_final_mejorada
       // );
-      chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${parte_inicial}\n${parte_media}\n${parte_final}`;
+      chatbotMessage = `lol? *\`${clientDB.formProcess}\`*\n\n${parte_inicial}\n${parte_media}\n${parte_final}`;
       const newMessage = new Message({
         client: clientDB._id,
         wid: null,
