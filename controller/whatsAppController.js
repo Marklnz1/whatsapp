@@ -204,105 +204,33 @@ function obtenerSaludo() {
     return "Buenas Noches";
   }
 }
-async function getChatbotForm(conversationString, clientMessage, formNames) {
+async function getChatbotForm(
+  conversationString,
+  clientMessage,
+  formNames,
+  lastMessageAssistant
+) {
   const responseFormName = await generateChatBotMessage(
     [],
-    `Eres un experto analizando conversaciones y respondes en formato JSON
-
-    *Datos de Entrada:
-    - Lista de nombres de formularios válidos
-    - Historial de conversación en formato array de objetos JSON:
-      [
-        {"assistant": "mensaje"},
-        {"user": "mensaje"},
-        ...
-      ]
-      (ordenado cronológicamente de arriba hacia abajo)
-    - Último mensaje del usuario (punto focal del análisis)
-
-    *Reglas de Análisis ESTRICTAS:
-    1. REGLA CRÍTICA DE FORMATO:
-      - La conversación es un array de objetos JSON alternando entre {"assistant": "..."} y {"user": "..."}
-      - El orden es cronológico: el primer elemento es el más antiguo, el último es el más reciente
-      - El último mensaje será el último objeto del array
-
-    2. REGLA CRÍTICA DE ANÁLISIS:
-      - Analizar ÚNICAMENTE el último objeto {"user": "..."} del array
-      - Ignorar completamente cualquier mensaje anterior
-      - El mensaje a analizar es el contenido dentro de la propiedad "user" del último objeto
-
-    3. Validación de respuesta afirmativa:
-      - El último mensaje del usuario DEBE SER una respuesta afirmativa (si, sí, ok, vale, claro, etc.)
-      - El objeto {"assistant": "..."} INMEDIATAMENTE ANTERIOR debe contener EXPLÍCITAMENTE:
-        "¿Desea iniciar el formulario [nombre]?"
-        "¿Quiere comenzar el formulario [nombre]?"
-        "¿Desea empezar el formulario [nombre]?"
-
-    4. NO son válidos:
-      - Preguntas sobre conformidad o finalización
-      - Preguntas sobre planes o servicios
-      - Mensajes informativos
-      - Confirmaciones de registro
-      - Cualquier pregunta que no sea específicamente sobre iniciar un formulario
-
-    *Proceso de Análisis:
-    1. Identificar el último objeto del array
-    2. Verificar que sea un objeto {"user": "..."}
-    3. Extraer el mensaje del usuario
-    4. Analizar el objeto inmediatamente anterior {"assistant": "..."}
-    5. Validar según las reglas establecidas
-
-    *Formato de Respuesta JSON:
+    `Eres un experto analizando mensajes y respondes en formato JSON
+    -Se te proveera un mensaje del sistema y un mensaje del usuario
+    -Tu objetivo es analizar si el mensaje del usuario responde afirmativamente a la pregunta de inicio de formulario en el mensaje del sistema
+    *IMPORTANTE*:El mensaje del sistema debe incluir la siguiente frase=>¿Desea comenzar el formulario [nombre de un formulario]?
+    -Si el mensaje del sistema no incluye una pregunta de inicio de formulario entonces no devolveras ningun formulario
+    -Si el mensaje del usuario no es una respuesta afirmativo explicita a la pregunta del sistema, entonces no devolveras ningun formulario
+    FORMATO DE RESPUESTA JSON:
     {
-        "formName": string|null,
-        "reason": string(razon del valor de formName)  // DEBE comenzar con "El último mensaje del usuario es '[mensaje]' y..."
-    }
-
-    *Ejemplos con el formato específico:
-    EJEMPLO 1:
-    -Lista de nombres de formularios validos:
-      Registro de Vehiculo
-      Registro de identidad
-      Eliminación de cuenta
-    -Ultimo mensaje de la conversacion que te tienes que enfocar:
-    {"user": "hola"}
-    -Conversacion:
-    [
-    {"assistant": "¿Esta conforme y quiere finalizar?"},
-    {"user": "si"},
-    {"assistant": "Se finalizo el registro"},
-    {"user": "hola"}
-    ]
-    → Respuesta: {
-        "formName": null,
-        "reason": "El último mensaje del usuario es 'hola' y no es una respuesta afirmativa a una pregunta(Se finalizo el registro) de inicio de formulario, por lo tanto la respuesta es null"
-    }
-    EJEMPLO 2:
-     -Lista de nombres de formularios validos:
-      Registro de Vehiculo
-      Registro de identidad
-      Eliminación de cuenta
-    -Ultimo mensaje de la conversacion que te tienes que enfocar:
-    {"user": "si"}
-    -Conversacion:
-    [
-    {"assistant": "¿Esta conforme y quiere finalizar?"},
-    {"user": "si"},
-    {"assistant": "¿Quiere comenzar el formulario Registro de vehiculo?"},
-    {"user": "si"}
-    ]
-    → Respuesta: {
-        "formName": Registro de vehiculo,
-        "reason": "El último mensaje del usuario es 'si' y  es una respuesta afirmativa a una pregunta de inicio de formulario(¿Quiere comenzar el formulario Registro de vehiculo?) , por lo tanto la respuesta es Registro de vehiculo"
+      formName:string|null(formName del formulario que el usuario respondio afirmativamente)
+      rease:string(razon de tu respuesta en formName)
     }
     `,
     `Analiza la siguiente información:
     Lista de nombres de formularios validos:
     ${formNames}
-    Ultimo mensaje de la conversacion que te tienes que enfocar:
-    {"user":"${clientMessage}"}
-    Conversación, los mas antiguos estan mas arriba, y los mas recientes abajo, se lee de arriba hacia abajo:
-    ${conversationString}
+    Mensaje del sistema:
+    ${lastMessageAssistant}
+    Mensaje del usuario:
+    ${clientMessage}
    `,
     true
   );
@@ -490,6 +418,7 @@ async function sendMessageChatbot(
   let count = 0;
   const conversationalForms = await ConversationalForm.find();
   const conversationalFormMap = {};
+  let lastMessageAssistant = null;
   for (const form of conversationalForms) {
     formNames += `${form.name}\n`;
     conversationalFormMap[form.name] = form;
@@ -498,6 +427,9 @@ async function sendMessageChatbot(
   conversation.push({ role: "user", content: clientMessage });
   let conversationString = "[\n";
   for (const v of conversation) {
+    if (v.role == "assistant") {
+      lastMessageAssistant = v.content;
+    }
     conversationString += `{"${v.role}":"${v.content}"}\n`;
   }
   conversationString += "]";
@@ -506,7 +438,8 @@ async function sendMessageChatbot(
     const { reason, formName } = await getChatbotForm(
       conversationString,
       clientMessage,
-      formNames
+      formNames,
+      lastMessageAssistant
     );
     clientDB.formProcess = formName;
     console.log("- Se obtuvo el nuevo proceso actual:\n", clientDB.formProcess);
