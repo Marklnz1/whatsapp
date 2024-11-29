@@ -869,6 +869,8 @@ El formato JSON es obligatorio
 La frase final sobre mostrar datos NO es opcional
         `,
         `Analiza la siguiente información:
+    -Conversacion:
+    ${conversationString}
     -Ultimo mensaje del usuario:
     ${clientMessage} 
     Mensaje con los campos rellenados del formulario que analizaras:
