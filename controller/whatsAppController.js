@@ -827,47 +827,50 @@ async function sendMessageChatbot(
         [],
         `RESPONDERAS EN FORMATO JSON
 
-        PROCEDIMIENTO QUE REALIZARAS:
+PROCEDIMIENTO QUE REALIZARAS:
 
-        DATOS DE ENTRADA QUE RECIBIRAS:
-        Una lista con campos y datos de un formulario
-        Un mensaje final del usuario (PRIORIDAD PRINCIPAL)
-        Una conversación previa (IGNORAR COMPLETAMENTE)
-        REGLAS OBLIGATORIAS PARA TU MENSAJE:
-        Responder SOLO al mensaje final del usuario
-        Ser breve (máximo 2 líneas)
-        Usar tono amigable y natural
-        NUNCA incluir:
-        • Preguntas de ningún tipo
-        • Peticiones de información
-        • Datos del formulario recibido
-        • Valores recopilados
-        SIEMPRE terminar con: "Te muestro los datos que tengo hasta ahora:"
-        (Puedes variar levemente esta frase pero manteniendo el mismo significado)
-        RESTRICCIONES ADICIONALES:
-        No hacer referencia a la conversación previa
-        No solicitar aclaraciones
-        No usar condicionales
-        No mencionar el formulario directamente
-        VALIDACIONES OBLIGATORIAS:
-        Verificar que el mensaje termine con la frase sobre mostrar datos
-        Confirmar que no hay signos de interrogación
-        Asegurar que no se incluyen datos del formulario
-        Comprobar que el tono es natural
-        Validar que solo se responde al último mensaje
-        Confirmar que se ignora la conversación previa
-        FORMATO DE RESPUESTA:
-        {
-        "parte_inicial_generada": "Tu mensaje cumpliendo todas las reglas",
-        "reason": "Explicación breve de por qué el mensaje es efectivo"
-        }
+DATOS DE ENTRADA QUE RECIBIRAS:
+Una lista con campos y datos de un formulario
+Un mensaje final del usuario (PRIORIDAD PRINCIPAL)
+Una conversación previa (IGNORAR COMPLETAMENTE)
+REGLAS OBLIGATORIAS PARA TU MENSAJE:
+Responder SOLO al mensaje final del usuario
+Ser breve (máximo 2 líneas)
+Usar tono amigable y natural
+NUNCA incluir:
+• Preguntas de ningún tipo
+• Peticiones de información
+• Datos del formulario recibido
+• Valores recopilados
+LA ÚLTIMA FRASE DEBE CONTENER EL CONCEPTO DE MOSTRAR DATOS. Ejemplos válidos:
+• "Déjame mostrarte la información que tengo hasta el momento:"
+• "Te comparto los datos recopilados hasta ahora:"
+• "Estos son los datos que he registrado hasta el momento:"
+• "A continuación te muestro la información guardada:"
+(DEBE MANTENER LA ESENCIA DE MOSTRAR/COMPARTIR DATOS)
+ESTRUCTURA DEL MENSAJE:
+Primera parte: Respuesta natural al mensaje del usuario
+Segunda parte: Variación natural de la frase para mostrar datos
+Las dos partes deben estar unidas de forma fluida
+VALIDACIONES OBLIGATORIAS:
+El mensaje DEBE terminar con una frase sobre mostrar datos
+Confirmar que no hay signos de interrogación
+Asegurar que no se incluyen datos del formulario
+Comprobar que el tono es natural
+Validar que solo se responde al último mensaje
+Confirmar que se ignora la conversación previa
+FORMATO DE RESPUESTA:
+{
+"parte_inicial_generada": "Tu mensaje + frase sobre mostrar datos",
+"reason": "Explicación breve de por qué el mensaje es efectivo"
+}
 
-        IMPORTANTE:
+IMPORTANTE:
 
-        El mensaje debe ser una respuesta natural al último mensaje del usuario
-        La respuesta SIEMPRE debe estar en formato JSON
-        La frase final sobre mostrar datos es OBLIGATORIA
-        No se permiten variaciones en el formato de respuesta
+La frase final DEBE comunicar que se mostrarán datos
+Se permiten variaciones naturales de la frase final
+La respuesta SIEMPRE debe estar en formato JSON
+No se permiten variaciones en el formato de respuesta
         `,
         `Analiza la siguiente información:
     -Ultimo mensaje del usuario:
