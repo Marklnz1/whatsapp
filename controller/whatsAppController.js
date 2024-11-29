@@ -221,7 +221,7 @@ async function getChatbotForm(
     FORMATO DE RESPUESTA JSON:
     {
       formName:string|null(formName del formulario que el usuario respondio afirmativamente)
-      rease:string(razon de tu respuesta en formName)
+          rease:string(razon de tu respuesta en formName)//tiene que tener el formato=> El usuario respondio afirmativamente a la pregunta del sistema que empieza con ¿Desea comenzar el formulario [nombre de un formulario valido]?
     }
     `,
     `Analiza la siguiente información:
