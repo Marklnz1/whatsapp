@@ -22,6 +22,8 @@ const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
 const mapLinkTemp = new Map();
 const path = require("path");
 const fs = require("fs");
+const SyncMetadata = require("./models/SyncMetadata");
+const { list_sync } = require("./utils/sync");
 
 const io = new Server(
   server
@@ -50,7 +52,6 @@ io.on("connection", (socket) => {
     console.log("Cliente desconectado");
   });
 });
-
 //======================================================
 app.use(express.static("public"));
 app.use(express.json());
@@ -68,6 +69,39 @@ app.engine("html", require("ejs").renderFile);
 app.get("/", (req, res) => {
   res.render("index");
 });
+app.post("/verify", async (req, res) => {
+  const tableNames = req.body.tableNames;
+  let syncMetadataList = await SyncMetadata.find({
+    tableName: { $in: tableNames },
+  });
+  const foundNames = syncMetadataList.map(
+    (syncMetadata) => syncMetadata.tableName
+  );
+  const notFoundNames = tableNames.filter(
+    (tableName) => !foundNames.includes(tableName)
+  );
+
+  if (notFoundNames) {
+    const newSyncMetadataList = await SyncMetadata.insertMany(
+      notFoundNames.map((tableName) => ({
+        tableName: tableName,
+      }))
+    );
+    syncMetadataList = syncMetadataList.concat(newSyncMetadataList);
+  }
+
+  const syncMetadataMap = Object.fromEntries(
+    syncMetadataList.map((syncMetadata) => [
+      syncMetadata.tableName,
+      syncMetadata.syncCodeMax,
+    ])
+  );
+  res.json(syncMetadataMap);
+});
+app.post("/client/list/sync", (req, res, next) =>
+  list_sync(Client, req, res, next)
+);
+
 app.get("/whatsapp-api", (req, res) => {
   res.render("whatsapp-api/index");
 });
