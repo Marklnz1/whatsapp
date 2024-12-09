@@ -25,7 +25,6 @@ const MessageSchema = new Schema(
     status: { type: String, default: "Inserted" },
     client: {
       type: String,
-      unique: true,
       required: true,
     },
     text: String,
