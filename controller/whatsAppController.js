@@ -1092,7 +1092,7 @@ const receiveMessageClient = async (
   }
   sendConfirmationMessage(META_TOKEN, recipientData.phoneNumberId, message.id);
   finalMessageData = {
-    finalMessageData,
+    ...finalMessageData,
     ...{ version: 1, syncCode: await updateAndGetSyncCode("message", 1) },
   };
   console.log("EL MENSAJE ES ", util.inspect(finalMessageData));
