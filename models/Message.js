@@ -18,13 +18,16 @@ const Schema = mongoose.Schema;
 //   };
 const MessageSchema = new Schema(
   {
+    uuid: String,
+    wid: String,
+    syncCode: Number,
+    version: Number,
+    status: { type: String, default: "Inserted" },
     client: {
       type: String,
       unique: true,
       required: true,
     },
-    wid: String,
-    uuid: String,
     text: String,
     sent: Boolean,
     time: Date,

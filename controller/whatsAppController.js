@@ -516,6 +516,8 @@ async function sendMessageChatbot(
       clientDB.formProcess = null;
       await clientDB.save();
       const newMessage = new Message({
+        version: 1,
+        syncCode: await updateAndGetSyncCode("client", 1),
         client: clientDB.uuid,
         wid: null,
         uuid: uuidv7(),
@@ -737,6 +739,8 @@ async function sendMessageChatbot(
         chatbotMessage
       );
       const newMessage = new Message({
+        version: 1,
+        syncCode: await updateAndGetSyncCode("client", 1),
         client: clientDB.uuid,
         wid: null,
         uuid: uuidv7(),
@@ -901,6 +905,8 @@ Para una consulta:
       // );
       chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${parte_inicial}\n${parte_media}\n${parte_final}`;
       const newMessage = new Message({
+        version: 1,
+        syncCode: await updateAndGetSyncCode("client", 1),
         client: clientDB.uuid,
         wid: null,
         uuid: uuidv7(),
@@ -983,6 +989,8 @@ Para una consulta:
       }
     }
     const newMessage = new Message({
+      version: 1,
+      syncCode: await updateAndGetSyncCode("client", 1),
       client: clientDB.uuid,
       wid: null,
       uuid: uuidv7(),
@@ -1082,7 +1090,10 @@ const receiveMessageClient = async (
     };
   }
   sendConfirmationMessage(META_TOKEN, recipientData.phoneNumberId, message.id);
-
+  finalMessageData = {
+    finalMessageData,
+    ...{ version: 1, syncCode: await updateAndGetSyncCode("client", 1) },
+  };
   const newMessage = new Message({
     ...newMessageData,
     ...finalMessageData,

@@ -28,6 +28,8 @@ module.exports.sendLocationMessage = async (req, res) => {
     client: clientUuid,
     wid: null,
     uuid,
+    version: 1,
+    syncCode: await updateAndGetSyncCode("client", 1),
     text,
     sent: true,
     read: true,
@@ -83,6 +85,8 @@ module.exports.sendTextMessage = async (req, res) => {
     await Message.updateMany({ client: clientUuid }, { $set: { read: true } });
 
     const newMessage = new Message({
+      version: 1,
+      syncCode: await updateAndGetSyncCode("client", 1),
       client: clientUuid,
       wid: null,
       uuid,
@@ -150,6 +154,8 @@ module.exports.sendMediaMessage = (req, res) => {
       const dstPhone = fields["dstPhone"];
 
       const newMessage = new Message({
+        version: 1,
+        syncCode: await updateAndGetSyncCode("client", 1),
         client: clientUuid,
         wid: null,
         uuid,
