@@ -7,6 +7,9 @@ const Schema = mongoose.Schema;
 */
 const ClientSchema = new Schema(
   {
+    uuid: String,
+    syncCode: Number,
+    version: Number,
     wid: {
       type: String,
       unique: true,

@@ -17,6 +17,7 @@ const {
 const { v7: uuidv7 } = require("uuid");
 const ConversationalForm = require("../models/ConversationalForm");
 const ConversationalFormValue = require("../models/ConversationalFormValue");
+const { updateAndGetSyncCode } = require("../utils/sync");
 
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
@@ -141,7 +142,14 @@ const createClientMapData = async (contacts) => {
     const wid = contact.wa_id;
     let clientDB = await Client.findOne({ wid });
     if (clientDB == null) {
-      clientDB = new Client({ wid, username, chatbot: true });
+      clientDB = new Client({
+        wid,
+        version: 1,
+        syncCode: await updateAndGetSyncCode("client", 1),
+        uuid: uuidv7(),
+        username,
+        chatbot: false,
+      });
       await clientDB.save();
     }
     clientMapDB[wid] = clientDB;
