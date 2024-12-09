@@ -1078,6 +1078,7 @@ const receiveMessageClient = async (
   };
   let finalMessageData;
   if (category == "text") {
+    console.log("EL MESSAGE DATA ES ", util.inspect(messageData));
     finalMessageData = { text: messageData.body };
   } else if (messageTypeIsMedia(category)) {
     const metaFileName = messageData.filename;
@@ -1094,6 +1095,7 @@ const receiveMessageClient = async (
     finalMessageData,
     ...{ version: 1, syncCode: await updateAndGetSyncCode("message", 1) },
   };
+  console.log("EL MENSAJE ES ", util.inspect(finalMessageData));
   const newMessage = new Message({
     ...newMessageData,
     ...finalMessageData,
