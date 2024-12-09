@@ -25,6 +25,7 @@ const fs = require("fs");
 const SyncMetadata = require("./models/SyncMetadata");
 const { list_sync } = require("./utils/sync");
 const Client = require("./models/Client");
+const Message = require("./models/Message");
 
 const io = new Server(
   server
@@ -102,7 +103,9 @@ app.post("/verify", async (req, res) => {
 app.post("/client/list/sync", (req, res, next) =>
   list_sync(Client, req, res, next)
 );
-
+app.post("/message/list/sync", (req, res, next) =>
+  list_sync(Message, req, res, next)
+);
 app.get("/whatsapp-api", (req, res) => {
   res.render("whatsapp-api/index");
 });
