@@ -24,6 +24,7 @@ const path = require("path");
 const fs = require("fs");
 const SyncMetadata = require("./models/SyncMetadata");
 const { list_sync } = require("./utils/sync");
+const Client = require("./models/Client");
 
 const io = new Server(
   server

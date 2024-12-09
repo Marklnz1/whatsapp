@@ -10,6 +10,7 @@ const ClientSchema = new Schema(
     uuid: String,
     syncCode: Number,
     version: Number,
+    status: { type: String, default: "Inserted" },
     wid: {
       type: String,
       unique: true,
