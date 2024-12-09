@@ -69,67 +69,68 @@ const getPriorityStatus = (state) => {
   }
 };
 module.exports.receiveMessage = async (req, res) => {
-  const io = res.locals.io;
-  let data = extractClientMessageData(req.body);
-  if (data != null) {
-    const clientMapData = await createClientMapData(data.contacts);
+  try {
+    const io = res.locals.io;
+    let data = extractClientMessageData(req.body);
+    if (data != null) {
+      const clientMapData = await createClientMapData(data.contacts);
 
-    for (const message of data.messages) {
-      await receiveMessageClient(
-        message,
-        clientMapData,
-        data.recipientData,
-        io
-      );
-    }
-
-    res.sendStatus(200);
-    return;
-  }
-  data = extractMessageStatusData(req.body);
-
-  if (data != null) {
-    for (const statusData of data.statuses) {
-      const biz_opaque_callback_data = statusData.biz_opaque_callback_data;
-      const message = await Message.findById(biz_opaque_callback_data);
-
-      if (message) {
-        const currentStatus = message.sentStatus;
-        const futureStatus = statusData.status;
-        if (
-          getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
-        ) {
-          message.sentStatus = statusData.status;
-        }
-
-        io.emit(
-          "newStatus",
-          JSON.stringify({
-            uuid: message.uuid,
-            status: statusData.status,
-            clientId: message.client,
-          })
+      for (const message of data.messages) {
+        await receiveMessageClient(
+          message,
+          clientMapData,
+          data.recipientData,
+          io
         );
-
-        await message.save();
       }
-      const newState = new MessageStatus({
-        message: message?.id,
-        status: statusData.status,
-        time: new Date(statusData.timestamp * 1000),
-      });
-      await newState.save();
+
+      res.sendStatus(200);
+      return;
     }
-    res.sendStatus(200);
-    return;
-  } else {
-    console.log("no estatus");
+    data = extractMessageStatusData(req.body);
+
+    if (data != null) {
+      for (const statusData of data.statuses) {
+        const biz_opaque_callback_data = statusData.biz_opaque_callback_data;
+        const message = await Message.findById(biz_opaque_callback_data);
+
+        if (message) {
+          const currentStatus = message.sentStatus;
+          const futureStatus = statusData.status;
+          if (
+            getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
+          ) {
+            message.sentStatus = statusData.status;
+          }
+
+          io.emit(
+            "newStatus",
+            JSON.stringify({
+              uuid: message.uuid,
+              status: statusData.status,
+              clientId: message.client,
+            })
+          );
+
+          await message.save();
+        }
+        const newState = new MessageStatus({
+          message: message?.id,
+          status: statusData.status,
+          time: new Date(statusData.timestamp * 1000),
+        });
+        await newState.save();
+      }
+      res.sendStatus(200);
+      return;
+    } else {
+      console.log("no estatus");
+    }
+    res.sendStatus(404);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(404);
   }
-  res.sendStatus(404);
-  // } catch (e) {
-  //   console.log(e);
-  //   res.sendStatus(404);
-  // }
 };
 const createClientMapData = async (contacts) => {
   const clientMapDB = {};
