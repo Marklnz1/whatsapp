@@ -15,17 +15,17 @@ const agent = new https.Agent({
   rejectUnauthorized: false,
 });
 module.exports.sendLocationMessage = async (req, res) => {
-  const { clientId, text, uuid, businessPhone, businessPhoneId } = req.body;
+  const { clientUuid, text, uuid, businessPhone, businessPhoneId } = req.body;
   if (messagesSet.has(uuid)) {
     messagesSet.delete(uuid);
     return res.status(200).json({ error: "Solicitud duplicada" });
   }
   messagesSet.add(uuid);
 
-  const client = await Client.findById(clientId);
+  const client = await Client.findById(clientUuid);
 
   const newMessage = new Message({
-    client: clientId,
+    client: clientUuid,
     wid: null,
     uuid,
     text,
@@ -70,20 +70,20 @@ module.exports.readAllMessage = async (req, res) => {
 };
 module.exports.sendTextMessage = async (req, res) => {
   try {
-    const { clientId, text, uuid, businessPhone, businessPhoneId } = req.body;
+    const { clientUuid, text, uuid, businessPhone, businessPhoneId } = req.body;
     if (messagesSet.has(uuid)) {
       messagesSet.delete(uuid);
       return res.status(200).json({ error: "Solicitud duplicada" });
     }
     messagesSet.add(uuid);
-    const client = await Client.findById(clientId);
+    const client = await Client.findById(clientUuid);
     client.chatbot = false;
     await client.save();
 
-    await Message.updateMany({ client: clientId }, { $set: { read: true } });
+    await Message.updateMany({ client: clientUuid }, { $set: { read: true } });
 
     const newMessage = new Message({
-      client: clientId,
+      client: clientUuid,
       wid: null,
       uuid,
       text,
@@ -137,7 +137,7 @@ module.exports.sendMediaMessage = (req, res) => {
       mapLinkTemp.set(savedFileName, futureTime);
 
       const category = fields["category"];
-      const clientId = fields["clientId"];
+      const clientUuid = fields["clientUuid"];
       const text = fields["text"];
       const width = fields["width"];
       const height = fields["height"];
@@ -150,7 +150,7 @@ module.exports.sendMediaMessage = (req, res) => {
       const dstPhone = fields["dstPhone"];
 
       const newMessage = new Message({
-        client: clientId,
+        client: clientUuid,
         wid: null,
         uuid,
         text,

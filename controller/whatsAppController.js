@@ -516,7 +516,7 @@ async function sendMessageChatbot(
       clientDB.formProcess = null;
       await clientDB.save();
       const newMessage = new Message({
-        client: clientDB._id,
+        client: clientDB.uuid,
         wid: null,
         uuid: uuidv7(),
         text: chatbotMessage,
@@ -737,7 +737,7 @@ async function sendMessageChatbot(
         chatbotMessage
       );
       const newMessage = new Message({
-        client: clientDB._id,
+        client: clientDB.uuid,
         wid: null,
         uuid: uuidv7(),
         text: chatbotMessage,
@@ -901,7 +901,7 @@ Para una consulta:
       // );
       chatbotMessage = `*\`${clientDB.formProcess}\`*\n\n${parte_inicial}\n${parte_media}\n${parte_final}`;
       const newMessage = new Message({
-        client: clientDB._id,
+        client: clientDB.uuid,
         wid: null,
         uuid: uuidv7(),
         text: chatbotMessage,
@@ -983,7 +983,7 @@ Para una consulta:
       }
     }
     const newMessage = new Message({
-      client: clientDB._id,
+      client: clientDB.uuid,
       wid: null,
       uuid: uuidv7(),
       text: chatbotMessage,
@@ -1059,7 +1059,7 @@ const receiveMessageClient = async (
   const messageData = message[category];
   // console.log("MAPA " + util.inspect(clientMapData) + "  from " + message.from);
   const newMessageData = {
-    client: clientDB._id,
+    client: clientDB.uuid,
     wid: message.id,
     uuid: uuidv7(),
     sent: false,
@@ -1090,7 +1090,7 @@ const receiveMessageClient = async (
   let messagesHistorial = [];
   if (clientDB.chatbot && newMessage.text) {
     const list = await Message.find(
-      { client: clientDB._id },
+      { client: clientDB.uuid },
       { sent: 1, text: 1 }
     )
       .sort({ time: -1 })

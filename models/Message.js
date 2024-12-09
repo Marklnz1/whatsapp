@@ -18,7 +18,11 @@ const Schema = mongoose.Schema;
 //   };
 const MessageSchema = new Schema(
   {
-    client: { type: mongoose.Schema.Types.ObjectId, ref: "client" },
+    client: {
+      type: String,
+      unique: true,
+      required: true,
+    },
     wid: String,
     uuid: String,
     text: String,

@@ -38,16 +38,16 @@ module.exports.getChats = async (data, io) => {
   );
 };
 module.exports.getMessages = async (data, io) => {
-  const { clientId, readAll } = JSON.parse(data);
-  const messages = await Message.find({ client: clientId }).lean().exec();
+  const { clientUuid, readAll } = JSON.parse(data);
+  const messages = await Message.find({ client: clientUuid }).lean().exec();
 
   if (readAll) {
-    await Message.updateMany({ client: clientId }, { $set: { read: true } });
+    await Message.updateMany({ client: clientUuid }, { $set: { read: true } });
   }
   io.emit(
     "getMessages",
     JSON.stringify({
-      _id: clientId,
+      _id: clientUuid,
       messages,
     })
   );
