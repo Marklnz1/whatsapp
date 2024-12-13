@@ -15,7 +15,8 @@ const agent = new https.Agent({
   rejectUnauthorized: false,
 });
 module.exports.sendLocationMessage = async (req, res) => {
-  const { clientUuid, text, uuid, businessPhone, businessPhoneId } = req.body;
+  const { clientUuid, textContent, uuid, businessPhone, businessPhoneId } =
+    req.body;
   if (messagesSet.has(uuid)) {
     messagesSet.delete(uuid);
     return res.status(200).json({ error: "Solicitud duplicada" });
@@ -30,7 +31,7 @@ module.exports.sendLocationMessage = async (req, res) => {
     uuid,
     version: 1,
     syncCode: await updateAndGetSyncCode("message", 1),
-    text,
+    textContent: textContent,
     sent: true,
     read: true,
     time: new Date(),
@@ -47,7 +48,7 @@ module.exports.sendLocationMessage = async (req, res) => {
     {
       type: "location_request_message",
       body: {
-        text,
+        textContent: textContent,
       },
       action: {
         name: "send_location",
@@ -72,7 +73,8 @@ module.exports.readAllMessage = async (req, res) => {
 };
 module.exports.sendTextMessage = async (req, res) => {
   try {
-    const { clientUuid, text, uuid, businessPhone, businessPhoneId } = req.body;
+    const { clientUuid, textContent, uuid, businessPhone, businessPhoneId } =
+      req.body;
     if (messagesSet.has(uuid)) {
       messagesSet.delete(uuid);
       return res.status(200).json({ error: "Solicitud duplicada" });
@@ -90,7 +92,7 @@ module.exports.sendTextMessage = async (req, res) => {
       client: clientUuid,
       wid: null,
       uuid,
-      text,
+      textContent,
       sent: true,
       read: true,
       time: new Date(),
@@ -107,7 +109,7 @@ module.exports.sendTextMessage = async (req, res) => {
       client.wid,
       "text",
       {
-        body: text,
+        body: textContent,
       },
       newMessage._id
     );
@@ -142,7 +144,7 @@ module.exports.sendMediaMessage = (req, res) => {
 
       const category = fields["category"];
       const clientUuid = fields["clientUuid"];
-      const text = fields["text"];
+      const textContent = fields["textContent"];
       const width = fields["width"];
       const height = fields["height"];
       const duration = fields["duration"];
@@ -159,7 +161,7 @@ module.exports.sendMediaMessage = (req, res) => {
         client: clientUuid,
         wid: null,
         uuid,
-        text,
+        textContent: textContent,
         sent: true,
         time: new Date(),
         category,
@@ -189,7 +191,7 @@ module.exports.sendMediaMessage = (req, res) => {
       console.log("la categoria es " + category);
       const messageData = { link };
       if (category != "audio" && category != "sticker") {
-        messageData.caption = text;
+        messageData.caption = textContent;
       }
       if (category == "document") {
         messageData.filename = orgFilename;

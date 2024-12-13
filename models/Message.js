@@ -27,7 +27,7 @@ const MessageSchema = new Schema(
       type: String,
       required: true,
     },
-    text: String,
+    textContent: String,
     sent: Boolean,
     time: Date,
     category: String,

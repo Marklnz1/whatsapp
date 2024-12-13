@@ -257,7 +257,7 @@ async function sendMessageChatbot(
     client: clientDB.uuid,
     wid: null,
     uuid: uuidv7(),
-    text: chatbotMessage,
+    textContent: chatbotMessage,
     sent: true,
     read: false,
     time: new Date(),
@@ -306,13 +306,13 @@ const receiveMessageClient = async (
   let finalMessageData;
   if (category == "text") {
     console.log("EL MESSAGE DATA ES ", util.inspect(messageData));
-    finalMessageData = { text: messageData.body };
+    finalMessageData = { textContent: messageData.body };
   } else if (messageTypeIsMedia(category)) {
     const metaFileName = messageData.filename;
     const metadata = await saveMediaClient(messageData.id, category);
 
     finalMessageData = {
-      text: messageData.caption,
+      textContent: messageData.caption,
       metaFileName,
       ...metadata,
     };
@@ -328,10 +328,10 @@ const receiveMessageClient = async (
     ...finalMessageData,
   });
   let messagesHistorial = [];
-  if (clientDB.chatbot && newMessage.text) {
+  if (clientDB.chatbot && newMessage.textContent) {
     const list = await Message.find(
       { client: clientDB.uuid },
-      { sent: 1, text: 1 }
+      { sent: 1, textContent: 1 }
     )
       .sort({ time: -1 })
       .limit(5)
@@ -339,7 +339,7 @@ const receiveMessageClient = async (
     for (let m of list) {
       messagesHistorial.push({
         role: m.sent ? "assistant" : "user",
-        content: m.text,
+        content: m.textContent,
       });
     }
     messagesHistorial = messagesHistorial.reverse();
@@ -354,11 +354,11 @@ const receiveMessageClient = async (
     })
   );
 
-  if (clientDB.chatbot && newMessage.text) {
+  if (clientDB.chatbot && newMessage.textContent) {
     const newBotMessage = await sendMessageChatbot(
       messagesHistorial,
       clientDB,
-      newMessage.text,
+      newMessage.textContent,
       newMessage.wid,
       recipientData.phoneNumber,
       recipientData.phoneNumberId
