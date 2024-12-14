@@ -29,7 +29,7 @@ const MessageSchema = new Schema(
     },
     textContent: String,
     sent: Boolean,
-    time: Date,
+    time: Number,
     category: String,
     businessPhone: String,
     sentStatus: String,

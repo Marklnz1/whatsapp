@@ -260,7 +260,7 @@ async function sendMessageChatbot(
     textContent: chatbotMessage,
     sent: true,
     read: false,
-    time: new Date(),
+    time: new Date().getTime(),
     category: "text",
     businessPhone,
     sentStatus: "not_sent",
@@ -292,6 +292,7 @@ const receiveMessageClient = async (
   const clientDB = clientMapData[message.from];
   const category = message.type;
   const messageData = message[category];
+  new Date().getTime();
   // console.log("MAPA " + util.inspect(clientMapData) + "  from " + message.from);
   const newMessageData = {
     client: clientDB.uuid,
@@ -299,7 +300,7 @@ const receiveMessageClient = async (
     uuid: uuidv7(),
     sent: false,
     read: false,
-    time: new Date(message.timestamp * 1000),
+    time: message.timestamp * 1000,
     category,
     businessPhone: recipientData.phoneNumber,
   };
