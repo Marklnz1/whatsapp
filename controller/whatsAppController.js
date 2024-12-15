@@ -101,7 +101,9 @@ module.exports.receiveMessage = async (req, res) => {
             getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
           ) {
             message.sentStatus = statusData.status;
+            message.syncCode = await updateAndGetSyncCode("message", 1);
           }
+          await message.save();
 
           io.emit(
             "newSentStatus",
@@ -111,8 +113,6 @@ module.exports.receiveMessage = async (req, res) => {
               clientId: message.client,
             })
           );
-
-          await message.save();
         }
         const newState = new MessageStatus({
           message: message?.id,
