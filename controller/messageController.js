@@ -10,6 +10,7 @@ const DOMAIN = process.env.DOMAIN;
 const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
 const https = require("https");
 const mime = require("mime-types");
+const { updateAndGetSyncCode } = require("../utils/sync");
 const messagesSet = new Set();
 const agent = new https.Agent({
   rejectUnauthorized: false,
@@ -23,7 +24,7 @@ module.exports.sendLocationMessage = async (req, res) => {
   }
   messagesSet.add(uuid);
 
-  const client = await Client.findById(clientUuid);
+  const client = await Client.findOne({ uuid: clientUuid });
 
   const newMessage = new Message({
     client: clientUuid,
