@@ -106,11 +106,11 @@ module.exports.receiveMessage = async (req, res) => {
           await message.save();
 
           io.emit(
-            "newSentStatus",
+            "newMessage",
             JSON.stringify({
-              uuid: message.uuid,
-              status: statusData.status,
-              clientId: message.client,
+              // uuid: message.uuid,
+              // status: statusData.status,
+              // clientId: message.client,
             })
           );
         }
