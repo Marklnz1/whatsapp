@@ -118,7 +118,7 @@ module.exports.sendTextMessage = async (req, res) => {
     newMessage.sentStatus = "send_requested";
     await newMessage.save();
     console.log("TERMINANDOOOOOOOOOOOO FUNCION  ");
-    res.sendStatus(200).json({});
+    res.json({});
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

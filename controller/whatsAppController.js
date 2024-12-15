@@ -104,7 +104,7 @@ module.exports.receiveMessage = async (req, res) => {
           }
 
           io.emit(
-            "newStatus",
+            "newSentStatus",
             JSON.stringify({
               uuid: message.uuid,
               status: statusData.status,
