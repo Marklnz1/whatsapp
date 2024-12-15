@@ -80,7 +80,7 @@ module.exports.sendTextMessage = async (req, res) => {
       return res.status(200).json({ error: "Solicitud duplicada" });
     }
     messagesSet.add(uuid);
-    const client = await Client.findById(clientUuid);
+    const client = await Client.findOne({ uuid: clientUuid });
     client.chatbot = false;
     await client.save();
 
