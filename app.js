@@ -160,7 +160,7 @@ app.post(
 );
 app.post("/api/message/text/", messageController.sendTextMessage);
 app.get("/api/account/prompt/", async (req, res) => {
-  let account = WhatsAppAccount.findOne({
+  let account = await WhatsAppAccount.findOne({
     businessPhone: req.body.businessPhone,
   });
   if (account == null) {
