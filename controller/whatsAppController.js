@@ -101,6 +101,10 @@ module.exports.receiveMessage = async (req, res) => {
             getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
           ) {
             message.sentStatus = statusData.status;
+            await Message.updateOne(
+              { _id: biz_opaque_callback_data },
+              { $inc: { version: 1 } }
+            );
             message.syncCode = await updateAndGetSyncCode("message", 1);
           }
           await message.save();
