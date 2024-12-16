@@ -26,7 +26,7 @@ const SyncMetadata = require("./models/SyncMetadata");
 const { list_sync } = require("./utils/sync");
 const Client = require("./models/Client");
 const Message = require("./models/Message");
-const WhatsAppAccount = require("./models/WhatsappAccount");
+const WhatsAppAccount = require("./models/WhatsAppAccount");
 
 const io = new Server(
   server
