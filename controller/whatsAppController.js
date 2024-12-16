@@ -106,17 +106,17 @@ module.exports.receiveMessage = async (req, res) => {
               { $inc: { version: 1 } }
             );
             message.syncCode = await updateAndGetSyncCode("message", 1);
-          }
-          await message.save();
+            await message.save();
 
-          io.emit(
-            "newMessage",
-            JSON.stringify({
-              // uuid: message.uuid,
-              // status: statusData.status,
-              // clientId: message.client,
-            })
-          );
+            io.emit(
+              "newMessage",
+              JSON.stringify({
+                // uuid: message.uuid,
+                // status: statusData.status,
+                // clientId: message.client,
+              })
+            );
+          }
         }
         const newState = new MessageStatus({
           message: message?.id,
