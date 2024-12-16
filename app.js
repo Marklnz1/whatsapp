@@ -26,6 +26,7 @@ const SyncMetadata = require("./models/SyncMetadata");
 const { list_sync } = require("./utils/sync");
 const Client = require("./models/Client");
 const Message = require("./models/Message");
+const WhatsAppAccount = require("./models/WhatsappAccount");
 
 const io = new Server(
   server
@@ -158,6 +159,21 @@ app.post(
   messageController.sendMediaMessage
 );
 app.post("/api/message/text/", messageController.sendTextMessage);
+app.get("/api/account/prompt/", async (req, res) => {
+  let account = WhatsAppAccount.findOne({
+    businessPhone: req.body.businessPhone,
+  });
+  if (account == null) {
+    account = new WhatsAppAccount({
+      businessPhone: req.body.businessPhone,
+      prompt:
+        "Responde con emoticones, para un negocio de biblioteca, no respondas otra cosa que no sea de la biblioteca",
+    });
+    await account.save();
+  }
+  res.json({ prompt: account.prompt });
+});
+
 // app.post("/api/form/", formController.postForm);
 
 async function start() {
