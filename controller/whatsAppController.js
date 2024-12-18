@@ -100,13 +100,15 @@ module.exports.receiveMessage = async (req, res) => {
           if (
             getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
           ) {
-            message.sentStatus = statusData.status;
+            const newSyncCode = await updateAndGetSyncCode("message", 1);
             await Message.updateOne(
-              { _id: biz_opaque_callback_data },
-              { $inc: { version: 1 } }
+              { _id: id },
+              {
+                $inc: { version: 1 },
+                $max: { syncCode: newSyncCode },
+                $set: { sentStatus: statusData.status },
+              }
             );
-            message.syncCode = await updateAndGetSyncCode("message", 1);
-            await message.save();
 
             io.emit(
               "newMessage",

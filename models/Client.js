@@ -1,16 +1,15 @@
 const mongoose = require("mongoose");
+const { createSyncFieldsServerToLocal } = require("../utils/sync");
 const Schema = mongoose.Schema;
 /*
   Estados de la conversación
   normal
   form_name
 */
+
 const ClientSchema = new Schema(
   {
-    uuid: String,
-    syncCode: Number,
-    version: Number,
-    status: { type: String, default: "Inserted" },
+    ...createSyncFieldsServerToLocal(),
     wid: {
       type: String,
       unique: true,

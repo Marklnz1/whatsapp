@@ -23,7 +23,7 @@ const mapLinkTemp = new Map();
 const path = require("path");
 const fs = require("fs");
 const SyncMetadata = require("./models/SyncMetadata");
-const { list_sync } = require("./utils/sync");
+const { list_sync, update_list_sync } = require("./utils/sync");
 const Client = require("./models/Client");
 const Message = require("./models/Message");
 const WhatsAppAccount = require("./models/WhatsAppAccount");
@@ -107,6 +107,9 @@ app.post("/client/list/sync", (req, res, next) =>
 app.post("/message/list/sync", (req, res, next) =>
   list_sync(Message, req, res, next)
 );
+app.post("/message/update/list/sync", (req, res, next) =>
+  update_list_sync(Message, req, res, next)
+);
 app.get("/whatsapp-api", (req, res) => {
   res.render("whatsapp-api/index");
 });
@@ -158,6 +161,11 @@ app.post(
   "/api/message/media/:category/:type/:subtype",
   messageController.sendMediaMessage
 );
+app.post("/api/client/chatbot", async (req, res) => {
+  const clientUuid = req.body.clientUuid;
+  const chatbot = req.body.chatbot;
+  const client = await Client.findOneAndUpdate();
+});
 app.post("/api/message/text/", messageController.sendTextMessage);
 app.get("/api/account/prompt/", async (req, res) => {
   let account = await WhatsAppAccount.findOne({

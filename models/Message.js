@@ -1,4 +1,8 @@
 const mongoose = require("mongoose");
+const {
+  createSyncFieldsServerToLocal,
+  generateFields,
+} = require("../utils/sync");
 const Schema = mongoose.Schema;
 /*estados de un mensaje enviado
   0 = error al enviar (necesario que se active por meta)
@@ -16,13 +20,10 @@ const Schema = mongoose.Schema;
 //     READ: "read", // 4 = leido
 //     DELETED: "deleted" // 5 = eliminado (no soportado por la api de meta)
 //   };
+
 const MessageSchema = new Schema(
-  {
-    uuid: String,
+  generateFields({
     wid: String,
-    syncCode: Number,
-    version: Number,
-    status: { type: String, default: "Inserted" },
     client: {
       type: String,
       required: true,
@@ -42,7 +43,7 @@ const MessageSchema = new Schema(
     metaFileName: String,
     extension: String,
     fileSizeBytes: String,
-  },
+  }),
   { timestamps: true }
 );
 

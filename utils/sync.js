@@ -1,6 +1,67 @@
 const util = require("util");
 const SyncMetadata = require("../models/SyncMetadata");
+module.exports.createSyncFieldsServerToLocal = () => {
+  return {
+    uuid: String,
+    syncCode: Number,
+    version: Number,
+    status: { type: String, default: "Inserted" },
+  };
+};
+module.exports.generateFields = (fields) => {
+  fields.status = { type: String, default: "Inserted" };
+  for (const key in fields) {
+    if (fields.hasOwnProperty(key)) {
+      fields[`${key}SyncCode`] = Number;
+    }
+  }
 
+  const finalFields = {
+    uuid: String,
+    syncCode: Number,
+    version: Number,
+    ...fields,
+  };
+
+  return finalFields;
+};
+
+module.exports.update_list_sync = async (Model, tableName, req, res, next) => {
+  try {
+    let docs = req.body["docs"];
+    const uuids = docs.map((doc) => doc.uuid);
+    const fieldSyncCodes = {};
+    for (const field of Object.keys(docs[0])) {
+      fieldSyncCodes[field + "SyncCode"] = 1;
+    }
+    await Model.bulkWrite(
+      docs.map((doc) => {
+        // const { version, ...docWithoutVersion } = doc;
+        return {
+          updateOne: {
+            filter: { uuid: doc.uuid },
+            //PROBLEMA CUANDO EL DOCUMENTO SE ESTA CRAENDO
+            update: { $set: doc, $inc: { version: 1, ...fieldSyncCodes } },
+            upsert: true,
+          },
+        };
+      })
+    );
+    const syncCodeMax = await updateAndGetSyncCode(tableName, docs.length);
+    let syncCodeMin = syncCodeMax - docs.length + 1;
+
+    const bulkOps = uuids.map((uuid, index) => ({
+      updateOne: {
+        filter: { uuid: uuid },
+        update: { $set: { syncCode: syncCodeMin + index } },
+      },
+    }));
+    await Model.bulkWrite(bulkOps);
+    res.status(200).json({ syncCodeMax });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 module.exports.list_sync = async (Model, req, res, next) => {
   try {
     let { syncCodeMax } = req.body;
