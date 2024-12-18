@@ -104,7 +104,7 @@ module.exports.receiveMessage = async (req, res) => {
             await Message.updateOne(
               { _id: id },
               {
-                $inc: { version: 1 },
+                $inc: { version: 1, sentStatusSyncCode: 1 },
                 $max: { syncCode: newSyncCode },
                 $set: { sentStatus: statusData.status },
               }
