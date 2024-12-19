@@ -32,7 +32,7 @@ module.exports.update_fields = async (Model, tableName, filter, data) => {
   }
   await Model.updateOne(filter, {
     $inc: { version: 1, ...incSyncCode },
-    $max: { syncCode: await updateAndGetSyncCode(tableName, 1) },
+    $max: { syncCode: await this.updateAndGetSyncCode(tableName, 1) },
     $set: data,
   });
 };
