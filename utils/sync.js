@@ -25,11 +25,29 @@ module.exports.generateFields = (fields) => {
 
   return finalFields;
 };
-
-module.exports.update_list_sync = async (Model, tableName, req, res, next) => {
+module.exports.update_fields = async (Model, tableName, filter, data) => {
+  const incSyncCode = {};
+  for (let key of Object.keys(data)) {
+    incSyncCode[key + "SyncCode"] = 1;
+  }
+  await Model.updateOne(filter, {
+    $inc: { version: 1, ...incSyncCode },
+    $max: { syncCode: await updateAndGetSyncCode(tableName, 1) },
+    $set: data,
+  });
+};
+module.exports.update_list_sync = async (
+  Model,
+  tableName,
+  req,
+  res,
+  next,
+  onInsert
+) => {
   try {
     let docs = req.body["docs"];
     const uuids = docs.map((doc) => doc.uuid);
+
     const fieldSyncCodes = {};
     for (const field of Object.keys(docs[0])) {
       fieldSyncCodes[field + "SyncCode"] = 1;
@@ -47,6 +65,7 @@ module.exports.update_list_sync = async (Model, tableName, req, res, next) => {
         };
       })
     );
+
     const syncCodeMax = await updateAndGetSyncCode(tableName, docs.length);
     let syncCodeMin = syncCodeMax - docs.length + 1;
 
@@ -57,6 +76,20 @@ module.exports.update_list_sync = async (Model, tableName, req, res, next) => {
       },
     }));
     await Model.bulkWrite(bulkOps);
+
+    if (onInsert) {
+      let nonExistingUUIDs = await Model.find({
+        uuid: { $nin: uuids },
+      })
+        .select("uuid")
+        .lean();
+      nonExistingUUIDs = nonExistingUUIDs.map((doc) => doc.uuid);
+      for (let d of docs) {
+        if (nonExistingUUIDs.includes(d.uuid)) {
+          onInsert(d);
+        }
+      }
+    }
     res.status(200).json({ syncCodeMax });
   } catch (error) {
     res.status(400).json({ error: error.message });

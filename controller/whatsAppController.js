@@ -17,7 +17,7 @@ const {
 const { v7: uuidv7 } = require("uuid");
 const ConversationalForm = require("../models/ConversationalForm");
 const ConversationalFormValue = require("../models/ConversationalFormValue");
-const { updateAndGetSyncCode } = require("../utils/sync");
+const { updateAndGetSyncCode, update_fields } = require("../utils/sync");
 
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
@@ -92,7 +92,9 @@ module.exports.receiveMessage = async (req, res) => {
     if (data != null) {
       for (const statusData of data.statuses) {
         const biz_opaque_callback_data = statusData.biz_opaque_callback_data;
-        const message = await Message.findById(biz_opaque_callback_data);
+        const message = await Message.findOne({
+          uuid: biz_opaque_callback_data,
+        });
 
         if (message) {
           const currentStatus = message.sentStatus;
@@ -100,15 +102,24 @@ module.exports.receiveMessage = async (req, res) => {
           if (
             getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
           ) {
-            const newSyncCode = await updateAndGetSyncCode("message", 1);
-            await Message.updateOne(
-              { _id: id },
+            await update_fields(
+              Message,
+              "message",
+              { uuid: biz_opaque_callback_data },
               {
-                $inc: { version: 1, sentStatusSyncCode: 1 },
-                $max: { syncCode: newSyncCode },
-                $set: { sentStatus: statusData.status },
+                sentStatus: statusData.status,
               }
             );
+            // const newSyncCode = await updateAndGetSyncCode("message", 1);
+
+            // await Message.updateOne(
+            //   { _id: id },
+            //   {
+            //     $inc: { version: 1, sentStatusSyncCode: 1 },
+            //     $max: { syncCode: newSyncCode },
+            //     $set: { sentStatus: statusData.status },
+            //   }
+            // );
 
             io.emit(
               "newMessage",

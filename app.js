@@ -17,16 +17,19 @@ const formController = require("./controller/conversationalFormController");
 
 const socketController = require("./controller/socketController");
 const messageController = require("./controller/messageController");
+const META_TOKEN = process.env.META_TOKEN;
+
 const SERVER_SAVE = process.env.SERVER_SAVE;
 const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
 const mapLinkTemp = new Map();
 const path = require("path");
 const fs = require("fs");
 const SyncMetadata = require("./models/SyncMetadata");
-const { list_sync, update_list_sync } = require("./utils/sync");
+const { list_sync, update_list_sync, update_fields } = require("./utils/sync");
 const Client = require("./models/Client");
 const Message = require("./models/Message");
 const WhatsAppAccount = require("./models/WhatsAppAccount");
+const { sendWhatsappMessage } = require("./utils/server");
 
 const io = new Server(
   server
@@ -108,7 +111,20 @@ app.post("/message/list/sync", (req, res, next) =>
   list_sync(Message, req, res, next)
 );
 app.post("/message/update/list/sync", (req, res, next) =>
-  update_list_sync(Message, req, res, next)
+  update_list_sync(Message, "message", req, res, next, async (doc) => {
+    const client = await Client.findOne({ uuid: doc.client });
+    const messageWid = await sendWhatsappMessage(
+      META_TOKEN,
+      "438790955987375",
+      client.wid,
+      "text",
+      {
+        body: textContent,
+      },
+      doc.uuid
+    );
+    update_fields(Message, "message", { uuid: doc.uuid }, { wid: messageWid });
+  })
 );
 app.get("/whatsapp-api", (req, res) => {
   res.render("whatsapp-api/index");
