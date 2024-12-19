@@ -110,6 +110,9 @@ app.post("/client/list/sync", (req, res, next) =>
 app.post("/message/list/sync", (req, res, next) =>
   list_sync(Message, req, res, next)
 );
+app.post("/client/update/list/sync", (req, res, next) =>
+  update_list_sync(Client, "client", req, res, next)
+);
 app.post("/message/update/list/sync", (req, res, next) =>
   update_list_sync(Message, "message", req, res, next, async (doc) => {
     console.log("INGRESANDO PARA ENVIAR " + util.inspect(doc));

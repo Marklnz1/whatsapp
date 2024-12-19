@@ -1,24 +1,27 @@
 const mongoose = require("mongoose");
-const { createSyncFieldsServerToLocal } = require("../utils/sync");
+const {
+  createSyncFieldsServerToLocal,
+  generateFields,
+} = require("../utils/sync");
 const Schema = mongoose.Schema;
 /*
   Estados de la conversación
   normal
   form_name
 */
-
 const ClientSchema = new Schema(
   {
-    ...createSyncFieldsServerToLocal(),
-    wid: {
-      type: String,
-      unique: true,
-      required: true,
-    },
-    chatbot: Boolean,
-    base64Profile: String,
-    username: String,
-    formProcess: { type: String, default: null },
+    ...generateFields({
+      wid: {
+        type: String,
+        unique: true,
+        required: true,
+      },
+      chatbot: Boolean,
+      base64Profile: String,
+      username: String,
+      formProcess: { type: String, default: null },
+    }),
   },
   { timestamps: true }
 );
