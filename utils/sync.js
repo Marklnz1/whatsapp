@@ -44,10 +44,22 @@ module.exports.update_list_sync = async (
   next,
   onInsert
 ) => {
+  console.log("INGRESANDO PARA GUARDARRRR");
+
   try {
     let docs = req.body["docs"];
     const uuids = docs.map((doc) => doc.uuid);
-
+    let nonExistingUUIDs;
+    if (onInsert) {
+      nonExistingUUIDs = await Model.find({
+        uuid: { $nin: uuids },
+      })
+        .select("uuid")
+        .lean();
+      console.log("SE REVISA " + util.inspect(uuids));
+      console.log("LOS UUIDS " + util.inspect(nonExistingUUIDs));
+      nonExistingUUIDs = nonExistingUUIDs.map((doc) => doc.uuid);
+    }
     const fieldSyncCodes = {};
     for (const field of Object.keys(docs[0])) {
       fieldSyncCodes[field + "SyncCode"] = 1;
@@ -66,7 +78,7 @@ module.exports.update_list_sync = async (
       })
     );
 
-    const syncCodeMax = await updateAndGetSyncCode(tableName, docs.length);
+    const syncCodeMax = await this.updateAndGetSyncCode(tableName, docs.length);
     let syncCodeMin = syncCodeMax - docs.length + 1;
 
     const bulkOps = uuids.map((uuid, index) => ({
@@ -78,12 +90,6 @@ module.exports.update_list_sync = async (
     await Model.bulkWrite(bulkOps);
 
     if (onInsert) {
-      let nonExistingUUIDs = await Model.find({
-        uuid: { $nin: uuids },
-      })
-        .select("uuid")
-        .lean();
-      nonExistingUUIDs = nonExistingUUIDs.map((doc) => doc.uuid);
       for (let d of docs) {
         if (nonExistingUUIDs.includes(d.uuid)) {
           onInsert(d);
