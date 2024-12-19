@@ -112,7 +112,7 @@ app.post("/message/list/sync", (req, res, next) =>
 );
 app.post("/message/update/list/sync", (req, res, next) =>
   update_list_sync(Message, "message", req, res, next, async (doc) => {
-    console.log("INGRESANDO PARA ENVIAR");
+    console.log("INGRESANDO PARA ENVIAR " + util.inspect(doc));
     const client = await Client.findOne({ uuid: doc.client });
     const messageWid = await sendWhatsappMessage(
       META_TOKEN,
@@ -120,7 +120,7 @@ app.post("/message/update/list/sync", (req, res, next) =>
       client.wid,
       "text",
       {
-        body: textContent,
+        body: doc.textContent,
       },
       doc.uuid
     );

@@ -48,17 +48,15 @@ module.exports.update_list_sync = async (
 
   try {
     let docs = req.body["docs"];
+    console.log("LOS DOCS INGESADOS ES " + util.inspect(docs));
     const uuids = docs.map((doc) => doc.uuid);
     let nonExistingUUIDs;
     if (onInsert) {
-      nonExistingUUIDs = await Model.find({
-        uuid: { $nin: uuids },
-      })
+      let existingUUIDs = await Model.find({ uuid: { $in: uuids } })
         .select("uuid")
         .lean();
-      console.log("SE REVISA " + util.inspect(uuids));
-      console.log("LOS UUIDS " + util.inspect(nonExistingUUIDs));
-      nonExistingUUIDs = nonExistingUUIDs.map((doc) => doc.uuid);
+      existingUUIDs = existingUUIDs.map((doc) => doc.uuid);
+      nonExistingUUIDs = uuids.filter((uuid) => !existingUUIDs.includes(uuid));
     }
     const fieldSyncCodes = {};
     for (const field of Object.keys(docs[0])) {
