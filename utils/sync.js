@@ -30,11 +30,19 @@ module.exports.update_fields = async (Model, tableName, filter, data) => {
   for (let key of Object.keys(data)) {
     incSyncCode[key + "SyncCode"] = 1;
   }
-  await Model.updateOne(filter, {
+  const response = await Model.updateOne(filter, {
     $inc: { version: 1, ...incSyncCode },
     $max: { syncCode: await this.updateAndGetSyncCode(tableName, 1) },
     $set: data,
   });
+  console.log(
+    "con la data " +
+      util.inspect(data) +
+      " y el incremento " +
+      util.inspect(incSyncCode) +
+      "   respuesta " +
+      util.inspect(response)
+  );
 };
 module.exports.update_list_sync = async (
   Model,

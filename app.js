@@ -124,7 +124,13 @@ app.post("/message/update/list/sync", (req, res, next) =>
       },
       doc.uuid
     );
-    update_fields(Message, "message", { uuid: doc.uuid }, { wid: messageWid });
+    console.log("SE OBTUVO EL WID " + messageWid);
+    await update_fields(
+      Message,
+      "message",
+      { uuid: doc.uuid },
+      { wid: messageWid }
+    );
   })
 );
 app.get("/whatsapp-api", (req, res) => {
