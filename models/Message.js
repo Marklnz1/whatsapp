@@ -23,7 +23,7 @@ const Schema = mongoose.Schema;
 
 const MessageSchema = new Schema(
   generateFields({
-    wid: String,
+    wid: { type: String, default: "" },
     client: {
       type: String,
       required: true,
