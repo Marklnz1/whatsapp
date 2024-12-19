@@ -12,7 +12,7 @@ module.exports.generateFields = (fields) => {
   fields.status = { type: String, default: "Inserted" };
   for (const key in fields) {
     if (fields.hasOwnProperty(key)) {
-      fields[`${key}SyncCode`] = Number;
+      fields[`${key}SyncCode`] = { type: Number, default: 1 };
     }
   }
 
