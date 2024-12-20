@@ -102,6 +102,7 @@ module.exports.update_list_sync = async (
         }
       }
     }
+    res.locals.io.emit("serverChanged");
     res.status(200).json({ syncCodeMax });
   } catch (error) {
     res.status(400).json({ error: error.message });

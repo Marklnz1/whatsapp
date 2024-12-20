@@ -123,25 +123,7 @@ module.exports.receiveMessage = async (req, res) => {
                 sentStatus: statusData.status,
               }
             );
-            // const newSyncCode = await updateAndGetSyncCode("message", 1);
-
-            // await Message.updateOne(
-            //   { _id: id },
-            //   {
-            //     $inc: { version: 1, sentStatusSyncCode: 1 },
-            //     $max: { syncCode: newSyncCode },
-            //     $set: { sentStatus: statusData.status },
-            //   }
-            // );
-
-            io.emit(
-              "newMessage",
-              JSON.stringify({
-                // uuid: message.uuid,
-                // status: statusData.status,
-                // clientId: message.client,
-              })
-            );
+            io.emit("serverChanged");
           }
         }
         const newState = new MessageStatus({
@@ -377,13 +359,7 @@ const receiveMessageClient = async (
   }
 
   await newMessage.save();
-  io.emit(
-    "newMessage",
-    JSON.stringify({
-      client: clientDB,
-      message: newMessage,
-    })
-  );
+  io.emit("serverChanged");
 
   if (clientDB.chatbot && newMessage.textContent) {
     const newBotMessage = await sendMessageChatbot(
@@ -395,13 +371,7 @@ const receiveMessageClient = async (
       recipientData.phoneNumberId
     );
     if (newBotMessage) {
-      io.emit(
-        "newMessage",
-        JSON.stringify({
-          client: clientDB,
-          message: newBotMessage,
-        })
-      );
+      io.emit("serverChanged");
     }
   }
 };
