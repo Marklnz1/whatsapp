@@ -102,6 +102,16 @@ module.exports.receiveMessage = async (req, res) => {
         if (message) {
           const currentStatus = message.sentStatus;
           const futureStatus = statusData.status;
+          if (currentStatus == "sent") {
+            await update_fields(
+              Message,
+              "message",
+              { uuid: biz_opaque_callback_data },
+              {
+                time: statusData.timestamp * 1000,
+              }
+            );
+          }
           if (
             getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
           ) {
@@ -312,7 +322,7 @@ const receiveMessageClient = async (
   const clientDB = clientMapData[message.from];
   const category = message.type;
   const messageData = message[category];
-  new Date().getTime();
+  // new Date().getTime();
   // console.log("MAPA " + util.inspect(clientMapData) + "  from " + message.from);
   const newMessageData = {
     client: clientDB.uuid,
