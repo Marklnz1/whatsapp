@@ -35,14 +35,14 @@ module.exports.update_fields = async (Model, tableName, filter, data) => {
     $max: { syncCode: await this.updateAndGetSyncCode(tableName, 1) },
     $set: data,
   });
-  console.log(
-    "con la data " +
-      util.inspect(data) +
-      " y el incremento " +
-      util.inspect(incSyncCode) +
-      "   respuesta " +
-      util.inspect(response)
-  );
+  // console.log(
+  //   "con la data " +
+  //     util.inspect(data) +
+  //     " y el incremento " +
+  //     util.inspect(incSyncCode) +
+  //     "   respuesta " +
+  //     util.inspect(response)
+  // );
 };
 module.exports.update_list_sync = async (
   Model,
