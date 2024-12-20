@@ -304,7 +304,7 @@ async function sendMessageChatbot(
     {
       body: chatbotMessage,
     },
-    newMessage._id,
+    newMessage.uuid,
     clientMessageId
   );
   newMessage.wid = messageId;
