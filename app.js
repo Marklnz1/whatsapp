@@ -30,6 +30,7 @@ const Client = require("./models/Client");
 const Message = require("./models/Message");
 const WhatsAppAccount = require("./models/WhatsAppAccount");
 const { sendWhatsappMessage } = require("./utils/server");
+const LastMessageSeenDate = require("./models/LastMessageSeenDate");
 
 const io = new Server(
   server
@@ -104,15 +105,31 @@ app.post("/verify", async (req, res) => {
   );
   res.json(syncMetadataMap);
 });
-app.post("/client/list/sync", (req, res, next) =>
-  list_sync(Client, req, res, next)
-);
 app.post("/message/list/sync", (req, res, next) =>
   list_sync(Message, req, res, next)
+);
+
+app.post("/client/list/sync", (req, res, next) =>
+  list_sync(Client, req, res, next)
 );
 app.post("/client/update/list/sync", (req, res, next) =>
   update_list_sync(Client, "client", req, res, next)
 );
+
+app.post("/lastMessageSeenDate/list/sync", (req, res, next) =>
+  list_sync(LastMessageSeenDate, req, res, next)
+);
+app.post("/lastMessageSeenDate/update/list/sync", (req, res, next) =>
+  update_list_sync(LastMessageSeenDate, "lastMessageSeenDate", req, res, next)
+);
+
+app.post("/whatsAppAccount/list/sync", (req, res, next) =>
+  list_sync(WhatsAppAccount, req, res, next)
+);
+app.post("/whatsAppAccount/update/list/sync", (req, res, next) =>
+  update_list_sync(WhatsAppAccount, "whatsAppAccount", req, res, next)
+);
+
 app.post("/message/update/list/sync", (req, res, next) =>
   update_list_sync(Message, "message", req, res, next, async (doc) => {
     // console.log("INGRESANDO PARA ENVIAR " + util.inspect(doc));
