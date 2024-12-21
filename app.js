@@ -136,7 +136,7 @@ app.post("/message/update/list/sync", (req, res, next) =>
     const client = await Client.findOne({ uuid: doc.client });
     const messageWid = await sendWhatsappMessage(
       META_TOKEN,
-      "438790955987375",
+      doc.businessPhoneId,
       client.wid,
       "text",
       {
