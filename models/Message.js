@@ -33,6 +33,8 @@ const MessageSchema = new Schema(
     time: Number,
     category: String,
     businessPhone: String,
+    businessPhoneId: String,
+
     sentStatus: { type: String, default: "empty" },
 
     read: Boolean,

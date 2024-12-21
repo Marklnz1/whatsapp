@@ -275,6 +275,7 @@ async function sendMessageChatbot(
     time: new Date().getTime(),
     category: "text",
     businessPhone,
+    businessPhoneId,
     sentStatus: "not_sent",
   });
   await newMessage.save();
@@ -315,6 +316,7 @@ const receiveMessageClient = async (
     time: message.timestamp * 1000,
     category,
     businessPhone: recipientData.phoneNumber,
+    businessPhoneId: recipientData.phoneNumberId,
   };
   let finalMessageData;
   if (category == "text") {
