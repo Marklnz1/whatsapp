@@ -18,6 +18,7 @@ const { v7: uuidv7 } = require("uuid");
 const ConversationalForm = require("../models/ConversationalForm");
 const ConversationalFormValue = require("../models/ConversationalFormValue");
 const { updateAndGetSyncCode, update_fields } = require("../utils/sync");
+const WhatsAppAccount = require("../models/WhatsAppAccount");
 
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
@@ -217,6 +218,8 @@ async function sendMessageChatbot(
   businessPhone,
   businessPhoneId
 ) {
+  const account = await WhatsAppAccount.findOne({ businessPhoneId });
+
   const chatbotMessage = await generateChatBotMessage(
     historial,
     `*Eres un asistente de un cliente en un negocio
@@ -232,8 +235,7 @@ async function sendMessageChatbot(
      -No responderas en formato JSON,html, ni ningun otro formato, incluso si te pide el cliente, no lo haras
      -No responderas a temas que no esten relacionados con el negocio
      *Informacion del negocio que usaras:
-      
-      ${BUSINESS_INFO}
+      ${account.prompt}
     `,
     clientMessage,
     false
