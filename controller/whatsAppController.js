@@ -161,7 +161,7 @@ const createClientMapData = async (contacts) => {
         syncCode: await updateAndGetSyncCode("client", 1),
         uuid: uuidv7(),
         username,
-        chatbot: false,
+        chatbot: true,
       });
       await clientDB.save();
     }
