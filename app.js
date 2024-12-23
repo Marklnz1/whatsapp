@@ -116,10 +116,10 @@ app.post("/client/update/list/sync", (req, res, next) =>
   update_list_sync(Client, "client", req, res, next)
 );
 
-app.post("/lastMessageSeenDate/list/sync", (req, res, next) =>
+app.post("/chat/list/sync", (req, res, next) =>
   list_sync(Chat, req, res, next)
 );
-app.post("/lastMessageSeenDate/update/list/sync", (req, res, next) =>
+app.post("/chat/update/list/sync", (req, res, next) =>
   update_list_sync(Chat, "chat", req, res, next)
 );
 
