@@ -17,7 +17,11 @@ const {
 const { v7: uuidv7 } = require("uuid");
 const ConversationalForm = require("../models/ConversationalForm");
 const ConversationalFormValue = require("../models/ConversationalFormValue");
-const { updateAndGetSyncCode, update_fields } = require("../utils/sync");
+const {
+  updateAndGetSyncCode,
+  update_fields,
+  createOrGet,
+} = require("../utils/sync");
 const WhatsappAccount = require("../models/WWhatsappAccount");
 const Chat = require("../models/Chat");
 
@@ -160,20 +164,16 @@ const createChatClientMapData = async (contacts, recipientData) => {
     let clientDB = await Client.findOne({ wid });
     let chatDB = null;
     if (clientDB == null) {
-      clientDB = new Client({
+      clientDB = await createOrGet(Client, "client", {
         uuid: wid,
-        syncCode: await updateAndGetSyncCode("client", 1),
         wid,
         username,
       });
-      await clientDB.save();
-      clientDB = new Client({
+      clientDB = await createOrGet(Client, "client", {
         uuid: wid,
-        syncCode: await updateAndGetSyncCode("client", 1),
         wid,
         username,
       });
-      await clientDB.save();
     }
     chatDB = await Chat.findOne({
       uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
