@@ -171,7 +171,7 @@ const createChatClientMapData = async (contacts, recipientData) => {
       chatDB = new Chat({
         uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
         syncCode: await updateAndGetSyncCode("chat", 1),
-        clientWi: clientDB.wid,
+        clientWid: clientDB.wid,
         businessPhone: recipientData.phoneNumber,
         lastSeen: 0,
         chatbot: true,
