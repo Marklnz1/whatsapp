@@ -98,11 +98,10 @@ module.exports.update_list_sync = async (
     }
     await Model.bulkWrite(
       docs.map((doc) => {
-        // const { version, ...docWithoutVersion } = doc;
         return {
           updateOne: {
             filter: { uuid: doc.uuid },
-            //PROBLEMA CUANDO EL DOCUMENTO SE ESTA CRAENDO
+            //PROBLEMA CUANDO EL DOCUMENTO SE ESTA CREANDO
             update: { $set: doc, $inc: { version: 1, ...fieldSyncCodes } },
             upsert: true,
           },

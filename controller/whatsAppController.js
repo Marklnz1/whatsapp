@@ -161,34 +161,19 @@ const createChatClientMapData = async (contacts, recipientData) => {
 
     const username = profile.name;
     const wid = contact.wa_id;
-    let clientDB = await Client.findOne({ wid });
-    let chatDB = null;
-    if (clientDB == null) {
-      clientDB = await createOrGet(Client, "client", {
-        uuid: wid,
-        wid,
-        username,
-      });
-      clientDB = await createOrGet(Client, "client", {
-        uuid: wid,
-        wid,
-        username,
-      });
-    }
-    chatDB = await Chat.findOne({
-      uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
+    let clientDB = await createOrGet(Client, "client", {
+      uuid: wid,
+      wid,
+      username,
     });
-    if (chatDB == null) {
-      chatDB = new Chat({
-        uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
-        syncCode: await updateAndGetSyncCode("chat", 1),
-        clientWid: clientDB.wid,
-        businessPhone: recipientData.phoneNumber,
-        lastSeen: 0,
-        chatbot: true,
-      });
-    }
-    await chatDB.save();
+
+    let chatDB = await createOrGet(Chat, "chat", {
+      uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
+      clientWid: clientDB.wid,
+      businessPhone: recipientData.phoneNumber,
+      lastSeen: 0,
+      chatbot: true,
+    });
     chatClientMapDB[wid] = { client: clientDB, chat: chatDB };
   }
 
@@ -240,12 +225,11 @@ async function sendMessageChatbot(
   clientDB,
   clientMessage,
   clientMessageId,
-  businessPhone,
   businessPhoneId
 ) {
   const account = await WhatsappAccount.findOne({ businessPhoneId });
   if (account == null || account.prompt.trim() == "") {
-    return null;
+    return false;
   }
   const chatbotMessage = await generateChatBotMessage(
     historial,
@@ -291,21 +275,18 @@ async function sendMessageChatbot(
       );
     }
   }
-  const newMessage = new Message({
-    syncCode: await updateAndGetSyncCode("message", 1),
+  const messageUuid = uuidv7();
+  await createOrGet(Message, "message", {
     chat: chat.uuid,
     wid: null,
-    uuid: uuidv7(),
+    uuid: messageUuid,
     textContent: chatbotMessage,
     sent: true,
     read: false,
     time: new Date().getTime(),
     category: "text",
-    businessPhone,
-    businessPhoneId,
     sentStatus: "not_sent",
   });
-  await newMessage.save();
   const messageId = await sendWhatsappMessage(
     META_TOKEN,
     businessPhoneId,
@@ -314,13 +295,16 @@ async function sendMessageChatbot(
     {
       body: chatbotMessage,
     },
-    newMessage.uuid,
+    messageUuid,
     clientMessageId
   );
-  newMessage.wid = messageId;
-  newMessage.sentStatus = "send_requested";
-  await newMessage.save();
-  return newMessage;
+  await update_fields(
+    Message,
+    "message",
+    { uuid: messageUuid },
+    { wid: messageId, sentStatus: "send_requested" }
+  );
+  return true;
 }
 
 const receiveMessageClient = async (
@@ -343,8 +327,6 @@ const receiveMessageClient = async (
     read: false,
     time: message.timestamp * 1000,
     category,
-    businessPhone: recipientData.phoneNumber,
-    businessPhoneId: recipientData.phoneNumberId,
   };
   let finalMessageData;
   if (category == "text") {
@@ -361,17 +343,14 @@ const receiveMessageClient = async (
     };
   }
   sendConfirmationMessage(META_TOKEN, recipientData.phoneNumberId, message.id);
-  finalMessageData = {
-    ...finalMessageData,
-    ...{ syncCode: await updateAndGetSyncCode("message", 1) },
-  };
+
   console.log("EL MENSAJE ES ", util.inspect(finalMessageData));
-  const newMessage = new Message({
+  const newMessageDataFinal = {
     ...newMessageData,
     ...finalMessageData,
-  });
+  };
   let messagesHistorial = [];
-  if (chat.chatbot && newMessage.textContent) {
+  if (chat.chatbot && newMessageDataFinal.textContent) {
     const list = await Message.find(
       { chat: chat.uuid },
       { sent: 1, textContent: 1 }
@@ -387,18 +366,16 @@ const receiveMessageClient = async (
     }
     messagesHistorial = messagesHistorial.reverse();
   }
-
-  await newMessage.save();
+  await createOrGet(Message, "message", newMessageDataFinal);
   io.emit("serverChanged");
 
-  if (chat.chatbot && newMessage.textContent) {
+  if (chat.chatbot && newMessageDataFinal.textContent) {
     const newBotMessage = await sendMessageChatbot(
       messagesHistorial,
       chat,
       client,
-      newMessage.textContent,
-      newMessage.wid,
-      recipientData.phoneNumber,
+      newMessageDataFinal.textContent,
+      newMessageDataFinal.wid,
       recipientData.phoneNumberId
     );
     if (newBotMessage) {
