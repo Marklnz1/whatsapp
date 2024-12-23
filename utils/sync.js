@@ -23,7 +23,7 @@ module.exports.createOrGet = async (Model, tableName, data) => {
         "ERROR CODE " +
         error.code +
         "   keyvalue " +
-        error.keyValue +
+        util.inspect(error.keyValue) +
         "  cumple??? " +
         (keys.length === 1 && keys[0] === "uuid")
     );
