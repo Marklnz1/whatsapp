@@ -133,8 +133,8 @@ app.post("/whatsappAccount/update/list/sync", (req, res, next) =>
 app.post("/message/update/list/sync", (req, res, next) =>
   update_list_sync(Message, "message", req, res, next, async (doc) => {
     // console.log("INGRESANDO PARA ENVIAR " + util.inspect(doc));
-    const client = await Client.findOne({ uuid: doc.client });
     const chat = await Chat.findOne({ uuid: doc.chat });
+    const client = await Client.findOne({ uuid: chat.client });
     const whatsappAccount = await WhatsappAccount.findOne({
       businessPhone: chat.businessPhone,
     });
