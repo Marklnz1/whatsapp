@@ -134,14 +134,13 @@ app.post("/message/update/list/sync", (req, res, next) =>
   update_list_sync(Message, "message", req, res, next, async (doc) => {
     // console.log("INGRESANDO PARA ENVIAR " + util.inspect(doc));
     const chat = await Chat.findOne({ uuid: doc.chat });
-    const client = await Client.findOne({ wid: chat.clientWid });
     const whatsappAccount = await WhatsappAccount.findOne({
       businessPhone: chat.businessPhone,
     });
     const messageWid = await sendWhatsappMessage(
       META_TOKEN,
       whatsappAccount.businessPhoneId,
-      client.wid,
+      chat.clientWid,
       "text",
       {
         body: doc.textContent,
