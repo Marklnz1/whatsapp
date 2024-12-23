@@ -145,7 +145,7 @@ module.exports.receiveMessage = async (req, res) => {
     }
     res.sendStatus(404);
   } catch (e) {
-    console.log(e);
+    console.log(util.inspect(e));
     res.sendStatus(404);
   }
 };
@@ -161,13 +161,24 @@ const createChatClientMapData = async (contacts, recipientData) => {
     let chatDB = null;
     if (clientDB == null) {
       clientDB = new Client({
-        uuid: uuidv7(),
+        uuid: wid,
         syncCode: await updateAndGetSyncCode("client", 1),
         wid,
         username,
       });
       await clientDB.save();
-
+      clientDB = new Client({
+        uuid: wid,
+        syncCode: await updateAndGetSyncCode("client", 1),
+        wid,
+        username,
+      });
+      await clientDB.save();
+    }
+    chatDB = await Chat.findOne({
+      uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
+    });
+    if (chatDB == null) {
       chatDB = new Chat({
         uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
         syncCode: await updateAndGetSyncCode("chat", 1),
@@ -176,23 +187,8 @@ const createChatClientMapData = async (contacts, recipientData) => {
         lastSeen: 0,
         chatbot: true,
       });
-      await chatDB.save();
-    } else {
-      chatDB = await Chat.findOne({
-        uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
-      });
-      if (chatDB == null) {
-        chatDB = new Chat({
-          uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
-          syncCode: await updateAndGetSyncCode("chat", 1),
-          clientWid: clientDB.wid,
-          businessPhone: recipientData.phoneNumber,
-          lastSeen: 0,
-          chatbot: true,
-        });
-      }
-      await chatDB.save();
     }
+    await chatDB.save();
     chatClientMapDB[wid] = { client: clientDB, chat: chatDB };
   }
 
