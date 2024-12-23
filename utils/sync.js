@@ -23,13 +23,6 @@ module.exports.createOrGet = async (Model, tableName, data) => {
       throw error;
     }
   }
-
-  return {
-    uuid: String,
-    syncCode: Number,
-    version: Number,
-    status: { type: String, default: "Inserted" },
-  };
 };
 module.exports.generateFields = (fields) => {
   fields.status = { type: String, default: "Inserted" };
@@ -40,7 +33,11 @@ module.exports.generateFields = (fields) => {
   }
 
   const finalFields = {
-    uuid: String,
+    uuid: {
+      type: String,
+      unique: true,
+      required: true,
+    },
     syncCode: Number,
     version: { type: Number, default: 1 },
     ...fields,
