@@ -17,7 +17,6 @@ const ClientSchema = new Schema(
         unique: true,
         required: true,
       },
-      chatbot: Boolean,
       base64Profile: String,
       username: String,
       formProcess: { type: String, default: null },

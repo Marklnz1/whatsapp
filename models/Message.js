@@ -24,7 +24,7 @@ const Schema = mongoose.Schema;
 const MessageSchema = new Schema(
   generateFields({
     wid: { type: String, default: "" },
-    client: {
+    chat: {
       type: String,
       required: true,
     },
@@ -32,9 +32,6 @@ const MessageSchema = new Schema(
     sent: Boolean,
     time: Number,
     category: String,
-    businessPhone: String,
-    businessPhoneId: String,
-
     sentStatus: { type: String, default: "empty" },
 
     read: Boolean,

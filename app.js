@@ -28,9 +28,9 @@ const SyncMetadata = require("./models/SyncMetadata");
 const { list_sync, update_list_sync, update_fields } = require("./utils/sync");
 const Client = require("./models/Client");
 const Message = require("./models/Message");
-const WhatsAppAccount = require("./models/WhatsAppAccount");
+const WhatsappAccount = require("./models/WhatsappAccount");
 const { sendWhatsappMessage } = require("./utils/server");
-const LastMessageSeenDate = require("./models/LastMessageSeenDate");
+const Chat = require("./models/Chat");
 
 const io = new Server(
   server
@@ -117,17 +117,17 @@ app.post("/client/update/list/sync", (req, res, next) =>
 );
 
 app.post("/lastMessageSeenDate/list/sync", (req, res, next) =>
-  list_sync(LastMessageSeenDate, req, res, next)
+  list_sync(Chat, req, res, next)
 );
 app.post("/lastMessageSeenDate/update/list/sync", (req, res, next) =>
-  update_list_sync(LastMessageSeenDate, "lastMessageSeenDate", req, res, next)
+  update_list_sync(Chat, "chat", req, res, next)
 );
 
 app.post("/whatsAppAccount/list/sync", (req, res, next) =>
-  list_sync(WhatsAppAccount, req, res, next)
+  list_sync(WhatsappAccount, req, res, next)
 );
 app.post("/whatsAppAccount/update/list/sync", (req, res, next) =>
-  update_list_sync(WhatsAppAccount, "whatsAppAccount", req, res, next)
+  update_list_sync(WhatsappAccount, "whatsappAccount", req, res, next)
 );
 
 app.post("/message/update/list/sync", (req, res, next) =>
@@ -204,26 +204,8 @@ app.post(
   "/api/message/media/:category/:type/:subtype",
   messageController.sendMediaMessage
 );
-app.post("/api/client/chatbot", async (req, res) => {
-  const clientUuid = req.body.clientUuid;
-  const chatbot = req.body.chatbot;
-  const client = await Client.findOneAndUpdate();
-});
+
 app.post("/api/message/text/", messageController.sendTextMessage);
-app.get("/api/account/prompt/", async (req, res) => {
-  let account = await WhatsAppAccount.findOne({
-    businessPhone: req.body.businessPhone,
-  });
-  if (account == null) {
-    account = new WhatsAppAccount({
-      businessPhone: req.body.businessPhone,
-      prompt:
-        "Responde con emoticones, para un negocio de biblioteca, no respondas otra cosa que no sea de la biblioteca",
-    });
-    await account.save();
-  }
-  res.json({ prompt: account.prompt });
-});
 
 // app.post("/api/form/", formController.postForm);
 

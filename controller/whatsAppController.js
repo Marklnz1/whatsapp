@@ -18,7 +18,8 @@ const { v7: uuidv7 } = require("uuid");
 const ConversationalForm = require("../models/ConversationalForm");
 const ConversationalFormValue = require("../models/ConversationalFormValue");
 const { updateAndGetSyncCode, update_fields } = require("../utils/sync");
-const WhatsAppAccount = require("../models/WhatsAppAccount");
+const WhatsAppAccount = require("../models/WhatsappAccount");
+const Chat = require("../models/Chat");
 
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
@@ -77,12 +78,15 @@ module.exports.receiveMessage = async (req, res) => {
     );
     let data = extractClientMessageData(req.body);
     if (data != null) {
-      const clientMapData = await createClientMapData(data.contacts);
+      const chatClientMapData = await createChatClientMapData(
+        data.contacts,
+        data.recipientData
+      );
 
       for (const message of data.messages) {
         await receiveMessageClient(
           message,
-          clientMapData,
+          chatClientMapData,
           data.recipientData,
           io
         );
@@ -145,8 +149,8 @@ module.exports.receiveMessage = async (req, res) => {
     res.sendStatus(404);
   }
 };
-const createClientMapData = async (contacts) => {
-  const clientMapDB = {};
+const createChatClientMapData = async (contacts, recipientData) => {
+  const chatClientMapDB = {};
 
   for (const contact of contacts) {
     const profile = contact.profile;
@@ -154,21 +158,32 @@ const createClientMapData = async (contacts) => {
     const username = profile.name;
     const wid = contact.wa_id;
     let clientDB = await Client.findOne({ wid });
+    let chatDB = null;
     if (clientDB == null) {
       clientDB = new Client({
+        uuid: uuidv7(),
+        syncCode: await updateAndGetSyncCode("client", 1),
         wid,
         version: 1,
-        syncCode: await updateAndGetSyncCode("client", 1),
-        uuid: uuidv7(),
         username,
-        chatbot: true,
       });
       await clientDB.save();
+      chatDB = new Chat({
+        uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
+        syncCode: await updateAndGetSyncCode("chat", 1),
+        client: clientDB.uuid,
+        lastSeen: 0,
+        chatbot: true,
+        businessPhoneId: recipientData.phoneNumberId,
+      });
+      await chatDB.save();
+    } else {
+      chatDB = await Chat.findOne({ client: clientDB.uuid });
     }
-    clientMapDB[wid] = clientDB;
+    chatClientMapDB[wid] = { client: clientDB, chat: chatDB };
   }
 
-  return clientMapDB;
+  return chatClientMapDB;
 };
 const messageTypeIsMedia = (type) => {
   return (
@@ -212,6 +227,7 @@ async function generateChatBotMessage(
 
 async function sendMessageChatbot(
   historial,
+  chat,
   clientDB,
   clientMessage,
   clientMessageId,
@@ -267,7 +283,7 @@ async function sendMessageChatbot(
   const newMessage = new Message({
     version: 1,
     syncCode: await updateAndGetSyncCode("message", 1),
-    client: clientDB.uuid,
+    chat: chat.uuid,
     wid: null,
     uuid: uuidv7(),
     textContent: chatbotMessage,
@@ -299,17 +315,17 @@ async function sendMessageChatbot(
 
 const receiveMessageClient = async (
   message,
-  clientMapData,
+  chatClientMapData,
   recipientData,
   io
 ) => {
-  const clientDB = clientMapData[message.from];
+  const { client, chat } = chatClientMapData[message.from];
   const category = message.type;
   const messageData = message[category];
   // new Date().getTime();
   // console.log("MAPA " + util.inspect(clientMapData) + "  from " + message.from);
   const newMessageData = {
-    client: clientDB.uuid,
+    client: client.uuid,
     wid: message.id,
     uuid: uuidv7(),
     sent: false,
@@ -344,9 +360,9 @@ const receiveMessageClient = async (
     ...finalMessageData,
   });
   let messagesHistorial = [];
-  if (clientDB.chatbot && newMessage.textContent) {
+  if (chat.chatbot && newMessage.textContent) {
     const list = await Message.find(
-      { client: clientDB.uuid },
+      { chat: chat.uuid },
       { sent: 1, textContent: 1 }
     )
       .sort({ time: -1 })
@@ -364,10 +380,11 @@ const receiveMessageClient = async (
   await newMessage.save();
   io.emit("serverChanged");
 
-  if (clientDB.chatbot && newMessage.textContent) {
+  if (client.chatbot && newMessage.textContent) {
     const newBotMessage = await sendMessageChatbot(
       messagesHistorial,
-      clientDB,
+      chat,
+      client,
       newMessage.textContent,
       newMessage.wid,
       recipientData.phoneNumber,
