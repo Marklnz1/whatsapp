@@ -2,7 +2,8 @@ const util = require("util");
 const SyncMetadata = require("../models/SyncMetadata");
 module.exports.createOrGet = async (Model, tableName, data) => {
   try {
-    var doc = new Model({ ...data, syncCode: -1, version: 0 });
+    var docData = { ...data, syncCode: -1, version: 0 };
+    var doc = new Model(docData);
     await doc.save();
     const newSyncCode = await this.update_fields(
       Model,
@@ -12,9 +13,10 @@ module.exports.createOrGet = async (Model, tableName, data) => {
       },
       {}
     );
-    var doc = { ...doc, version: 1, newSyncCode };
-    console.log("DEVOLVIENDO DOC " + util.inspect(doc));
-    return doc;
+    docData.version = 1;
+    docData.newSyncCode = newSyncCode;
+    console.log("DEVOLVIENDO DOC " + util.inspect(docData));
+    return docData;
   } catch (error) {
     const keys = Object.keys(error.keyValue);
     console.log(
