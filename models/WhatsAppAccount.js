@@ -16,8 +16,8 @@ const WhatsAppAccountSchema = new Schema(
   { timestamps: true }
 );
 const WhatsappAccount = mongoose.model(
-  "whatsAppAccount",
+  "whatsappAccount",
   WhatsAppAccountSchema,
-  "whatsAppAccount"
+  "whatsappAccount"
 );
 module.exports = WhatsappAccount;
