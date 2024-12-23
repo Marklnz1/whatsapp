@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
-const {
-  createSyncFieldsServerToLocal,
-  generateFields,
-} = require("../utils/sync");
+const { generateFields } = require("../utils/sync");
 const Schema = mongoose.Schema;
 /*
   Estados de la conversación

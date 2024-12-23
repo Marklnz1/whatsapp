@@ -1,6 +1,29 @@
 const util = require("util");
 const SyncMetadata = require("../models/SyncMetadata");
-module.exports.createSyncFieldsServerToLocal = () => {
+module.exports.createOrGet = async (Model, tableName, data) => {
+  try {
+    var doc = new Model({ ...data, syncCode: -1, version: 0 });
+    await doc.save();
+    const newSyncCode = await this.update_fields(Model, tableName, {
+      uuid: data.uuid,
+    });
+    doc.version = 1;
+    doc.newSyncCode = newSyncCode;
+    console.log("DEVOLVIENDO DOC " + util.inspect(doc));
+    return doc;
+  } catch (error) {
+    console.log(
+      "DUPLICADOOOOO " + error.code + "   keyvalue " + error.keyValue
+    );
+    if (error.code === 11000 && error.keyValue.uuid != null) {
+      const existingDoc = await Model.findOne({ uuid: data.uuid });
+      console.log("DEVOLVIENDO DOC222 " + util.inspect(existingDoc));
+      return existingDoc;
+    } else {
+      throw error;
+    }
+  }
+
   return {
     uuid: String,
     syncCode: Number,
@@ -30,19 +53,13 @@ module.exports.update_fields = async (Model, tableName, filter, data) => {
   for (let key of Object.keys(data)) {
     incSyncCode[key + "SyncCode"] = 1;
   }
+  const newSyncCode = await this.updateAndGetSyncCode(tableName, 1);
   const response = await Model.updateOne(filter, {
     $inc: { version: 1, ...incSyncCode },
-    $max: { syncCode: await this.updateAndGetSyncCode(tableName, 1) },
+    $max: { syncCode: newSyncCode },
     $set: data,
   });
-  // console.log(
-  //   "con la data " +
-  //     util.inspect(data) +
-  //     " y el incremento " +
-  //     util.inspect(incSyncCode) +
-  //     "   respuesta " +
-  //     util.inspect(response)
-  // );
+  return newSyncCode;
 };
 module.exports.update_list_sync = async (
   Model,
