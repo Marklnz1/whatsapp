@@ -178,7 +178,9 @@ const createChatClientMapData = async (contacts, recipientData) => {
       });
       await chatDB.save();
     } else {
-      chatDB = await Chat.findOne({ client: clientDB.uuid });
+      chatDB = await Chat.findOne({
+        client: `${clientDB.wid}_${recipientData.phoneNumber}`,
+      });
     }
     chatClientMapDB[wid] = { client: clientDB, chat: chatDB };
   }
