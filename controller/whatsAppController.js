@@ -183,6 +183,12 @@ const createChatClientMapData = async (contacts, recipientData) => {
       });
     }
     chatClientMapDB[wid] = { client: clientDB, chat: chatDB };
+    console.log(
+      "EL CLIENTE ES " +
+        util.inspect(clientDB) +
+        " EL CHAT ES " +
+        util.inspect(chatDB)
+    );
   }
 
   return chatClientMapDB;
@@ -322,12 +328,13 @@ const receiveMessageClient = async (
   io
 ) => {
   const { client, chat } = chatClientMapData[message.from];
+  console.log(`EL MAPA ES ${util.inspect(chatClientMapData)}`);
   const category = message.type;
   const messageData = message[category];
   // new Date().getTime();
   // console.log("MAPA " + util.inspect(clientMapData) + "  from " + message.from);
   const newMessageData = {
-    client: client.uuid,
+    chat: chat.uuid,
     wid: message.id,
     uuid: uuidv7(),
     sent: false,
