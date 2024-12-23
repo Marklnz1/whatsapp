@@ -18,7 +18,7 @@ const { v7: uuidv7 } = require("uuid");
 const ConversationalForm = require("../models/ConversationalForm");
 const ConversationalFormValue = require("../models/ConversationalFormValue");
 const { updateAndGetSyncCode, update_fields } = require("../utils/sync");
-const WhatsappAccount = require("../models/WhatsappAccount");
+const WhatsappAccount = require("../models/WWhatsappAccount");
 const Chat = require("../models/Chat");
 
 require("dotenv").config();
