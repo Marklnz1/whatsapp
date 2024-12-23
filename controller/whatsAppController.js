@@ -191,6 +191,7 @@ const createChatClientMapData = async (contacts, recipientData) => {
           chatbot: true,
         });
       }
+      await chatDB.save();
     }
     chatClientMapDB[wid] = { client: clientDB, chat: chatDB };
   }
