@@ -123,10 +123,10 @@ app.post("/lastMessageSeenDate/update/list/sync", (req, res, next) =>
   update_list_sync(Chat, "chat", req, res, next)
 );
 
-app.post("/whatsAppAccount/list/sync", (req, res, next) =>
+app.post("/whatsappAccount/list/sync", (req, res, next) =>
   list_sync(WhatsappAccount, req, res, next)
 );
-app.post("/whatsAppAccount/update/list/sync", (req, res, next) =>
+app.post("/whatsappAccount/update/list/sync", (req, res, next) =>
   update_list_sync(WhatsappAccount, "whatsappAccount", req, res, next)
 );
 
