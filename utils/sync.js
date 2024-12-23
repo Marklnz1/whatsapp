@@ -12,20 +12,22 @@ module.exports.createOrGet = async (Model, tableName, data) => {
       },
       {}
     );
-    doc.version = 1;
-    doc.newSyncCode = newSyncCode;
+    var doc = { ...doc, version: 1, newSyncCode };
     console.log("DEVOLVIENDO DOC " + util.inspect(doc));
     return doc;
   } catch (error) {
+    const keys = Object.keys(error.keyValue);
     console.log(
       "DUPLICADOOOOO " +
         util.inspect(error) +
         "ERROR CODE " +
         error.code +
         "   keyvalue " +
-        error.keyValue
+        error.keyValue +
+        "  cumple??? " +
+        (keys.length === 1 && keys[0] === "uuid")
     );
-    if (error.code === 11000 && error.keyValue.uuid != null) {
+    if (error.code === 11000 && keys.length === 1 && keys[0] === "uuid") {
       const existingDoc = await Model.findOne({ uuid: data.uuid });
       console.log("DEVOLVIENDO DOC222 " + util.inspect(existingDoc));
       return existingDoc;
