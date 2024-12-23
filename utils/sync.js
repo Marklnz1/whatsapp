@@ -4,16 +4,26 @@ module.exports.createOrGet = async (Model, tableName, data) => {
   try {
     var doc = new Model({ ...data, syncCode: -1, version: 0 });
     await doc.save();
-    const newSyncCode = await this.update_fields(Model, tableName, {
-      uuid: data.uuid,
-    });
+    const newSyncCode = await this.update_fields(
+      Model,
+      tableName,
+      {
+        uuid: data.uuid,
+      },
+      {}
+    );
     doc.version = 1;
     doc.newSyncCode = newSyncCode;
     console.log("DEVOLVIENDO DOC " + util.inspect(doc));
     return doc;
   } catch (error) {
     console.log(
-      "DUPLICADOOOOO " + error.code + "   keyvalue " + error.keyValue
+      "DUPLICADOOOOO " +
+        util.inspect(error) +
+        "ERROR CODE " +
+        error.code +
+        "   keyvalue " +
+        error.keyValue
     );
     if (error.code === 11000 && error.keyValue.uuid != null) {
       const existingDoc = await Model.findOne({ uuid: data.uuid });
