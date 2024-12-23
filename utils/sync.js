@@ -19,7 +19,7 @@ module.exports.generateFields = (fields) => {
   const finalFields = {
     uuid: String,
     syncCode: Number,
-    version: Number,
+    version: { type: Number, default: 1 },
     ...fields,
   };
 

@@ -164,7 +164,6 @@ const createChatClientMapData = async (contacts, recipientData) => {
         uuid: uuidv7(),
         syncCode: await updateAndGetSyncCode("client", 1),
         wid,
-        version: 1,
         username,
       });
       await clientDB.save();
@@ -286,7 +285,6 @@ async function sendMessageChatbot(
     }
   }
   const newMessage = new Message({
-    version: 1,
     syncCode: await updateAndGetSyncCode("message", 1),
     chat: chat.uuid,
     wid: null,
@@ -358,7 +356,7 @@ const receiveMessageClient = async (
   sendConfirmationMessage(META_TOKEN, recipientData.phoneNumberId, message.id);
   finalMessageData = {
     ...finalMessageData,
-    ...{ version: 1, syncCode: await updateAndGetSyncCode("message", 1) },
+    ...{ syncCode: await updateAndGetSyncCode("message", 1) },
   };
   console.log("EL MENSAJE ES ", util.inspect(finalMessageData));
   const newMessage = new Message({
