@@ -168,6 +168,7 @@ const createChatClientMapData = async (contacts, recipientData) => {
         username,
       });
       await clientDB.save();
+
       chatDB = new Chat({
         uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
         syncCode: await updateAndGetSyncCode("chat", 1),
@@ -176,11 +177,13 @@ const createChatClientMapData = async (contacts, recipientData) => {
         chatbot: true,
         businessPhoneId: recipientData.phoneNumberId,
       });
+      console.log("EL CLIENTE NO EXISTE EL CHAT ES " + util.inspect(chatDB));
       await chatDB.save();
     } else {
       chatDB = await Chat.findOne({
         client: `${clientDB.wid}_${recipientData.phoneNumber}`,
       });
+      console.log("EL CLIENTE  EXISTE EL CHAT ES " + util.inspect(chatDB));
     }
     chatClientMapDB[wid] = { client: clientDB, chat: chatDB };
     console.log(
