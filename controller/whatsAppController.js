@@ -177,21 +177,13 @@ const createChatClientMapData = async (contacts, recipientData) => {
         chatbot: true,
         businessPhoneId: recipientData.phoneNumberId,
       });
-      console.log("EL CLIENTE NO EXISTE EL CHAT ES " + util.inspect(chatDB));
       await chatDB.save();
     } else {
       chatDB = await Chat.findOne({
-        client: `${clientDB.wid}_${recipientData.phoneNumber}`,
+        uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
       });
-      console.log("EL CLIENTE  EXISTE EL CHAT ES " + util.inspect(chatDB));
     }
     chatClientMapDB[wid] = { client: clientDB, chat: chatDB };
-    console.log(
-      "EL CLIENTE ES " +
-        util.inspect(clientDB) +
-        " EL CHAT ES " +
-        util.inspect(chatDB)
-    );
   }
 
   return chatClientMapDB;
@@ -246,7 +238,9 @@ async function sendMessageChatbot(
   businessPhoneId
 ) {
   const account = await WhatsappAccount.findOne({ businessPhoneId });
-
+  if (account == null || account.prompt.trim() == "") {
+    return null;
+  }
   const chatbotMessage = await generateChatBotMessage(
     historial,
     `*Eres un asistente virtual de un negocio, diseñado para brindar una experiencia amigable y cercana.
