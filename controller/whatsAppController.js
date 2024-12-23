@@ -18,7 +18,7 @@ const { v7: uuidv7 } = require("uuid");
 const ConversationalForm = require("../models/ConversationalForm");
 const ConversationalFormValue = require("../models/ConversationalFormValue");
 const { updateAndGetSyncCode, update_fields } = require("../utils/sync");
-const WhatsAppAccount = require("../models/WhatsappAccount");
+const WhatsappAccount = require("../models/WhatsappAccount");
 const Chat = require("../models/Chat");
 
 require("dotenv").config();
@@ -234,7 +234,7 @@ async function sendMessageChatbot(
   businessPhone,
   businessPhoneId
 ) {
-  const account = await WhatsAppAccount.findOne({ businessPhoneId });
+  const account = await WhatsappAccount.findOne({ businessPhoneId });
 
   const chatbotMessage = await generateChatBotMessage(
     historial,
