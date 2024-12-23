@@ -388,7 +388,13 @@ const receiveMessageClient = async (
 
   await newMessage.save();
   io.emit("serverChanged");
-
+  console.log(
+    `EL CLIENTE ES ${util.inspect(client)} EL NUEVO MENSAJE ES ${util.inspect(
+      newMessage
+    )} el valor 1 es ${client.chatbot} el valor 2 es ${
+      newMessage.textContent
+    } se cumple?=> ${client.chatbot && newMessage.textContent}`
+  );
   if (client.chatbot && newMessage.textContent) {
     const newBotMessage = await sendMessageChatbot(
       messagesHistorial,
