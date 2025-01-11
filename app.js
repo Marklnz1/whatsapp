@@ -6,7 +6,17 @@ const Client = require("./models/Client");
 const Message = require("./models/Message");
 const WhatsappAccount = require("./models/WhatsappAccount");
 const SyncServer = require("./synchronization/SyncServer");
-const syncServer = new SyncServer({ port: PORT, mongoURL: MONGODB_URL });
+const whatsAppController = require("./controller/whatsAppController");
+
+const syncServer = new SyncServer({
+  port: PORT,
+  mongoURL: MONGODB_URL,
+  router: (app) => {
+    app
+      .get("/whatsapp", whatsAppController.verifyToken)
+      .post("/whatsapp", whatsAppController.receiveMessage);
+  },
+});
 
 syncServer.syncPost(WhatsappAccount, "whatsappAccount");
 syncServer.syncPost(Message, "message");

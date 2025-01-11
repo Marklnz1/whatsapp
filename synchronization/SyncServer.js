@@ -12,11 +12,12 @@ const { inspect } = require("util");
 // const authController = require("../controllers/authController");
 
 class SyncServer {
-  constructor({ port, mongoURL }) {
+  constructor({ port, mongoURL, router }) {
     this.app = express();
     this.mongoURL = mongoURL;
     this.port = port;
     this.server = http.createServer(this.app);
+    this.router = router;
     this.io = new Server(
       this.server
       //   {
@@ -25,7 +26,7 @@ class SyncServer {
       //   },
       // }
     );
-    this.configServer();
+    this._configServer();
     this.codeQueue = new LightQueue(() => {});
     this.taskQueue = new LightQueue(async ({ tableName, tempCode }, error) => {
       console.log("SE PROCESO EL CAMBIO " + tempCode);
@@ -37,7 +38,8 @@ class SyncServer {
       this.io.emit("serverChanged");
     });
   }
-  configServer() {
+  route() {}
+  _configServer() {
     this.app.use(express.json({ limit: "50mb" }));
     this.io.on("connection", (socket) => {
       console.log("Cliente conectado");
@@ -54,6 +56,7 @@ class SyncServer {
     this.app.set("view engine", "ejs");
     this.app.set("view engine", "html");
     this.app.engine("html", require("ejs").renderFile);
+    this.router(this.app);
     // this.app.post("/login", login_post);
     // this.app.get("/create", authController.create);
     // this.app.use("*", extractUser);

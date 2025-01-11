@@ -17,7 +17,7 @@ const {
 const { v7: uuidv7 } = require("uuid");
 const ConversationalForm = require("../models/ConversationalForm");
 const ConversationalFormValue = require("../models/ConversationalFormValue");
-const WhatsappAccount = require("../models/WWhatsappAccount");
+const WhatsappAccount = require("../models/WhatsappAccount");
 const Chat = require("../models/Chat");
 const { syncServer } = require("../app");
 

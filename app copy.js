@@ -28,7 +28,7 @@
 // const { list_sync, update_list_sync, update_fields } = require("./utils/sync");
 // const Client = require("./models/Client");
 // const Message = require("./models/Message");
-// const WhatsappAccount = require("./models/WWhatsappAccount");
+// const WhatsappAccount = require("./models/WhatsappAccount");
 // const { sendWhatsappMessage } = require("./utils/server");
 // const Chat = require("./models/Chat");
 
