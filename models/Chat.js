@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { generateFields } = require("../utils/sync");
+const { generateFields } = require("../synchronization/sync");
 const Schema = mongoose.Schema;
 /*
   Estados de la conversación

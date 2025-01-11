@@ -17,13 +17,9 @@ const {
 const { v7: uuidv7 } = require("uuid");
 const ConversationalForm = require("../models/ConversationalForm");
 const ConversationalFormValue = require("../models/ConversationalFormValue");
-const {
-  updateAndGetSyncCode,
-  update_fields,
-  createOrGet,
-} = require("../utils/sync");
 const WhatsappAccount = require("../models/WWhatsappAccount");
 const Chat = require("../models/Chat");
+const { syncServer } = require("../app");
 
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
@@ -112,10 +108,10 @@ module.exports.receiveMessage = async (req, res) => {
           const currentStatus = message.sentStatus;
           const futureStatus = statusData.status;
           if (currentStatus == "sent") {
-            await update_fields(
+            await syncServer.updateFields(
               Message,
               "message",
-              { uuid: biz_opaque_callback_data },
+              biz_opaque_callback_data,
               {
                 time: statusData.timestamp * 1000,
               }
@@ -124,10 +120,10 @@ module.exports.receiveMessage = async (req, res) => {
           if (
             getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
           ) {
-            await update_fields(
+            await syncServer.updateFields(
               Message,
               "message",
-              { uuid: biz_opaque_callback_data },
+              biz_opaque_callback_data,
               {
                 sentStatus: statusData.status,
               }
@@ -161,19 +157,22 @@ const createChatClientMapData = async (contacts, recipientData) => {
 
     const username = profile.name;
     const wid = contact.wa_id;
-    let clientDB = await createOrGet(Client, "client", {
-      uuid: wid,
+    let clientDB = await syncServer.createOrGet(Client, "client", wid, {
       wid,
       username,
     });
 
-    let chatDB = await createOrGet(Chat, "chat", {
-      uuid: `${clientDB.wid}_${recipientData.phoneNumber}`,
-      clientWid: clientDB.wid,
-      businessPhone: recipientData.phoneNumber,
-      lastSeen: 0,
-      chatbot: true,
-    });
+    let chatDB = await syncServer.createOrGet(
+      Chat,
+      "chat",
+      `${clientDB.wid}_${recipientData.phoneNumber}`,
+      {
+        clientWid: clientDB.wid,
+        businessPhone: recipientData.phoneNumber,
+        lastSeen: 0,
+        chatbot: true,
+      }
+    );
     chatClientMapDB[wid] = { client: clientDB, chat: chatDB };
   }
 
@@ -276,10 +275,9 @@ async function sendMessageChatbot(
     }
   }
   const messageUuid = uuidv7();
-  await createOrGet(Message, "message", {
+  await syncServer.createOrGet(Message, "message", messageUuid, {
     chat: chat.uuid,
     wid: null,
-    uuid: messageUuid,
     textContent: chatbotMessage,
     sent: true,
     read: false,
@@ -298,12 +296,10 @@ async function sendMessageChatbot(
     messageUuid,
     clientMessageId
   );
-  await update_fields(
-    Message,
-    "message",
-    { uuid: messageUuid },
-    { wid: messageId, sentStatus: "send_requested" }
-  );
+  await syncServer.updateFields(Message, "message", messageUuid, {
+    wid: messageId,
+    sentStatus: "send_requested",
+  });
   return true;
 }
 
@@ -322,7 +318,6 @@ const receiveMessageClient = async (
   const newMessageData = {
     chat: chat.uuid,
     wid: message.id,
-    uuid: uuidv7(),
     sent: false,
     read: false,
     time: message.timestamp * 1000,
@@ -366,7 +361,12 @@ const receiveMessageClient = async (
     }
     messagesHistorial = messagesHistorial.reverse();
   }
-  await createOrGet(Message, "message", newMessageDataFinal);
+  await syncServer.createOrGet(
+    Message,
+    "message",
+    uuidv7(),
+    newMessageDataFinal
+  );
   io.emit("serverChanged");
 
   if (chat.chatbot && newMessageDataFinal.textContent) {

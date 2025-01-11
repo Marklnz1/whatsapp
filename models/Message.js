@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { generateFields } = require("../utils/sync");
+const { generateFields } = require("../synchronization/sync");
 const Schema = mongoose.Schema;
 /*estados de un mensaje enviado
   0 = error al enviar (necesario que se active por meta)
