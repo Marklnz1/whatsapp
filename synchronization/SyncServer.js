@@ -398,7 +398,7 @@ class SyncServer {
       data[`${key}UpdatedAt`] = new Date().getTime();
     }
     const newSyncCode = await this.updateAndGetSyncCode(tableName, session);
-    data.newSyncCode = newSyncCode;
+    data.syncCode = newSyncCode;
     await Model.updateOne(
       { uuid },
       {
