@@ -12,7 +12,7 @@ const { inspect } = require("util");
 // const authController = require("../controllers/authController");
 
 class SyncServer {
-  constructor({ port, mongoURL, router }) {
+  init({ port, mongoURL, router }) {
     this.app = express();
     this.mongoURL = mongoURL;
     this.port = port;
@@ -401,4 +401,4 @@ class SyncServer {
   }
 }
 
-module.exports = SyncServer;
+module.exports.SyncServer = new SyncServer();

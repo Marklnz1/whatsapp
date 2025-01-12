@@ -19,7 +19,7 @@ const ConversationalForm = require("../models/ConversationalForm");
 const ConversationalFormValue = require("../models/ConversationalFormValue");
 const WhatsappAccount = require("../models/WhatsappAccount");
 const Chat = require("../models/Chat");
-const { syncServer } = require("../app");
+const { SyncServer } = require("../synchronization/SyncServer");
 
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
@@ -108,7 +108,7 @@ module.exports.receiveMessage = async (req, res) => {
           const currentStatus = message.sentStatus;
           const futureStatus = statusData.status;
           if (currentStatus == "sent") {
-            await syncServer.updateFields(
+            await SyncServer.updateFields(
               Message,
               "message",
               biz_opaque_callback_data,
@@ -120,7 +120,7 @@ module.exports.receiveMessage = async (req, res) => {
           if (
             getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
           ) {
-            await syncServer.updateFields(
+            await SyncServer.updateFields(
               Message,
               "message",
               biz_opaque_callback_data,
@@ -157,12 +157,12 @@ const createChatClientMapData = async (contacts, recipientData) => {
 
     const username = profile.name;
     const wid = contact.wa_id;
-    let clientDB = await syncServer.createOrGet(Client, "client", wid, {
+    let clientDB = await SyncServer.createOrGet(Client, "client", wid, {
       wid,
       username,
     });
 
-    let chatDB = await syncServer.createOrGet(
+    let chatDB = await SyncServer.createOrGet(
       Chat,
       "chat",
       `${clientDB.wid}_${recipientData.phoneNumber}`,
@@ -275,7 +275,7 @@ async function sendMessageChatbot(
     }
   }
   const messageUuid = uuidv7();
-  await syncServer.createOrGet(Message, "message", messageUuid, {
+  await SyncServer.createOrGet(Message, "message", messageUuid, {
     chat: chat.uuid,
     wid: null,
     textContent: chatbotMessage,
@@ -296,7 +296,7 @@ async function sendMessageChatbot(
     messageUuid,
     clientMessageId
   );
-  await syncServer.updateFields(Message, "message", messageUuid, {
+  await SyncServer.updateFields(Message, "message", messageUuid, {
     wid: messageId,
     sentStatus: "send_requested",
   });
@@ -361,7 +361,7 @@ const receiveMessageClient = async (
     }
     messagesHistorial = messagesHistorial.reverse();
   }
-  await syncServer.createOrGet(
+  await SyncServer.createOrGet(
     Message,
     "message",
     uuidv7(),
