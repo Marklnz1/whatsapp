@@ -8,7 +8,7 @@ const { SyncServer } = require("./synchronization/SyncServer");
 const whatsAppController = require("./controller/whatsAppController");
 const Chat = require("./models/Chat");
 const { sendWhatsappMessage } = require("./utils/server");
-
+const META_TOKEN = process.env.META_TOKEN;
 SyncServer.init({
   port: PORT,
   mongoURL: MONGODB_URL,
