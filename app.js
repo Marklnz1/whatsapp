@@ -13,6 +13,9 @@ SyncServer.init({
   port: PORT,
   mongoURL: MONGODB_URL,
   router: (app) => {
+    app.get("/", (req, res) => {
+      res.json({ msg: "ok" });
+    });
     app
       .get("/whatsapp", whatsAppController.verifyToken)
       .post("/whatsapp", whatsAppController.receiveMessage);
