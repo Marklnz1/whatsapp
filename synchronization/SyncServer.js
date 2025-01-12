@@ -31,7 +31,7 @@ class SyncServer {
     this.taskQueue = new LightQueue(async ({ tableName, tempCode }, error) => {
       console.log("SE PROCESO EL CAMBIO " + tempCode);
       // const session = await mongoose.startSession();
-      if ((tempCode = !-1)) {
+      if (tempCode != -1) {
         await Change.deleteOne({ tempCode });
         await this.updateProcessedTempCode(tempCode);
       }
