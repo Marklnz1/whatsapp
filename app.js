@@ -7,6 +7,7 @@ const WhatsappAccount = require("./models/WhatsappAccount");
 const { SyncServer } = require("./synchronization/SyncServer");
 const whatsAppController = require("./controller/whatsAppController");
 const Chat = require("./models/Chat");
+const { sendWhatsappMessage } = require("./utils/server");
 
 SyncServer.init({
   port: PORT,
@@ -19,7 +20,31 @@ SyncServer.init({
 });
 
 SyncServer.syncPost(WhatsappAccount, "whatsappAccount");
-SyncServer.syncPost(Message, "message");
+SyncServer.syncPost(Message, "message", async (docs) => {
+  for (const doc of docs) {
+    if (doc.sent == "false") {
+      continue;
+    }
+    const chat = await Chat.findOne({ uuid: doc.chat });
+    const whatsappAccount = await WhatsappAccount.findOne({
+      businessPhone: chat.businessPhone,
+    });
+    const messageWid = await sendWhatsappMessage(
+      META_TOKEN,
+      whatsappAccount.businessPhoneId,
+      chat.clientWid,
+      "text",
+      {
+        body: doc.textContent,
+      },
+      doc.uuid
+    );
+    console.log("SE OBTUVO EL WID " + messageWid);
+    await SyncServer.updateFields(Message, "message", doc.uuid, {
+      wid: messageWid,
+    });
+  }
+});
 SyncServer.syncPost(Client, "client");
 SyncServer.syncPost(Chat, "chat");
 

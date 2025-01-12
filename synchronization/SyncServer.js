@@ -106,7 +106,7 @@ class SyncServer {
       });
     });
   }
-  syncPost(Model, tableName) {
+  syncPost(Model, tableName, onInsert) {
     this.app.post(`/${tableName}/list/sync`, async (req, res, next) => {
       try {
         let findData = {
@@ -135,7 +135,8 @@ class SyncServer {
               Model,
               tableName,
               req.body["docs"],
-              tempCode
+              tempCode,
+              onInsert
               // res.locals.user.userId
             );
             res.status(200).json({ tempCode });
@@ -146,7 +147,7 @@ class SyncServer {
       });
     });
   }
-  addTaskDataInQueue(Model, tableName, docs, tempCode) {
+  addTaskDataInQueue(Model, tableName, docs, tempCode, onInsert) {
     this.taskQueue.add({
       data: {
         tempCode,
@@ -155,10 +156,15 @@ class SyncServer {
       task: async () => {
         const session = await mongoose.startSession();
         session.startTransaction();
-        // await new Promise((resolve) => setTimeout(resolve, 5000));
         try {
-          await this.localToServer(Model, tableName, docs, session);
+          const newDocs = await this.localToServer(
+            Model,
+            tableName,
+            docs,
+            session
+          );
           await session.commitTransaction();
+          onInsert(newDocs);
         } catch (error) {
           await session.abortTransaction();
           console.error("Error en la transacción, se ha revertido:", error);
@@ -177,6 +183,7 @@ class SyncServer {
     //   }
     //   fieldSyncCodes[field + "SyncCode"] = 1;
     // }
+    const newDocs = [];
     const syncCode = await this.updateAndGetSyncCode(tableName, session);
     let set = new Set();
 
@@ -206,7 +213,7 @@ class SyncServer {
       // );
 
       if (serverDoc == null) {
-        // keys = [];
+        newDocs.push(d);
         continue;
       }
       const keys = Object.keys(d);
@@ -258,6 +265,7 @@ class SyncServer {
       }),
       { session }
     );
+    return newDocs;
   }
 
   async start() {
