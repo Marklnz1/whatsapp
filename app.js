@@ -8,6 +8,8 @@ const { SyncServer } = require("./synchronization/SyncServer");
 const whatsAppController = require("./controller/whatsAppController");
 const Chat = require("./models/Chat");
 const { sendWhatsappMessage } = require("./utils/server");
+const mediaController = require("./controller/mediaController");
+
 const META_TOKEN = process.env.META_TOKEN;
 SyncServer.init({
   port: PORT,
@@ -16,6 +18,7 @@ SyncServer.init({
     app.get("/", (req, res) => {
       res.json({ msg: "ok" });
     });
+    app.get("/api/media/:name", mediaController.getMedia);
     app
       .get("/whatsapp", whatsAppController.verifyToken)
       .post("/whatsapp", whatsAppController.receiveMessage);
