@@ -181,7 +181,7 @@ module.exports.saveMediaBusiness = (req, onFinish, onError) => {
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir);
       }
-      savedFileName = `${category}_${type}_${subtype}_${uuidv7()}_${uuidv7()}`;
+      savedFileName = `${category}_${type}_${uuidv7()}_${uuidv7()}.${subtype}`;
       outputPath = path.join(dirMain, category, savedFileName);
       const writeStream = fs.createWriteStream(outputPath);
       file.pipe(writeStream);
@@ -245,7 +245,7 @@ module.exports.saveMediaClient = async (mediaId, category) => {
   const extension = mime.extension(mimetype);
   const fileSizeBytes = response.data.file_size;
   const dirMain = process.cwd();
-  const savedFileName = `${category}_${type}_${subtype}_${uuidv7()}_${uuidv7()}`;
+  const savedFileName = `${category}_${type}_${uuidv7()}_${uuidv7()}.${subtype}`;
   const outputPath = path.resolve(dirMain, category, savedFileName);
 
   const outputDir = path.resolve(dirMain, category);
