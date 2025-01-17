@@ -303,7 +303,7 @@ async function sendMessageChatbot(
 
       true
     );
-    const response = JSON.parse(responseJson).trim();
+    const response = JSON.parse(responseJson);
     if (response.name != null) {
       for (const m of mediaPrompts) {
         if (response.name.trim() == m.description.trim()) {
