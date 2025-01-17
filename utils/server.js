@@ -226,7 +226,68 @@ module.exports.saveMediaBusiness = (req, onFinish, onError) => {
     onError(error);
   }
 };
+module.exports.saveMedia = (req, onFinish, onError) => {
+  try {
+    const category = req.params.category;
+    const bb = busboy({
+      headers: req.headers,
+      limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB
+    });
+    let finish = false; // Bandera para evitar múltiples respuestas
+    let outputPath;
+    let fileMimetype;
+    let streamClose = false;
+    let error = null;
+    bb.on("file", (name, file, info) => {
+      const { filename, encoding, mimetype } = info;
+      fileMimetype = mimetype;
+      const dirMain = process.cwd();
+      const outputDir = path.resolve(dirMain, category);
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir);
+      }
+      outputPath = path.join(dirMain, category, filename);
+      const writeStream = fs.createWriteStream(outputPath);
+      file.pipe(writeStream);
+      file.on("limit", () => {
+        error = "Archivo demasiado grande";
+        writeStream.destroy();
+        fs.unlinkSync(outputPath);
+      });
+      file.on("error", () => {
+        error = "Error al manejar el archivo";
+        writeStream.destroy();
+        fs.unlinkSync(outputPath);
+      });
+      writeStream.on("close", async () => {
+        streamClose = true;
+        if (finish) {
+          return onFinish();
+        }
+      });
+    });
 
+    bb.on("finish", () => {
+      if (error) {
+        return onError(error);
+      }
+      finish = true;
+      if (streamClose) {
+        return onFinish();
+      }
+    });
+
+    bb.on("error", (error) => {
+      if (!error) {
+        error = "Error al subir los archivos";
+      }
+    });
+
+    req.pipe(bb);
+  } catch (error) {
+    onError(error);
+  }
+};
 module.exports.saveMediaClient = async (mediaId, category) => {
   // try {
   // const mediaId = req.params.mediaId;

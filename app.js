@@ -7,9 +7,10 @@ const WhatsappAccount = require("./models/WhatsappAccount");
 const { SyncServer } = require("./synchronization/SyncServer");
 const whatsAppController = require("./controller/whatsAppController");
 const Chat = require("./models/Chat");
-const { sendWhatsappMessage } = require("./utils/server");
+const { sendWhatsappMessage, saveMedia } = require("./utils/server");
 const mediaController = require("./controller/mediaController");
 const MediaContent = require("./models/MediaContent");
+const MediaPrompt = require("./models/MediaPrompt");
 
 const META_TOKEN = process.env.META_TOKEN;
 SyncServer.init({
@@ -20,6 +21,17 @@ SyncServer.init({
       res.json({ msg: "ok" });
     });
     app.get("/api/media/:name", mediaController.getMedia);
+    app.post("api/media/:category/:type/:subtype", (req, res, next) => {
+      saveMedia(
+        req,
+        () => {
+          res.json({ message: "ok" });
+        },
+        () => {
+          res.json({ error: "error" });
+        }
+      );
+    });
     app
       .get("/whatsapp", whatsAppController.verifyToken)
       .post("/whatsapp", whatsAppController.receiveMessage);
@@ -28,6 +40,7 @@ SyncServer.init({
 
 SyncServer.syncPost(WhatsappAccount, "whatsappAccount");
 SyncServer.syncPost(MediaContent, "mediaContent");
+SyncServer.syncPost(MediaPrompt, "mediaPrompt");
 
 SyncServer.syncPost(Message, "message", async (docs) => {
   for (const doc of docs) {
