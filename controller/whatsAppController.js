@@ -333,6 +333,7 @@ async function sendMessageChatbot(
       link: `https://${DOMAIN}/api/temp/media/${mediaContent.savedFileName}` /* Only if linking to your media */,
       caption: chatbotMessage,
     };
+    console.log(`se intentara enviar con el link ${sendContentData.link}`);
   }
   const messageId = await sendWhatsappMessage(
     META_TOKEN,
