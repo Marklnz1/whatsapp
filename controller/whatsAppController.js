@@ -21,6 +21,7 @@ const WhatsappAccount = require("../models/WhatsappAccount");
 const Chat = require("../models/Chat");
 const { SyncServer } = require("../synchronization/SyncServer");
 const MediaContent = require("../models/MediaContent");
+const MediaPrompt = require("../models/MediaPrompt");
 
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
@@ -220,12 +221,13 @@ async function generateChatBotMessage(
 }
 
 async function sendMessageChatbot(
-  historial,
   chat,
   clientDB,
   clientMessage,
   clientMessageId,
-  businessPhoneId
+  businessPhoneId,
+  historial,
+  mediaPrompts
 ) {
   const account = await WhatsappAccount.findOne({ businessPhoneId });
   if (account == null || account.prompt.trim() == "") {
@@ -274,6 +276,31 @@ async function sendMessageChatbot(
         emoji
       );
     }
+  }
+  if (mediaPrompts.length != 0) {
+    const mediaDescriptionJson = await generateChatBotMessage(
+      [],
+      ` *Eres una analizador de mensaje y devuelves en formato JSON
+        Se te proveera un mensaje y una lista de oraciones
+        Analizaras el mensaje y identificaras si el mensaje hace referencia a algun elemento de la lista
+        Solo podras devolver un elemento el que mas se adecue
+        No es obligatorio devolver un elemento
+        El formato de salida sera:
+
+        {
+          name:(String o null, elemento de la lista)
+        }
+      `,
+      `
+        *El mensaje es:
+         ${textContent}
+        *La lista de elementos es :
+        ${mediaPrompts.map((item) => `${item}`).join("\n")}
+      `,
+
+      true
+    );
+    console.log(`LA RESPUESTA ES ${mediaDescriptionJson}`);
   }
   const messageUuid = uuidv7();
   await SyncServer.createOrGet(Message, "message", messageUuid, {
@@ -370,13 +397,15 @@ const receiveMessageClient = async (
   io.emit("serverChanged");
 
   if (chat.chatbot && newMessageData.textContent) {
+    const mediaPrompts = await MediaPrompt.find();
     const newBotMessage = await sendMessageChatbot(
-      messagesHistorial,
       chat,
       client,
       newMessageData.textContent,
       newMessageData.wid,
-      recipientData.phoneNumberId
+      recipientData.phoneNumberId,
+      messagesHistorial,
+      mediaPrompts
     );
     if (newBotMessage) {
       io.emit("serverChanged");
