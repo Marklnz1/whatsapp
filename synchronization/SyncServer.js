@@ -164,7 +164,9 @@ class SyncServer {
             session
           );
           await session.commitTransaction();
-          onInsert(newDocs);
+          if (onInsert) {
+            onInsert(newDocs);
+          }
         } catch (error) {
           await session.abortTransaction();
           console.error("Error en la transacción, se ha revertido:", error);
