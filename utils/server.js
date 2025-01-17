@@ -228,6 +228,7 @@ module.exports.saveMediaBusiness = (req, onFinish, onError) => {
 };
 module.exports.saveMedia = (req, onFinish, onError) => {
   try {
+    console.log("INGRESANDO FILE");
     const category = req.params.category;
     const bb = busboy({
       headers: req.headers,
@@ -239,6 +240,8 @@ module.exports.saveMedia = (req, onFinish, onError) => {
     let streamClose = false;
     let error = null;
     bb.on("file", (name, file, info) => {
+      console.log("OBTENIENDO FILE");
+
       const { filename, encoding, mimetype } = info;
       fileMimetype = mimetype;
       const dirMain = process.cwd();
@@ -248,7 +251,10 @@ module.exports.saveMedia = (req, onFinish, onError) => {
       }
       outputPath = path.join(dirMain, category, filename);
       const writeStream = fs.createWriteStream(outputPath);
+      console.log("ESCRIBIENDO FILE");
+
       file.pipe(writeStream);
+
       file.on("limit", () => {
         error = "Archivo demasiado grande";
         writeStream.destroy();
