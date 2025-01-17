@@ -25,21 +25,12 @@ const MessageSchema = new Schema(
       type: String,
       required: true,
     },
+    mediaContent: { type: String, default: "" },
     textContent: { type: String, default: "" },
     sent: { type: Boolean, default: false },
     time: { type: Number, default: 0 },
-    category: { type: String, default: "" },
     sentStatus: { type: String, default: "empty" },
-
     read: { type: Boolean, default: false },
-    mimeType: { type: String, default: "" },
-    width: { type: Number, default: 0 },
-    height: { type: Number, default: 0 },
-    duration: { type: Number, default: 0 },
-    savedFileName: { type: String, default: "" },
-    metaFileName: { type: String, default: "" },
-    extension: { type: String, default: "" },
-    fileSizeBytes: { type: String, default: "" },
   }),
   { timestamps: true }
 );

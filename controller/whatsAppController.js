@@ -20,6 +20,7 @@ const ConversationalFormValue = require("../models/ConversationalFormValue");
 const WhatsappAccount = require("../models/WhatsappAccount");
 const Chat = require("../models/Chat");
 const { SyncServer } = require("../synchronization/SyncServer");
+const MediaContent = require("../models/MediaContent");
 
 require("dotenv").config();
 const MY_TOKEN = process.env.MY_TOKEN;
@@ -321,31 +322,35 @@ const receiveMessageClient = async (
     sent: false,
     read: false,
     time: message.timestamp * 1000,
-    category,
   };
-  let finalMessageData;
+  let mediaContent;
   if (category == "text") {
     console.log("EL MESSAGE DATA ES ", util.inspect(messageData));
-    finalMessageData = { textContent: messageData.body };
+    newMessageData.textContent = messageData.body;
   } else if (messageTypeIsMedia(category)) {
     const metaFileName = messageData.filename;
     const metadata = await saveMediaClient(messageData.id, category);
-
-    finalMessageData = {
-      textContent: messageData.caption,
+    newMessageData.textContent = messageData.caption;
+    mediaContent = {
+      category,
       metaFileName,
       ...metadata,
     };
+    const mediaContentUuid = uuidv7();
+    await SyncServer.createOrGet(
+      MediaContent,
+      "mediaContent",
+      mediaContentUuid,
+      mediaContent
+    );
+    newMessageData.mediaContent = mediaContentUuid;
   }
   sendConfirmationMessage(META_TOKEN, recipientData.phoneNumberId, message.id);
 
-  console.log("EL MENSAJE ES ", util.inspect(finalMessageData));
-  const newMessageDataFinal = {
-    ...newMessageData,
-    ...finalMessageData,
-  };
+  console.log("EL MENSAJE ES ", util.inspect(mediaContent));
+
   let messagesHistorial = [];
-  if (chat.chatbot && newMessageDataFinal.textContent) {
+  if (chat.chatbot && newMessageData.textContent) {
     const list = await Message.find(
       { chat: chat.uuid },
       { sent: 1, textContent: 1 }
@@ -361,21 +366,16 @@ const receiveMessageClient = async (
     }
     messagesHistorial = messagesHistorial.reverse();
   }
-  await SyncServer.createOrGet(
-    Message,
-    "message",
-    uuidv7(),
-    newMessageDataFinal
-  );
+  await SyncServer.createOrGet(Message, "message", uuidv7(), newMessageData);
   io.emit("serverChanged");
 
-  if (chat.chatbot && newMessageDataFinal.textContent) {
+  if (chat.chatbot && newMessageData.textContent) {
     const newBotMessage = await sendMessageChatbot(
       messagesHistorial,
       chat,
       client,
-      newMessageDataFinal.textContent,
-      newMessageDataFinal.wid,
+      newMessageData.textContent,
+      newMessageData.wid,
       recipientData.phoneNumberId
     );
     if (newBotMessage) {
