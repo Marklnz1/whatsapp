@@ -11,6 +11,7 @@ const { sendWhatsappMessage, saveMedia } = require("./utils/server");
 const mediaController = require("./controller/mediaController");
 const MediaContent = require("./models/MediaContent");
 const MediaPrompt = require("./models/MediaPrompt");
+const mapLinkTemp = new Map();
 
 const META_TOKEN = process.env.META_TOKEN;
 SyncServer.init({
