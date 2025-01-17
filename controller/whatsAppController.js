@@ -295,7 +295,7 @@ async function sendMessageChatbot(
         *El mensaje es:
          ${textContent}
         *La lista de elementos es :
-        ${mediaPrompts.map((item) => `${item}`).join("\n")}
+        ${mediaPrompts.map((item) => `${item.description}`).join("\n")}
       `,
 
       true
