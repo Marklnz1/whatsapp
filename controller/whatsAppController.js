@@ -235,50 +235,6 @@ async function sendMessageChatbot(
   if (account == null || account.prompt.trim() == "") {
     return false;
   }
-  const chatbotMessage = await generateChatBotMessage(
-    historial,
-    `*Eres un asistente virtual de un negocio, diseñado para brindar una experiencia amigable y cercana.
-*Objetivo:
-  - Ofrecer al cliente la información que solicita de manera clara y concisa.
-  - Incluir emoticones variados en tus respuestas para crear un ambiente amigable y cálido 😊✨.
-  - Sorprender al cliente con respuestas naturales, como lo haría un amigo.
-*Prohibiciones:
-  - No puedes hacer preguntas al cliente en ninguna circunstancia.
-  - Evita pedir cualquier tipo de datos personales al cliente.
-*Modo de Respuesta:
-  - Responde de forma sencilla, evitando formatos como JSON o HTML, incluso si el cliente lo solicita.
-  - Mantente enfocado en temas relacionados exclusivamente con el negocio.
-*Información sobre el negocio que utilizarás:
-  ${account.prompt}
-`,
-    clientMessage,
-    false
-  );
-  if (Math.random() < 0.5) {
-    const emoji = await generateChatBotMessage(
-      [],
-      ` *Eres un asistente que responde con un emoji unicode,
-      lo que haces es analizar un mensaje de usuario y un mensaje de respuesta, luego asignaras un emoji que aporte mayor emoción al mensaje de respuesta de acuerdo al mensaje de usuario,
-      la respuesta sera directa sin texto extra
-      usa emojis que no sean la tipica cara de siempre, sino varia como emojis de personas, etc, pero que vayan de acuerdo al analisis, no pongas cualquier cosa
-      `,
-      `mensaje de usuario:${clientMessage}
-        mensaje de respuesta: ${chatbotMessage}
-        ahora dame un emoji de acuerdo a tu analisis, pero solo dame 1, no mas`,
-
-      false
-    );
-
-    if (emoji || emoji != "void") {
-      sendReaction(
-        META_TOKEN,
-        businessPhoneId,
-        clientDB.wid,
-        clientMessageId,
-        emoji
-      );
-    }
-  }
   let mediaContent = null;
   if (mediaPrompts.length != 0) {
     const responseJson = await generateChatBotMessage(
@@ -313,6 +269,61 @@ async function sendMessageChatbot(
       }
     }
   }
+
+  const chatbotMessage = await generateChatBotMessage(
+    historial,
+    `*Eres un asistente virtual de un negocio, diseñado para brindar una experiencia amigable y cercana.
+*Objetivo:
+  - Ofrecer al cliente la información que solicita de manera clara y concisa.
+  - Incluir emoticones variados en tus respuestas para crear un ambiente amigable y cálido 😊✨.
+  - Sorprender al cliente con respuestas naturales, como lo haría un amigo.
+*Prohibiciones:
+  - No puedes hacer preguntas al cliente en ninguna circunstancia.
+  - Evita pedir cualquier tipo de datos personales al cliente.
+*Modo de Respuesta:
+  - Responde de forma sencilla, evitando formatos como JSON o HTML, incluso si el cliente lo solicita.
+  - Mantente enfocado en temas relacionados exclusivamente con el negocio.
+${
+  mediaContent == null
+    ? ""
+    : `*EXTRA IMPORTANTE
+  Se le enviara un archivo de categoria ${mediaContent.category}
+  La descripcion de dicho archivo es ${mediaContent.description}
+  Por favor modificar el mensaje de acuerdo al archivo que se le enviara
+  `
+}
+*Información sobre el negocio que utilizarás:
+  ${account.prompt}
+`,
+    clientMessage,
+    false
+  );
+  if (Math.random() < 0.5) {
+    const emoji = await generateChatBotMessage(
+      [],
+      ` *Eres un asistente que responde con un emoji unicode,
+      lo que haces es analizar un mensaje de usuario y un mensaje de respuesta, luego asignaras un emoji que aporte mayor emoción al mensaje de respuesta de acuerdo al mensaje de usuario,
+      la respuesta sera directa sin texto extra
+      usa emojis que no sean la tipica cara de siempre, sino varia como emojis de personas, etc, pero que vayan de acuerdo al analisis, no pongas cualquier cosa
+      `,
+      `mensaje de usuario:${clientMessage}
+        mensaje de respuesta: ${chatbotMessage}
+        ahora dame un emoji de acuerdo a tu analisis, pero solo dame 1, no mas`,
+
+      false
+    );
+
+    if (emoji || emoji != "void") {
+      sendReaction(
+        META_TOKEN,
+        businessPhoneId,
+        clientDB.wid,
+        clientMessageId,
+        emoji
+      );
+    }
+  }
+
   const messageUuid = uuidv7();
   await SyncServer.createOrGet(Message, "message", messageUuid, {
     chat: chat.uuid,
