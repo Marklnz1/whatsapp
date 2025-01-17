@@ -6,7 +6,8 @@ module.exports.getMedia = async (req, res) => {
     const split = mediaName.split("_");
     const category = split[0];
     const type = split[1];
-    const subtype = split[2];
+    const nameSplit = mediaName.split(".");
+    const subtype = nameSplit[nameSplit.length - 1];
     const dirMain = process.cwd();
     const filePath = path.resolve(dirMain, category, mediaName);
     if (fs.existsSync(filePath)) {

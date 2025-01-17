@@ -49,7 +49,10 @@ SyncServer.init({
       const split = mediaName.split("_");
       const category = split[0];
       const type = split[1];
-      const subtype = split[2];
+
+      const nameSplit = mediaName.split(".");
+      const subtype = nameSplit[nameSplit.length - 1];
+
       const mediaPath = path.resolve(dirMain, category, mediaName);
       // const stat = fs.statSync(mediaPath);
       res.sendFile(mediaPath, {
