@@ -21,7 +21,7 @@ SyncServer.init({
       res.json({ msg: "ok" });
     });
     app.get("/api/media/:name", mediaController.getMedia);
-    app.post("api/media/:category/:type/:subtype", (req, res, next) => {
+    app.post("/api/media/:category/:type/:subtype", (req, res, next) => {
       saveMedia(
         req,
         () => {
