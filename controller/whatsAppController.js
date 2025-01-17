@@ -293,7 +293,7 @@ async function sendMessageChatbot(
       `,
       `
         *El mensaje es:
-         ${textContent}
+         ${clientMessage}
         *La lista de elementos es :
         ${mediaPrompts.map((item) => `${item.description}`).join("\n")}
       `,
