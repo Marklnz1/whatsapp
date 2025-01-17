@@ -24,6 +24,8 @@ const MediaContent = require("../models/MediaContent");
 const MediaPrompt = require("../models/MediaPrompt");
 
 require("dotenv").config();
+const DOMAIN = process.env.DOMAIN;
+
 const MY_TOKEN = process.env.MY_TOKEN;
 const META_TOKEN = process.env.META_TOKEN;
 const GROQ_TOKEN = process.env.GROQ_TOKEN;
@@ -277,8 +279,9 @@ async function sendMessageChatbot(
       );
     }
   }
+  let mediaContent = null;
   if (mediaPrompts.length != 0) {
-    const mediaDescriptionJson = await generateChatBotMessage(
+    const responseJson = await generateChatBotMessage(
       [],
       ` *Eres una analizador de mensaje y devuelves en formato JSON
         Se te proveera un mensaje y una lista de oraciones
@@ -300,27 +303,43 @@ async function sendMessageChatbot(
 
       true
     );
-    console.log(`LA RESPUESTA ES ${mediaDescriptionJson}`);
+    const response = JSON.parse(responseJson).trim();
+    if (response.name != null) {
+      for (const m of mediaPrompts) {
+        if (response.name.trim() == m.description.trim()) {
+          mediaContent = await MediaContent.findOne({ uuid: m.mediaContent });
+          break;
+        }
+      }
+    }
   }
   const messageUuid = uuidv7();
   await SyncServer.createOrGet(Message, "message", messageUuid, {
     chat: chat.uuid,
     wid: null,
     textContent: chatbotMessage,
+    mediaContent: mediaContent?.uuid ?? "",
     sent: true,
     read: false,
     time: new Date().getTime(),
     category: "text",
     sentStatus: "not_sent",
   });
+  let sendContentData = {
+    body: chatbotMessage,
+  };
+  if (mediaContent?.category == "video" || mediaContent?.category == "image") {
+    sendContentData = {
+      link: `https://${DOMAIN}/api/temp/media/${mediaContent.savedFileName}` /* Only if linking to your media */,
+      caption: chatbotMessage,
+    };
+  }
   const messageId = await sendWhatsappMessage(
     META_TOKEN,
     businessPhoneId,
     clientDB.wid,
-    "text",
-    {
-      body: chatbotMessage,
-    },
+    mediaContent?.category ?? "text",
+    sendContentData,
     messageUuid,
     clientMessageId
   );

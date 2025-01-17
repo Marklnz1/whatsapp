@@ -35,6 +35,42 @@ SyncServer.init({
     app
       .get("/whatsapp", whatsAppController.verifyToken)
       .post("/whatsapp", whatsAppController.receiveMessage);
+    app.get("/api/temp/media/:name", (req, res) => {
+      const mediaName = req.params.name;
+      const timeLimit = mapLinkTemp.get(mediaName);
+      const currentTime = new Date();
+
+      // console.log("ENTRANDO NAME " + mediaName);
+      // if (timeLimit) {
+      //   if (currentTime < timeLimit) {
+      const dirMain = process.cwd();
+      const split = mediaName.split("_");
+      const category = split[0];
+      const type = split[1];
+      const subtype = split[2];
+      const mediaPath = path.resolve(dirMain, category, mediaName);
+      // const stat = fs.statSync(mediaPath);
+      res.sendFile(mediaPath, {
+        headers: {
+          "Content-Type": `${type}/${subtype}`,
+        },
+      });
+
+      // const fileSize = stat.size;
+      // const head = {
+      //   "Content-Length": fileSize,
+      //   "Content-Type": "audio/ogg",
+      // };
+      // res.writeHead(200, head);
+      // fs.createReadStream(mediaPath).pipe(res);
+      // } else {
+      //   mapLinkTemp.delete(mediaName);
+      //   return res.json({ error: "404" });
+      // }
+      // } else {
+      //   return res.json({ error: "404" });
+      // }
+    });
   },
 });
 
