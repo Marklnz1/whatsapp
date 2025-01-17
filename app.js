@@ -12,6 +12,7 @@ const mediaController = require("./controller/mediaController");
 const MediaContent = require("./models/MediaContent");
 const MediaPrompt = require("./models/MediaPrompt");
 const mapLinkTemp = new Map();
+const path = require("path");
 
 const META_TOKEN = process.env.META_TOKEN;
 SyncServer.init({
