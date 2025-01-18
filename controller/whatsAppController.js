@@ -221,7 +221,17 @@ async function generateChatBotMessage(
   const chatCompletion = await groqClient.chat.completions.create(dataConfig);
   return chatCompletion.choices[0].message.content;
 }
-
+function extractNumberAndContent(input) {
+  const regex = /^ \[\s*(-?\d+)\s*\] /;
+  const match = input.match(regex);
+  if (match) {
+    const number = parseInt(match[1].trim());
+    const content = input.slice(match[0].length).trim();
+    return { number: number, content: content };
+  } else {
+    return { number: -1, content: input };
+  }
+}
 async function sendMessageChatbot(
   chat,
   clientDB,
@@ -235,40 +245,39 @@ async function sendMessageChatbot(
   if (account == null || account.prompt.trim() == "") {
     return false;
   }
-  let mediaContent = null;
-  if (mediaPrompts.length != 0) {
-    const responseJson = await generateChatBotMessage(
-      [],
-      ` *Eres una analizador de mensaje y devuelves en formato JSON
-        Se te proveera un mensaje y una lista de oraciones
-        Analizaras el mensaje y identificaras si el mensaje hace referencia a algun elemento de la lista
-        Solo podras devolver un elemento el que mas se adecue
-        No es obligatorio devolver un elemento
-        El formato de salida sera:
+  // if (mediaPrompts.length != 0) {
+  //   const responseJson = await generateChatBotMessage(
+  //     [],
+  //     ` *Eres una analizador de mensaje y devuelves en formato JSON
+  //       Se te proveera un mensaje y una lista de oraciones
+  //       Analizaras el mensaje y identificaras si el mensaje hace referencia a algun elemento de la lista
+  //       Solo podras devolver un elemento el que mas se adecue
+  //       No es obligatorio devolver un elemento
+  //       El formato de salida sera:
 
-        {
-          name:(String o null, elemento de la lista)
-        }
-      `,
-      `
-        *El mensaje es:
-         ${clientMessage}
-        *La lista de elementos es :
-        ${mediaPrompts.map((item) => `${item.description}`).join("\n")}
-      `,
+  //       {
+  //         name:(String o null, elemento de la lista)
+  //       }
+  //     `,
+  //     `
+  //       *El mensaje es:
+  //        ${clientMessage}
+  //       *La lista de elementos es :
+  //       ${mediaPrompts.map((item) => `${item.description}`).join("\n")}
+  //     `,
 
-      true
-    );
-    const response = JSON.parse(responseJson);
-    if (response.name != null) {
-      for (const m of mediaPrompts) {
-        if (response.name.trim() == m.description.trim()) {
-          mediaContent = await MediaContent.findOne({ uuid: m.mediaContent });
-          break;
-        }
-      }
-    }
-  }
+  //     true
+  //   );
+  //   const response = JSON.parse(responseJson);
+  //   if (response.name != null) {
+  //     for (const m of mediaPrompts) {
+  //       if (response.name.trim() == m.description.trim()) {
+  //         mediaContent = await MediaContent.findOne({ uuid: m.mediaContent });
+  //         break;
+  //       }
+  //     }
+  //   }
+  // }
 
   const chatbotMessage = await generateChatBotMessage(
     historial,
@@ -284,20 +293,41 @@ async function sendMessageChatbot(
   - Responde de forma sencilla, evitando formatos como JSON o HTML, incluso si el cliente lo solicita.
   - Mantente enfocado en temas relacionados exclusivamente con el negocio.
 ${
-  mediaContent == null
+  mediaPrompts.length == 0
     ? ""
-    : `*EXTRA IMPORTANTE
-  Se le enviara un archivo de categoria ${mediaContent.category}
-  La descripcion de dicho archivo es ${mediaContent.description}
-  Por favor modificar el mensaje de acuerdo al archivo que se le enviara
-  `
+    : `*Formato de respuesta:
+  Para tu respuesta tendras en cuenta la siguiente lista multimedia:
+  ${mediaPrompts
+    .map((item, index) => `${index}. ${item.description}`)
+    .join("\n")}
+
+  - Tu respuesta sera en texto plano, pero todos tus mensajes tendran el siguiente formato=> 
+  [number] mensaje de respuesta
+  -donde number indica el numero de la lista de multimedia que usaras si añade mayor informacion al mensaje de respuesta
+  -si no usaras ninguno añadiras al inicio [-1]
+
+  Ejemplo de formato de respuesta:
+  ejemplo1: [-1] hola como estas
+  ejemplo2: [0] claro tenemos distintas categorias`
 }
+
+
 *Información sobre el negocio que utilizarás:
   ${account.prompt}
 `,
     clientMessage,
     false
   );
+
+  let mediaContent = null;
+  const { number, content } = extractNumberAndContent(chatbotMessage);
+  chatbotMessage = content;
+  if (number > -1 && number < mediaPrompts.length - 1) {
+    console.log(`se tomara el numero ${number}`);
+    mediaContent = await MediaContent.findOne({
+      uuid: mediaPrompts[number].mediaContent,
+    });
+  }
   if (Math.random() < 0.5) {
     const emoji = await generateChatBotMessage(
       [],
