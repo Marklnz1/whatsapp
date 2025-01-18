@@ -289,7 +289,10 @@ async function sendMessageChatbot(
   //     }
   //   }
   // }
-
+  let indexes = [];
+  for (const h of historial) {
+    indexes.push(...extractNumberAndContent(h.content).numbers);
+  }
   let chatbotMessage = await generateChatBotMessage(
     historial,
     `*Eres un asistente virtual de un negocio, diseñado para brindar una experiencia amigable y cercana.
@@ -311,10 +314,12 @@ ${
   ${mediaPrompts
     .map((item, index) => `[${index}]. ${item.description}`)
     .join("\n")}
-
+  Ten en cuenta que ya usaste anteriormente los siguientes indices de multimedia, trata de no cansar al usuario con la misma multimedia:
+    ${indexes.map((item) => `${item}`).join(",")}
   - Tu respuesta sera en texto plano pero podras añadir una multimedia de la lista con el siguiente formato:
     [index]
   -index empieza en 0 segun la lista, solo podras añadir una multimedia, y que vaya de acuerdo a tu respuesta
+  -Es importante que si ya mandaste anteriormente un indice de multimedia trates de no repetir a menos que el usuario lo pida directamente
   `
 }
 }
