@@ -182,7 +182,7 @@ const createChatClientMapData = async (contacts, recipientData) => {
       `${clientDB.uuid}_${whatsappAccountDB.uuid}`,
       {
         client: clientDB.uuid,
-        whatsappAccount: whatsappAccountDB,
+        whatsappAccount: whatsappAccountDB.uuid,
         lastSeen: 0,
         chatbot: true,
       }
