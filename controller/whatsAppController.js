@@ -307,17 +307,26 @@ ${
   mediaPrompts.length == 0
     ? ""
     : `*Formato de respuesta:
-  Para tu respuesta tendras en cuenta la siguiente lista multimedia:
-  ${mediaPrompts
-    .map((item, index) => `[${index}]. ${item.description}`)
-    .join("\n")}
+Lista multimedia disponible:
+${mediaPrompts
+  .map((item, index) => `[${index}]. ${item.description}`)
+  .join("\n")}
 
-  - Tu respuesta sera en texto plano pero podras añadir una multimedia de la lista con el siguiente formato entre corchetes:
-    [index]
-  -index empieza en 0 segun la lista, solo podras añadir una multimedia
-  -No repitas en cada mensaje la misma multimedia si ya le enviaste en un mensaje anterior, solo has referencia al mensaje anterior
-  -por favor, analiza el historial de mensajes y no repitas a cada rato el mismo multimedia [index], sera cansado para el cliente, solo has referencia a que ya le mostraste anteriormente
-  -toma en cuenta las recomendaciones anteriores y el historial al crear la respuesta
+Reglas para el uso de multimedia:
+1. Puedes incluir UN SOLO elemento multimedia usando el formato [index]
+2. El índice comienza en 0 según la lista anterior
+3. IMPORTANTE - Gestión de repeticiones:
+   - Antes de usar un multimedia [index], revisa el historial completo
+   - Si ya usaste ese [index] en mensajes anteriores:
+     * NO lo incluyas nuevamente
+     * En su lugar, haz referencia explícita: "Como te mostré anteriormente..."
+   - Solo usa un nuevo [index] si aporta información nueva y relevante
+4. Prioridad:
+   - Primero verifica el historial de multimedia usados
+   - Luego decide si es necesario un nuevo multimedia
+   - Si no es necesario, solo responde con texto
+
+Tu respuesta debe ser en texto natural, considerando estas reglas para mantener una conversación fluida sin repeticiones innecesarias.
   `
 }
 }
