@@ -222,14 +222,15 @@ async function generateChatBotMessage(
   return chatCompletion.choices[0].message.content;
 }
 function extractNumberAndContent(input) {
-  const regex = /^ \[\s*(-?\d+)\s*\] /;
+  input = input.trim();
+  const regex = /^\s*\[\s*(-?\d+)\s*\]\s*/;
   const match = input.match(regex);
   if (match) {
-    const number = parseInt(match[1].trim());
-    const content = input.slice(match[0].length).trim();
+    const number = parseInt(match[1]);
+    const content = input.replace(regex, "").trim();
     return { number: number, content: content };
   } else {
-    return { number: -1, content: input };
+    return { number: -1, content: input.trim() };
   }
 }
 async function sendMessageChatbot(
