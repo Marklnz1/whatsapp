@@ -318,10 +318,6 @@ Reglas para el uso de multimedia:
 3. Gestión inteligente de multimedia:
    - Revisa el historial de la conversación
    - SI el usuario muestra interés en ver algo específico, muestra el multimedia relevante
-   - SI ya usaste un [index] en mensajes anteriores:
-     * NO lo repitas
-     * En su lugar, referencia: "Como te mostré anteriormente..."
-   - SI es la primera vez y es relevante para la consulta del usuario, MUESTRA el multimedia
 4. Criterios de uso:
    - Prioriza mostrar multimedia cuando:
      * El usuario lo solicita directa o indirectamente
@@ -329,7 +325,6 @@ Reglas para el uso de multimedia:
      * Ayuda a ilustrar mejor tu explicación
    - Evita mostrar cuando:
      * Ya se mostró anteriormente
-     * No es relevante para la consulta actual
 
 Tu respuesta debe ser en texto natural, mostrando multimedia cuando aporte valor real a la conversación.`
 }
