@@ -222,11 +222,10 @@ async function generateChatBotMessage(
   return chatCompletion.choices[0].message.content;
 }
 function extractNumberAndContent(input) {
-  input = input.trim();
-  const regex = /^\s*\[\s*(-?\d+)\s*\]\s*/;
+  const regex = /^\s*\[\s*(-?\d+)?\s*\]\s*/;
   const match = input.match(regex);
   if (match) {
-    const number = parseInt(match[1]);
+    const number = match[1] ? parseInt(match[1]) : -1;
     const content = input.replace(regex, "").trim();
     return { number: number, content: content };
   } else {
@@ -305,11 +304,11 @@ ${
   - Tu respuesta sera en texto plano, pero todos tus mensajes tendran el siguiente formato=> 
   [number] mensaje de respuesta
   -donde number indica el numero de la lista de multimedia que usaras si añade mayor informacion al mensaje de respuesta
-  -si no usaras ninguno añadiras al inicio [-1]
+  -si no usaras ninguno no pondras ningun numero en el interior []
 
   Ejemplo de formato de respuesta:
-  ejemplo1: [-1] hola como estas
-  ejemplo2: [0] claro tenemos distintas categorias`
+  ejemplo de mensaje sin multimedia: [] hola como estas
+  ejemplo de mensaje con multimedia: [0] claro tenemos distintas categorias`
 }
 
 
