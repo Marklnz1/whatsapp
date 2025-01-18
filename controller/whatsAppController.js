@@ -322,8 +322,6 @@ ${
   -Es importante que si ya mandaste anteriormente un indice de multimedia trates de no repetir a menos que el usuario lo pida directamente
   `
 }
-}
-
 
 *Información sobre el negocio que utilizarás:
   ${account.prompt}
@@ -331,7 +329,9 @@ ${
     clientMessage,
     false
   );
-
+  console.log(
+    `INDICES MOSTRADOS  ${indexes.map((item) => `${item}`).join(",")}`
+  );
   let mediaContent = null;
   const { numbers, content } = extractNumberAndContent(chatbotMessage);
   console.log(
