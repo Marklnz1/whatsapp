@@ -322,7 +322,9 @@ ${
 
   let mediaContent = null;
   const { number, content } = extractNumberAndContent(chatbotMessage);
-  console.log(`SE TOMARA EL NUMERO ${number}`);
+  console.log(
+    `SE TOMARA EL NUMERO ${number} de la respuesta ${chatbotMessage}`
+  );
 
   chatbotMessage = content;
   if (number > -1 && number < mediaPrompts.length - 1) {
