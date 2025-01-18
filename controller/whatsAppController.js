@@ -324,11 +324,14 @@ ${
   let mediaContent = null;
   const { number, content } = extractNumberAndContent(chatbotMessage);
   console.log(
-    `SE TOMARA EL NUMERO ${number} de la respuesta ${chatbotMessage}`
+    `SE TOMARA EL NUMERO ${number} de la respuesta ${chatbotMessage} ${
+      mediaPrompts.length - 1
+    }`
   );
 
   chatbotMessage = content;
   if (number > -1 && number < mediaPrompts.length - 1) {
+    console.log("content ", mediaPrompts[number].mediaContent);
     mediaContent = await MediaContent.findOne({
       uuid: mediaPrompts[number].mediaContent,
     });
