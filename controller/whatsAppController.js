@@ -308,23 +308,25 @@ async function sendMessageChatbot(
   - Mantente enfocado en temas relacionados exclusivamente con el negocio.
 ${
   mediaPrompts.length &&
-  `*Formato de respuesta:
-  Para tu respuesta tendras en cuenta la siguiente lista multimedia:
-  ${mediaPrompts
-    .map((item, index) => `[${index}]. ${item.description}`)
-    .join("\n")}
-  
-${
-  indexes.length &&
-  `Ten en cuenta que ya usaste anteriormente los siguientes indices de multimedia, trata de no cansar al usuario con la misma multimedia:
-    ${indexes.map((item) => `${item}`).join(",")}`
-};
+  `Formato de respuesta:
 
-  - Tu respuesta sera en texto plano pero podras añadir una multimedia de la lista con el siguiente formato:
-    [index]
-  -index empieza en 0 segun la lista, solo podras añadir una multimedia, y que vaya de acuerdo a tu respuesta
-  -Es importante que si ya mandaste anteriormente un indice de multimedia trates de no repetir a menos que el usuario lo pida directamente
-  `
+Multimedia disponible:
+Tienes la siguiente lista de opciones de multimedia para utilizar en tu respuesta. Cada elemento está identificado por su índice ([index]): ${mediaPrompts
+    .map((item, index) => `[${index}] ${item.description}`)
+    .join("\n")}
+Restricciones:
+Ya se han utilizado los siguientes índices de multimedia:
+${indexes.join(", ")}
+Evita reutilizar estos índices a menos que el usuario lo solicite explícitamente. Intenta variar las opciones de multimedia para no cansar al usuario.
+Solo puedes incluir una opción de multimedia en tu respuesta, y esta debe ser relevante al contenido de la misma.
+Formato de respuesta:
+Escribe una respuesta en texto plano.
+Si decides incluir una multimedia, insértala en este formato:
+[index]
+(Ejemplo: Si seleccionas la multimedia con índice 2, añade [2] en el lugar correspondiente de tu respuesta).
+Reglas adicionales:
+No repitas un índice previamente utilizado (de la lista de índices ya usados) a menos que sea absolutamente necesario o el usuario lo solicite.
+Asegúrate de que la multimedia seleccionada sea coherente con el contexto de tu respuesta.`
 }
 
 *Información sobre el negocio que utilizarás:
