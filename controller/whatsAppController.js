@@ -310,23 +310,24 @@ ${
   mediaPrompts.length &&
   `Formato de respuesta:
 
-Multimedia disponible:
-Tienes la siguiente lista de opciones de multimedia para utilizar en tu respuesta. Cada elemento está identificado por su índice ([index]): ${mediaPrompts
+Lista de multimedia disponible:
+A continuación, tienes una lista de opciones de multimedia que puedes utilizar. Cada elemento está identificado por su índice ([index]): ${mediaPrompts
     .map((item, index) => `[${index}] ${item.description}`)
     .join("\n")}
-Restricciones:
-Ya se han utilizado los siguientes índices de multimedia:
-${indexes.join(", ")}
-Evita reutilizar estos índices a menos que el usuario lo solicite explícitamente. Intenta variar las opciones de multimedia para no cansar al usuario.
-Solo puedes incluir una opción de multimedia en tu respuesta, y esta debe ser relevante al contenido de la misma.
-Formato de respuesta:
-Escribe una respuesta en texto plano.
+Reglas para incluir multimedia:
+No es obligatorio incluir multimedia en tu respuesta.
+Usa multimedia únicamente si enriquece el contenido de tu respuesta y es relevante para el contexto.
 Si decides incluir una multimedia, insértala en este formato:
 [index]
-(Ejemplo: Si seleccionas la multimedia con índice 2, añade [2] en el lugar correspondiente de tu respuesta).
-Reglas adicionales:
-No repitas un índice previamente utilizado (de la lista de índices ya usados) a menos que sea absolutamente necesario o el usuario lo solicite.
-Asegúrate de que la multimedia seleccionada sea coherente con el contexto de tu respuesta.`
+(Ejemplo: Si seleccionas la multimedia con índice 2, añade [2] en el lugar apropiado de tu respuesta).
+Solo puedes incluir una multimedia por respuesta.
+Restricciones internas (no visibles para el usuario):
+Evita repetir índices de multimedia que ya hayas utilizado anteriormente, a menos que el usuario lo solicite explícitamente.
+La selección de multimedia debe ser variada para no cansar al usuario, pero el usuario no debe saber que estás evitando repeticiones. Esto es una lógica interna.
+Formato de tu respuesta:
+Escribe tu respuesta en texto plano.
+Si decides incluir multimedia, hazlo en el formato indicado anteriormente ([index]).
+Asegúrate de que tu respuesta sea clara, coherente y que la multimedia (si la incluyes) esté en contexto con lo expresado.`
 }
 
 *Información sobre el negocio que utilizarás:
