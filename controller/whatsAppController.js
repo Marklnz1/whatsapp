@@ -307,15 +307,19 @@ async function sendMessageChatbot(
   - Responde de forma sencilla, evitando formatos como JSON o HTML, incluso si el cliente lo solicita.
   - Mantente enfocado en temas relacionados exclusivamente con el negocio.
 ${
-  mediaPrompts.length == 0
-    ? ""
-    : `*Formato de respuesta:
+  mediaPrompts.length &&
+  `*Formato de respuesta:
   Para tu respuesta tendras en cuenta la siguiente lista multimedia:
   ${mediaPrompts
     .map((item, index) => `[${index}]. ${item.description}`)
     .join("\n")}
-  Ten en cuenta que ya usaste anteriormente los siguientes indices de multimedia, trata de no cansar al usuario con la misma multimedia:
-    ${indexes.map((item) => `${item}`).join(",")}
+  
+${
+  indexes.length &&
+  `Ten en cuenta que ya usaste anteriormente los siguientes indices de multimedia, trata de no cansar al usuario con la misma multimedia:
+    ${indexes.map((item) => `${item}`).join(",")}`
+};
+
   - Tu respuesta sera en texto plano pero podras añadir una multimedia de la lista con el siguiente formato:
     [index]
   -index empieza en 0 segun la lista, solo podras añadir una multimedia, y que vaya de acuerdo a tu respuesta
@@ -390,12 +394,12 @@ ${
     sentStatus: "not_sent",
   });
   let sendContentData = {
-    body: chatbotMessage,
+    body: content,
   };
   if (mediaContent?.category == "video" || mediaContent?.category == "image") {
     sendContentData = {
       link: `https://${DOMAIN}/api/temp/media/${mediaContent.savedFileName}` /* Only if linking to your media */,
-      caption: chatbotMessage,
+      caption: content,
     };
     console.log(`se intentara enviar con el link ${sendContentData.link}`);
   }
