@@ -330,7 +330,9 @@ ${
     false
   );
   console.log(
-    `INDICES MOSTRADOS  ${indexes.map((item) => `${item}`).join(",")}`
+    `INDICES MOSTRADOS ${indexes.length} ${indexes
+      .map((item) => `${item}`)
+      .join(",")}`
   );
   let mediaContent = null;
   const { numbers, content } = extractNumberAndContent(chatbotMessage);
