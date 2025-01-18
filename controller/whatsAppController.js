@@ -279,7 +279,7 @@ async function sendMessageChatbot(
   //   }
   // }
 
-  const chatbotMessage = await generateChatBotMessage(
+  let chatbotMessage = await generateChatBotMessage(
     historial,
     `*Eres un asistente virtual de un negocio, diseñado para brindar una experiencia amigable y cercana.
 *Objetivo:
