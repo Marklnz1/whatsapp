@@ -312,15 +312,12 @@ ${
     .map((item, index) => `[${index}]. ${item.description}`)
     .join("\n")}
 
-  - Tu respuesta sera en texto plano, pero todos tus mensajes tendran el siguiente formato=> 
-  [indice de la lista de multimedia] mensaje de respuesta
-  -donde number indica el numero de la lista de multimedia que usaras si añade mayor informacion al mensaje de respuesta
-  -si no usaras ninguno no pondras ningun numero en el interior []
-  -el numero empieza de 0 como el indice
-
-  Ejemplo de formato de respuesta:
-  ejemplo de mensaje sin multimedia: [] hola como estas
-  ejemplo de mensaje con multimedia: [0] claro tenemos distintas categorias`
+  - Tu respuesta sera en texto plano pero podras añadir una multimedia de la lista con el siguiente formato entre corchetes:
+    [index]
+  -index empieza en 0 segun la lista, solo podras añadir una multimedia
+  -No repitas en cada mensaje la misma multimedia si ya le enviaste en un mensaje anterior, solo has referencia al mensaje anterior
+  `
+}
 }
 
 
@@ -339,7 +336,7 @@ ${
     }`
   );
 
-  chatbotMessage = content;
+  // chatbotMessage = content;
   if (numbers.length != 0) {
     const number = numbers[0];
     if (number > -1 && number < mediaPrompts.length) {
@@ -358,7 +355,7 @@ ${
       usa emojis que no sean la tipica cara de siempre, sino varia como emojis de personas, etc, pero que vayan de acuerdo al analisis, no pongas cualquier cosa
       `,
       `mensaje de usuario:${clientMessage}
-        mensaje de respuesta: ${chatbotMessage}
+        mensaje de respuesta: ${content}
         ahora dame un emoji de acuerdo a tu analisis, pero solo dame 1, no mas`,
 
       false
@@ -388,12 +385,12 @@ ${
     sentStatus: "not_sent",
   });
   let sendContentData = {
-    body: chatbotMessage,
+    body: content,
   };
   if (mediaContent?.category == "video" || mediaContent?.category == "image") {
     sendContentData = {
       link: `https://${DOMAIN}/api/temp/media/${mediaContent.savedFileName}` /* Only if linking to your media */,
-      caption: chatbotMessage,
+      caption: content,
     };
     console.log(`se intentara enviar con el link ${sendContentData.link}`);
   }
