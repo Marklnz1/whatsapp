@@ -310,13 +310,14 @@ ${
     : `*Formato de respuesta:
   Para tu respuesta tendras en cuenta la siguiente lista multimedia:
   ${mediaPrompts
-    .map((item, index) => `${index}. ${item.description}`)
+    .map((item, index) => `[${index}]. ${item.description}`)
     .join("\n")}
 
   - Tu respuesta sera en texto plano, pero todos tus mensajes tendran el siguiente formato=> 
-  [number] mensaje de respuesta
+  [indice de la lista de multimedia] mensaje de respuesta
   -donde number indica el numero de la lista de multimedia que usaras si añade mayor informacion al mensaje de respuesta
   -si no usaras ninguno no pondras ningun numero en el interior []
+  -el numero empieza de 0 como el indice
 
   Ejemplo de formato de respuesta:
   ejemplo de mensaje sin multimedia: [] hola como estas
