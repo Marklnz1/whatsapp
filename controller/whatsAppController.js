@@ -316,6 +316,8 @@ ${
     [index]
   -index empieza en 0 segun la lista, solo podras añadir una multimedia
   -No repitas en cada mensaje la misma multimedia si ya le enviaste en un mensaje anterior, solo has referencia al mensaje anterior
+  -por favor, analiza el historial de mensajes y no repitas a cada rato el mismo multimedia [index], sera cansado para el cliente, solo has referencia a que ya le mostraste anteriormente
+  -toma en cuenta las recomendaciones anteriores y el historial al crear la respuesta
   `
 }
 }
