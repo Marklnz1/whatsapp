@@ -341,7 +341,8 @@ ${
 
   chatbotMessage = content;
   if (numbers.length != 0) {
-    if (numbers[0] > -1 && numbers[0] < mediaPrompts.length) {
+    const number = numbers[0];
+    if (number > -1 && number < mediaPrompts.length) {
       console.log("content ", mediaPrompts[number].mediaContent);
       mediaContent = await MediaContent.findOne({
         uuid: mediaPrompts[number].mediaContent,
