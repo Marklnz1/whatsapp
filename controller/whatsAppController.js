@@ -222,11 +222,10 @@ async function generateChatBotMessage(
   return chatCompletion.choices[0].message.content;
 }
 function extractNumberAndContent(input) {
-  // Regex para corchetes con números al inicio y final
-  const regexWithNumber =
-    /(?:^\s*\[([^\]]*?(\d+)[^\]]*?)]\s*)|(?:\s*\[([^\]]*?(\d+)[^\]]*?)]\s*$)/g;
-  // Regex para cualquier tipo de corchetes al inicio o final
-  const regexEmptyBrackets = /(?:^\s*\[[^\]]*]\s*)|(?:\s*\[[^\]]*]\s*$)/g;
+  // Regex para cualquier corchete con número en cualquier parte del texto
+  const regexWithNumber = /\[([^\]]*?(\d+)[^\]]*?)]/g;
+  // Regex para cualquier tipo de corchetes
+  const regexEmptyBrackets = /\[[^\]]*]/g;
 
   const numbers = [];
   let match;
