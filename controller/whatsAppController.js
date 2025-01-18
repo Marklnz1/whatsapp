@@ -307,26 +307,15 @@ ${
   mediaPrompts.length == 0
     ? ""
     : `*Formato de respuesta:
-Lista multimedia disponible:
-${mediaPrompts
-  .map((item, index) => `[${index}]. ${item.description}`)
-  .join("\n")}
+  Para tu respuesta tendras en cuenta la siguiente lista multimedia:
+  ${mediaPrompts
+    .map((item, index) => `[${index}]. ${item.description}`)
+    .join("\n")}
 
-Reglas para el uso de multimedia:
-1. Puedes incluir UN SOLO elemento multimedia usando el formato [index]
-2. El índice comienza en 0 según la lista anterior
-3. Gestión inteligente de multimedia:
-   - Revisa el historial de la conversación
-   - SI el usuario muestra interés en ver algo específico, muestra el multimedia relevante
-4. Criterios de uso:
-   - Prioriza mostrar multimedia cuando:
-     * El usuario lo solicita directa o indirectamente
-     * Es la primera vez que se muestra y añade valor a la respuesta
-     * Ayuda a ilustrar mejor tu explicación
-   - Evita mostrar cuando:
-     * Ya se mostró anteriormente
-
-Tu respuesta debe ser en texto natural, mostrando multimedia cuando aporte valor real a la conversación.`
+  - Tu respuesta sera en texto plano pero podras añadir una multimedia de la lista con el siguiente formato:
+    [index]
+  -index empieza en 0 segun la lista, solo podras añadir una multimedia, y que vaya de acuerdo a tu respuesta
+  `
 }
 }
 
@@ -346,7 +335,7 @@ Tu respuesta debe ser en texto natural, mostrando multimedia cuando aporte valor
     }`
   );
 
-  // chatbotMessage = content;
+  chatbotMessage = content;
   if (numbers.length != 0) {
     const number = numbers[0];
     if (number > -1 && number < mediaPrompts.length) {
@@ -365,7 +354,7 @@ Tu respuesta debe ser en texto natural, mostrando multimedia cuando aporte valor
       usa emojis que no sean la tipica cara de siempre, sino varia como emojis de personas, etc, pero que vayan de acuerdo al analisis, no pongas cualquier cosa
       `,
       `mensaje de usuario:${clientMessage}
-        mensaje de respuesta: ${content}
+        mensaje de respuesta: ${chatbotMessage}
         ahora dame un emoji de acuerdo a tu analisis, pero solo dame 1, no mas`,
 
       false
@@ -395,12 +384,12 @@ Tu respuesta debe ser en texto natural, mostrando multimedia cuando aporte valor
     sentStatus: "not_sent",
   });
   let sendContentData = {
-    body: content,
+    body: chatbotMessage,
   };
   if (mediaContent?.category == "video" || mediaContent?.category == "image") {
     sendContentData = {
       link: `https://${DOMAIN}/api/temp/media/${mediaContent.savedFileName}` /* Only if linking to your media */,
-      caption: content,
+      caption: chatbotMessage,
     };
     console.log(`se intentara enviar con el link ${sendContentData.link}`);
   }
