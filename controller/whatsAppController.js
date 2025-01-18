@@ -315,19 +315,23 @@ ${mediaPrompts
 Reglas para el uso de multimedia:
 1. Puedes incluir UN SOLO elemento multimedia usando el formato [index]
 2. El índice comienza en 0 según la lista anterior
-3. IMPORTANTE - Gestión de repeticiones:
-   - Antes de usar un multimedia [index], revisa el historial completo
-   - Si ya usaste ese [index] en mensajes anteriores:
-     * NO lo incluyas nuevamente
-     * En su lugar, haz referencia explícita: "Como te mostré anteriormente..."
-   - Solo usa un nuevo [index] si aporta información nueva y relevante
-4. Prioridad:
-   - Primero verifica el historial de multimedia usados
-   - Luego decide si es necesario un nuevo multimedia
-   - Si no es necesario, solo responde con texto
+3. Gestión inteligente de multimedia:
+   - Revisa el historial de la conversación
+   - SI el usuario muestra interés en ver algo específico, muestra el multimedia relevante
+   - SI ya usaste un [index] en mensajes anteriores:
+     * NO lo repitas
+     * En su lugar, referencia: "Como te mostré anteriormente..."
+   - SI es la primera vez y es relevante para la consulta del usuario, MUESTRA el multimedia
+4. Criterios de uso:
+   - Prioriza mostrar multimedia cuando:
+     * El usuario lo solicita directa o indirectamente
+     * Es la primera vez que se muestra y añade valor a la respuesta
+     * Ayuda a ilustrar mejor tu explicación
+   - Evita mostrar cuando:
+     * Ya se mostró anteriormente
+     * No es relevante para la consulta actual
 
-Tu respuesta debe ser en texto natural, considerando estas reglas para mantener una conversación fluida sin repeticiones innecesarias.
-  `
+Tu respuesta debe ser en texto natural, mostrando multimedia cuando aporte valor real a la conversación.`
 }
 }
 
