@@ -222,17 +222,27 @@ async function generateChatBotMessage(
   return chatCompletion.choices[0].message.content;
 }
 function extractNumberAndContent(input) {
-  const regex = /^\s*\[([^\]]*?(\d+)[^\]]*?)]\s*/;
-  const match = input.match(regex);
+  // Regex para corchetes con números al inicio y final
+  const regexWithNumber =
+    /(?:^\s*\[([^\]]*?(\d+)[^\]]*?)]\s*)|(?:\s*\[([^\]]*?(\d+)[^\]]*?)]\s*$)/g;
+  // Regex para cualquier tipo de corchetes al inicio o final
+  const regexEmptyBrackets = /(?:^\s*\[[^\]]*]\s*)|(?:\s*\[[^\]]*]\s*$)/g;
 
-  if (match) {
+  const numbers = [];
+  let match;
+
+  // Buscamos todos los números en corchetes
+  while ((match = regexWithNumber.exec(input)) !== null) {
     const numberMatch = match[0].match(/\d+/);
-    const number = numberMatch ? parseInt(numberMatch[0]) : -1;
-    const content = input.replace(match[0], "").trim();
-    return { number: number, content: content };
-  } else {
-    return { number: -1, content: input.trim() };
+    if (numberMatch) {
+      numbers.push(parseInt(numberMatch[0]));
+    }
   }
+
+  // Limpiamos el contenido de todos los corchetes (con o sin números)
+  const content = input.replace(regexEmptyBrackets, "").trim();
+
+  return { numbers: numbers, content: content };
 }
 async function sendMessageChatbot(
   chat,
@@ -322,19 +332,21 @@ ${
   );
 
   let mediaContent = null;
-  const { number, content } = extractNumberAndContent(chatbotMessage);
+  const { numbers, content } = extractNumberAndContent(chatbotMessage);
   console.log(
-    `SE TOMARA EL NUMERO ${number} de la respuesta ${chatbotMessage} ${
+    `SE TOMARA EL NUMERO ${numbers} de la respuesta ${chatbotMessage} ${
       mediaPrompts.length - 1
     }`
   );
 
   chatbotMessage = content;
-  if (number > -1 && number < mediaPrompts.length) {
-    console.log("content ", mediaPrompts[number].mediaContent);
-    mediaContent = await MediaContent.findOne({
-      uuid: mediaPrompts[number].mediaContent,
-    });
+  if (numbers.length != 0) {
+    if (numbers[0] > -1 && numbers[0] < mediaPrompts.length) {
+      console.log("content ", mediaPrompts[number].mediaContent);
+      mediaContent = await MediaContent.findOne({
+        uuid: mediaPrompts[number].mediaContent,
+      });
+    }
   }
   if (Math.random() < 0.5) {
     const emoji = await generateChatBotMessage(
