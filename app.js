@@ -90,12 +90,13 @@ SyncServer.syncPost(Message, "message", async (docs) => {
     }
     const chat = await Chat.findOne({ uuid: doc.chat });
     const whatsappAccount = await WhatsappAccount.findOne({
-      businessPhone: chat.businessPhone,
+      uuid: chat.whatsappAccount,
     });
+    const client = await Client.findOne({ uuid: chat.client });
     const messageWid = await sendWhatsappMessage(
       META_TOKEN,
       whatsappAccount.businessPhoneId,
-      chat.clientWid,
+      client.wid,
       "text",
       {
         body: doc.textContent,

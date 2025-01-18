@@ -13,9 +13,8 @@ const ClientSchema = new Schema(
       unique: true,
       required: true,
     },
-    base64Profile: String,
-    username: String,
-    formProcess: { type: String, default: null },
+    base64Profile: { type: String, default: "" },
+    username: { type: String, default: "" },
   }),
   { timestamps: true }
 );

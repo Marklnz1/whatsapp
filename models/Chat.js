@@ -8,10 +8,10 @@ const Schema = mongoose.Schema;
 */
 const ChatSchema = new Schema(
   generateFields({
-    clientWid: String,
-    businessPhone: String,
-    lastSeen: Number,
-    chatbot: Boolean,
+    client: { type: String, default: "" },
+    whatsappAccount: { type: String, default: "" },
+    lastSeen: { type: Number, default: 0 },
+    chatbot: { type: Boolean, default: true },
   }),
   { timestamps: true }
 );

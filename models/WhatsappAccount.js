@@ -8,10 +8,10 @@ const Schema = mongoose.Schema;
 */
 const WhatsAppAccountSchema = new Schema(
   generateFields({
-    name: String,
-    businessPhone: String,
-    businessPhoneId: String,
-    prompt: String,
+    name: { type: String, default: "" },
+    businessPhone: { type: String, default: "" },
+    businessPhoneId: { type: String, default: "" },
+    prompt: { type: String, default: "" },
   }),
   { timestamps: true }
 );

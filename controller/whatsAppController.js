@@ -161,6 +161,16 @@ const createChatClientMapData = async (contacts, recipientData) => {
 
     const username = profile.name;
     const wid = contact.wa_id;
+    let whatsappAccountDB = await SyncServer.createOrGet(
+      WhatsappAccount,
+      "whatsappAccount",
+      recipientData.phoneNumber,
+      {
+        name: `+${recipientData.phoneNumber}`,
+        businessPhone: recipientData.phoneNumber,
+        businessPhoneId: recipientData.phoneNumberId,
+      }
+    );
     let clientDB = await SyncServer.createOrGet(Client, "client", wid, {
       wid,
       username,
@@ -169,10 +179,10 @@ const createChatClientMapData = async (contacts, recipientData) => {
     let chatDB = await SyncServer.createOrGet(
       Chat,
       "chat",
-      `${clientDB.wid}_${recipientData.phoneNumber}`,
+      `${clientDB.uuid}_${whatsappAccountDB.uuid}`,
       {
-        clientWid: clientDB.wid,
-        businessPhone: recipientData.phoneNumber,
+        client: clientDB.uuid,
+        whatsappAccount: whatsappAccountDB,
         lastSeen: 0,
         chatbot: true,
       }
