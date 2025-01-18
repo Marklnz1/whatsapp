@@ -342,7 +342,6 @@ ${
     }`
   );
 
-  chatbotMessage = content;
   if (numbers.length != 0) {
     const number = numbers[0];
     if (number > -1 && number < mediaPrompts.length) {
