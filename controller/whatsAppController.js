@@ -330,7 +330,7 @@ ${
   );
 
   chatbotMessage = content;
-  if (number > -1 && number < mediaPrompts.length - 1) {
+  if (number > -1 && number < mediaPrompts.length) {
     console.log("content ", mediaPrompts[number].mediaContent);
     mediaContent = await MediaContent.findOne({
       uuid: mediaPrompts[number].mediaContent,
