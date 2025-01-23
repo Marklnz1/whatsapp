@@ -106,7 +106,7 @@ SyncServer.syncPost({
         },
         doc.uuid
       );
-      console.log("SE OBTUVO EL WID " + messageWid);
+      // console.log("SE OBTUVO EL WID " + messageWid);
       await SyncServer.updateFields(Message, "message", doc.uuid, {
         wid: messageWid,
       });

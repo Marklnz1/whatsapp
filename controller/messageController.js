@@ -100,7 +100,7 @@ module.exports.sendTextMessage = async (req, res) => {
       sentStatus: "not_sent",
     });
     await newMessage.save();
-    console.log("ID DEL MENSAJE CREADO => " + newMessage._id);
+    // console.log("ID DEL MENSAJE CREADO => " + newMessage._id);
 
     const messageId = await sendWhatsappMessage(
       META_TOKEN,
@@ -115,7 +115,7 @@ module.exports.sendTextMessage = async (req, res) => {
     newMessage.wid = messageId;
     newMessage.sentStatus = "send_requested";
     await newMessage.save();
-    console.log("TERMINANDOOOOOOOOOOOO FUNCION  ");
+    // console.log("TERMINANDOOOOOOOOOOOO FUNCION  ");
     res.json({});
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -129,7 +129,7 @@ module.exports.sendMediaMessage = (req, res) => {
       const uuid = fields.uuid;
       // console.log("ingreso el uuid " + uuid);
       if (messagesSet.has(uuid)) {
-        console.log("INGRESOOOOOOO CON EL UUID " + uuid);
+        // console.log("INGRESOOOOOOO CON EL UUID " + uuid);
         messagesSet.delete(uuid);
         return res.status(200).json({ error: "Solicitud duplicada" });
       }
@@ -174,19 +174,19 @@ module.exports.sendMediaMessage = (req, res) => {
         savedFileName,
         metaFileName: orgFilename,
       });
-      console.log("la categoria es " + category + " filename " + savedFileName);
+      // console.log("la categoria es " + category + " filename " + savedFileName);
 
       // return;
       await newMessage.save();
-      console.log("ENTRANDOOOOOOOOO222222S");
-      console.log("MI MIMETYPE ES " + mimeType);
-      console.log("FILENAME ES  " + orgFilename);
+      // console.log("ENTRANDOOOOOOOOO222222S");
+      // console.log("MI MIMETYPE ES " + mimeType);
+      // console.log("FILENAME ES  " + orgFilename);
       //post a meta para enviar mensaje con el link temporal https://${SERVER_SAVE}/api/temp/media/${savedFileName}
       // console.log(util.inspect(metadata));
       let link = `https://${DOMAIN}/api/temp/media/${savedFileName}`;
 
-      console.log("El link es " + link);
-      console.log("la categoria es " + category);
+      // console.log("El link es " + link);
+      // console.log("la categoria es " + category);
       const messageData = { link };
       if (category != "audio" && category != "sticker") {
         messageData.caption = textContent;
@@ -205,7 +205,7 @@ module.exports.sendMediaMessage = (req, res) => {
       newMessage.sentStatus = "send_requested";
       newMessage.wid = messageId;
       await newMessage.save();
-      console.log("SE TERMINOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOASDASD");
+      // console.log("SE TERMINOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOASDASD");
       res.sendStatus(200);
     },
     (error) => {

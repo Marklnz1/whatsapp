@@ -179,16 +179,16 @@ class SyncServer {
                 docs.length == 0
                   ? 0
                   : Math.max(...docs.map((doc) => doc.syncCode));
-              console.log("el syncodeMax es ", syncCodeMax, "aa", tableName);
+              // console.log("el syncodeMax es ", syncCodeMax, "aa", tableName);
             }
-            console.log(
-              "EL TAMAÑO DE LOS DOCS ES ",
-              docs.length,
-              "findata ",
-              findData,
-              " TABLENAME",
-              tableName
-            );
+            // console.log(
+            //   "EL TAMAÑO DE LOS DOCS ES ",
+            //   docs.length,
+            //   "findata ",
+            //   findData,
+            //   " TABLENAME",
+            //   tableName
+            // );
             res.status(200).json({ docs: docs ?? [], syncCodeMax });
           } catch (error) {
             res.status(400).json({ error: error.message });
@@ -406,7 +406,7 @@ class SyncServer {
       socketTimeoutMS: 30000,
     });
     const syncCodeMax = await this.updateAndGetSyncCode("serverData");
-    console.log("EL MAXIMO CODIGO ES " + syncCodeMax);
+    // console.log("EL MAXIMO CODIGO ES " + syncCodeMax);
     await ServerData.findOneAndUpdate(
       { uuid: "momo" },
       {

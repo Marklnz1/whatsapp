@@ -43,7 +43,7 @@ const groqClient = new Groq({
 });
 
 module.exports.verifyToken = (req, res) => {
-  console.log("VERIFICANDO TOKEN");
+  // console.log("VERIFICANDO TOKEN");
   try {
     let token = req.query["hub.verify_token"];
     var challenge = req.query["hub.challenge"];
@@ -149,7 +149,7 @@ module.exports.receiveMessage = async (req, res) => {
     }
     res.sendStatus(404);
   } catch (e) {
-    console.log(util.inspect(e));
+    // console.log(util.inspect(e));
     res.sendStatus(404);
   }
 };
@@ -347,23 +347,23 @@ Asegúrate de que tu respuesta sea clara, coherente y que la multimedia (si la i
     clientMessage,
     false
   );
-  console.log(
-    `INDICES MOSTRADOS ${indexes.length} ${indexes
-      .map((item) => `${item}`)
-      .join(",")}`
-  );
+  // console.log(
+  //   `INDICES MOSTRADOS ${indexes.length} ${indexes
+  //     .map((item) => `${item}`)
+  //     .join(",")}`
+  // );
   let mediaContent = null;
   const { numbers, content } = extractNumberAndContent(chatbotMessage);
-  console.log(
-    `SE TOMARA EL NUMERO ${numbers} de la respuesta ${chatbotMessage} ${
-      mediaPrompts.length - 1
-    }`
-  );
+  // console.log(
+  //   `SE TOMARA EL NUMERO ${numbers} de la respuesta ${chatbotMessage} ${
+  //     mediaPrompts.length - 1
+  //   }`
+  // );
 
   if (numbers.length != 0) {
     const number = numbers[0];
     if (number > -1 && number < mediaPrompts.length) {
-      console.log("content ", mediaPrompts[number].mediaContent);
+      // console.log("content ", mediaPrompts[number].mediaContent);
       mediaContent = await MediaContent.findOne({
         uuid: mediaPrompts[number].mediaContent,
       });
@@ -415,7 +415,7 @@ Asegúrate de que tu respuesta sea clara, coherente y que la multimedia (si la i
       link: `https://${DOMAIN}/api/temp/media/${mediaContent.savedFileName}` /* Only if linking to your media */,
       caption: content,
     };
-    console.log(`se intentara enviar con el link ${sendContentData.link}`);
+    // console.log(`se intentara enviar con el link ${sendContentData.link}`);
   }
   const messageId = await sendWhatsappMessage(
     META_TOKEN,
@@ -440,7 +440,7 @@ const receiveMessageClient = async (
   io
 ) => {
   const { client, chat } = chatClientMapData[message.from];
-  console.log(`EL MAPA ES ${util.inspect(chatClientMapData)}`);
+  // console.log(`EL MAPA ES ${util.inspect(chatClientMapData)}`);
   const category = message.type;
   const messageData = message[category];
   // new Date().getTime();
@@ -454,7 +454,7 @@ const receiveMessageClient = async (
   };
   let mediaContent;
   if (category == "text") {
-    console.log("EL MESSAGE DATA ES ", util.inspect(messageData));
+    // console.log("EL MESSAGE DATA ES ", util.inspect(messageData));
     newMessageData.textContent = messageData.body;
   } else if (messageTypeIsMedia(category)) {
     const metaFileName = messageData.filename;
@@ -476,7 +476,7 @@ const receiveMessageClient = async (
   }
   sendConfirmationMessage(META_TOKEN, recipientData.phoneNumberId, message.id);
 
-  console.log("EL MENSAJE ES ", util.inspect(mediaContent));
+  // console.log("EL MENSAJE ES ", util.inspect(mediaContent));
 
   let messagesHistorial = [];
   if (chat.chatbot && newMessageData.textContent) {
