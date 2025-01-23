@@ -79,37 +79,41 @@ SyncServer.init({
   },
 });
 
-SyncServer.syncPost(WhatsappAccount, "whatsappAccount");
-SyncServer.syncPost(MediaContent, "mediaContent");
-SyncServer.syncPost(MediaPrompt, "mediaPrompt");
+SyncServer.syncPost({ model: WhatsappAccount, tableName: "whatsappAccount" });
+SyncServer.syncPost({ model: MediaContent, tableName: "mediaContent" });
+SyncServer.syncPost({ model: MediaPrompt, tableName: "mediaPrompt" });
 
-SyncServer.syncPost(Message, "message", async (docs) => {
-  for (const doc of docs) {
-    if (doc.sent == "false") {
-      continue;
+SyncServer.syncPost({
+  model: Message,
+  tableName: "message",
+  onInsertAfter: async (docs) => {
+    for (const doc of docs) {
+      if (doc.sent == "false") {
+        continue;
+      }
+      const chat = await Chat.findOne({ uuid: doc.chat });
+      const whatsappAccount = await WhatsappAccount.findOne({
+        uuid: chat.whatsappAccount,
+      });
+      const client = await Client.findOne({ uuid: chat.client });
+      const messageWid = await sendWhatsappMessage(
+        META_TOKEN,
+        whatsappAccount.businessPhoneId,
+        client.wid,
+        "text",
+        {
+          body: doc.textContent,
+        },
+        doc.uuid
+      );
+      console.log("SE OBTUVO EL WID " + messageWid);
+      await SyncServer.updateFields(Message, "message", doc.uuid, {
+        wid: messageWid,
+      });
     }
-    const chat = await Chat.findOne({ uuid: doc.chat });
-    const whatsappAccount = await WhatsappAccount.findOne({
-      uuid: chat.whatsappAccount,
-    });
-    const client = await Client.findOne({ uuid: chat.client });
-    const messageWid = await sendWhatsappMessage(
-      META_TOKEN,
-      whatsappAccount.businessPhoneId,
-      client.wid,
-      "text",
-      {
-        body: doc.textContent,
-      },
-      doc.uuid
-    );
-    console.log("SE OBTUVO EL WID " + messageWid);
-    await SyncServer.updateFields(Message, "message", doc.uuid, {
-      wid: messageWid,
-    });
-  }
+  },
 });
-SyncServer.syncPost(Client, "client");
-SyncServer.syncPost(Chat, "chat");
+SyncServer.syncPost({ model: Client, tableName: "client" });
+SyncServer.syncPost({ model: Chat, tableName: "chat" });
 
 SyncServer.start();

@@ -7,12 +7,18 @@ const LightQueue = require("./LightQueue");
 const Change = require("./Change");
 const ServerData = require("./ServerData");
 const { inspect } = require("util");
+const { v7: uuidv7 } = require("uuid");
+
 // const { verifyUser, login_post } = require("../controllers/authController");
 // const extractUser = require("../middleware/extractUser");
 // const authController = require("../controllers/authController");
 
 class SyncServer {
-  init({ port, mongoURL, router }) {
+  init({ port, mongoURL, router, auth }) {
+    if (auth == null) {
+      auth = (req, res, next) => next();
+    }
+    this.auth = auth;
     this.app = express();
     this.mongoURL = mongoURL;
     this.port = port;
@@ -31,14 +37,15 @@ class SyncServer {
     this.taskQueue = new LightQueue(async ({ tableName, tempCode }, error) => {
       console.log("SE PROCESO EL CAMBIO " + tempCode);
       // const session = await mongoose.startSession();
-      if (tempCode != -1) {
-        await Change.deleteOne({ tempCode });
+      if (tempCode != null) {
+        if (!error) {
+          await Change.deleteOne({ tempCode });
+        }
         await this.updateProcessedTempCode(tempCode);
       }
       this.io.emit("serverChanged");
     });
   }
-  route() {}
   _configServer() {
     this.app.use(express.json({ limit: "50mb" }));
     this.io.on("connection", (socket) => {
@@ -56,98 +63,208 @@ class SyncServer {
     this.app.set("view engine", "ejs");
     this.app.set("view engine", "html");
     this.app.engine("html", require("ejs").renderFile);
-    this.router(this.app);
+    this.router(this.app, this.auth);
     // this.app.post("/login", login_post);
     // this.app.get("/create", authController.create);
     // this.app.use("*", extractUser);
-    this.app.post("/change/list/unprocessed/delete", async (req, res) => {
-      const tempCodes = req.body["tempCodes"];
-      console.log("SE ELIMINARA LOS TEMP CODE => " + tempCodes);
-      await Change.deleteMany({ tempCode: { $in: tempCodes } });
+    this.app.post(
+      "/change/list/unprocessed/delete",
+      async (req, res, next) => {
+        await this.auth(req, res, next, req.body.tableName, "write");
+      },
+      async (req, res) => {
+        const tempCodes = req.body["tempCodes"];
+        console.log("SE ELIMINARA LOS TEMP CODE => " + tempCodes);
+        await Change.deleteMany({
+          tableName: req.body.tableName,
+          tempCode: { $in: tempCodes },
+        });
 
-      res.json({ status: "ok" });
-    });
-    this.app.post("/verify", async (req, res) => {
-      const tableNames = req.body.tableNames;
-      let syncMetadataList = await SyncMetadata.find({
-        tableName: { $in: tableNames },
-      });
-      const foundNames = syncMetadataList.map(
-        (syncMetadata) => syncMetadata.tableName
-      );
-      const notFoundNames = tableNames.filter(
-        (tableName) => !foundNames.includes(tableName)
-      );
-
-      if (notFoundNames) {
-        const newSyncMetadataList = await SyncMetadata.insertMany(
-          notFoundNames.map((tableName) => ({
-            tableName: tableName,
-          }))
+        res.json({ status: "ok" });
+      }
+    );
+    this.app.post(
+      "/verify",
+      async (req, res, next) => {
+        await this.auth(req, res, next, "verify", "read");
+      },
+      async (req, res) => {
+        const tableNames = req.body.tableNames;
+        if (res.locals.verifyTables) {
+          tableNames.filter((element) =>
+            res.locals.verifyTables.includes(element)
+          );
+        }
+        let syncMetadataList = await SyncMetadata.find({
+          tableName: { $in: tableNames },
+        });
+        const foundNames = syncMetadataList.map(
+          (syncMetadata) => syncMetadata.tableName
         );
-        syncMetadataList = syncMetadataList.concat(newSyncMetadataList);
+        const notFoundNames = tableNames.filter(
+          (tableName) => !foundNames.includes(tableName)
+        );
+
+        if (notFoundNames) {
+          const newSyncMetadataList = await SyncMetadata.insertMany(
+            notFoundNames.map((tableName) => ({
+              tableName: tableName,
+            }))
+          );
+          syncMetadataList = syncMetadataList.concat(newSyncMetadataList);
+        }
+
+        const syncMetadataMap = Object.fromEntries(
+          syncMetadataList.map((syncMetadata) => [
+            syncMetadata.tableName,
+            syncMetadata.syncCodeMax,
+          ])
+        );
+        const serverData = await ServerData.findOne();
+
+        const unprocessedChanges = await Change.find({
+          tempCode: { $lte: serverData.processedTempCode },
+        }).lean();
+        res.json({
+          syncTable: syncMetadataMap,
+          unprocessedChanges,
+          serverData,
+        });
       }
-
-      const syncMetadataMap = Object.fromEntries(
-        syncMetadataList.map((syncMetadata) => [
-          syncMetadata.tableName,
-          syncMetadata.syncCodeMax,
-        ])
-      );
-      const serverData = await ServerData.findOne();
-
-      const unprocessedChanges = await Change.find({
-        tempCode: { $lte: serverData.processedTempCode },
-      }).lean();
-      res.json({
-        syncTable: syncMetadataMap,
-        unprocessedChanges,
-        serverData,
-      });
-    });
+    );
   }
-  syncPost(Model, tableName, onInsert) {
-    this.app.post(`/${tableName}/list/sync`, async (req, res, next) => {
-      try {
-        let findData = {
-          syncCode: { $gt: req.body["syncCodeMax"] },
-          status: { $ne: "Deleted" },
-          // userId: res.locals.user.userId,
-        };
-
-        let docs = await Model.find(findData).lean().exec();
-
-        res.status(200).json({ docs: docs ?? [] });
-      } catch (error) {
-        res.status(400).json({ error: error.message });
-      }
-    });
-    this.app.post(`/${tableName}/update/list/sync`, async (req, res, next) => {
-      this.codeQueue.add({
-        data: {},
-        task: async () => {
+  syncPost({
+    model,
+    tableName,
+    onInsertPrevious,
+    onInsertAfter,
+    onBeforeCreate,
+    excludedFields = [],
+    getSyncfindData,
+  }) {
+    let selectFields = excludedFields.map((field) => `-${field}`).join(" ");
+    this.app.post(
+      `/${tableName}/list/sync`,
+      async (req, res, next) => {
+        await this.auth(req, res, next, tableName, "read");
+      },
+      async (req, res, next) => {
+        const task = async () => {
           try {
-            const tempCode = await this.updateAndGetTempCode();
-            console.log("DEVOLVIENDO EL TEMP CODE QUEUE => " + tempCode);
-            const change = new Change({ tempCode, status: "inserted" });
-            await change.save();
-            this.addTaskDataInQueue(
-              Model,
-              tableName,
-              req.body["docs"],
-              tempCode,
-              onInsert
-              // res.locals.user.userId
+            let findData = {
+              syncCode: { $gt: req.body["syncCodeMax"] },
+              status: { $ne: "Deleted" },
+              ...(getSyncfindData == null ? {} : getSyncfindData(req, res)),
+              // userId: res.locals.user.userId,
+            };
+
+            let docs = await model
+              .find(findData)
+              .select(selectFields)
+              .lean()
+              .exec();
+
+            let syncCodeMax;
+
+            if (getSyncfindData != null) {
+              syncCodeMax = await this.getCurrentSyncCode("movement");
+              // console.log(
+              //   "el syncodeMax es2222 ",
+              //   syncCodeMax,
+              //   "aa",
+              //   tableName
+              // );
+            } else {
+              syncCodeMax =
+                docs.length == 0
+                  ? 0
+                  : Math.max(...docs.map((doc) => doc.syncCode));
+              console.log("el syncodeMax es ", syncCodeMax, "aa", tableName);
+            }
+            console.log(
+              "EL TAMAÑO DE LOS DOCS ES ",
+              docs.length,
+              "findata ",
+              findData,
+              " TABLENAME",
+              tableName
             );
-            res.status(200).json({ tempCode });
+            res.status(200).json({ docs: docs ?? [], syncCodeMax });
           } catch (error) {
             res.status(400).json({ error: error.message });
           }
-        },
-      });
-    });
+        };
+        if (getSyncfindData != null) {
+          this.codeQueue.add({
+            data: {},
+            task,
+          });
+        } else {
+          await task();
+        }
+      }
+    );
+    this.app.post(
+      `/${tableName}/create`,
+      async (req, res, next) => {
+        await this.auth(req, res, next, tableName, "write");
+      },
+      async (req, res, next) => {
+        try {
+          if (onBeforeCreate) {
+            await onBeforeCreate(req.body);
+          }
+          await this.createOrGet(model, tableName, uuidv7(), req.body);
+          res.json({ msg: "ok" });
+        } catch (error) {
+          res.json({ error });
+        }
+      }
+    );
+    this.app.post(
+      `/${tableName}/update/list/sync`,
+      async (req, res, next) => {
+        await this.auth(req, res, next, tableName, "write");
+      },
+      async (req, res, next) => {
+        this.codeQueue.add({
+          data: {},
+          task: async () => {
+            try {
+              const tempCode = await this.updateAndGetTempCode();
+              console.log("DEVOLVIENDO EL TEMP CODE QUEUE => " + tempCode);
+              const change = new Change({
+                tableName: tableName,
+                tempCode,
+                status: "inserted",
+              });
+              await change.save();
+              this.addTaskDataInQueue(
+                model,
+                tableName,
+                req.body["docs"],
+                tempCode,
+                onInsertPrevious,
+                onInsertAfter
+                // res.locals.user.userId
+              );
+              res.status(200).json({ tempCode });
+            } catch (error) {
+              res.status(400).json({ error: error.message });
+            }
+          },
+        });
+      }
+    );
   }
-  addTaskDataInQueue(Model, tableName, docs, tempCode, onInsert) {
+  addTaskDataInQueue(
+    Model,
+    tableName,
+    docs,
+    tempCode,
+    onInsertPrevious,
+    onInsertAfter
+  ) {
     this.taskQueue.add({
       data: {
         tempCode,
@@ -157,6 +274,13 @@ class SyncServer {
         const session = await mongoose.startSession();
         session.startTransaction();
         try {
+          if (onInsertPrevious) {
+            await onInsertPrevious({
+              docs,
+              session,
+              createOrGet: this._createOrGet,
+            });
+          }
           const newDocs = await this.localToServer(
             Model,
             tableName,
@@ -164,12 +288,14 @@ class SyncServer {
             session
           );
           await session.commitTransaction();
-          if (onInsert) {
-            onInsert(newDocs);
+          if (onInsertAfter) {
+            onInsertAfter(newDocs);
           }
+          return false;
         } catch (error) {
           await session.abortTransaction();
           console.error("Error en la transacción, se ha revertido:", error);
+          return true;
         } finally {
           await session.endSession();
         }
@@ -270,8 +396,8 @@ class SyncServer {
     return newDocs;
   }
 
-  async start() {
-    this.syncPost(ServerData, "serverData");
+  async start({ exec } = {}) {
+    this.syncPost({ model: ServerData, tableName: "serverData" });
 
     await mongoose.connect(this.mongoURL, {
       autoIndex: true,
@@ -294,8 +420,12 @@ class SyncServer {
         context: "query",
       }
     );
+
     const tempCode = await this.updateAndGetTempCode();
     await this.updateProcessedTempCode(tempCode);
+    if (exec != null) {
+      await exec();
+    }
     this.server.listen(this.port, () => {
       console.log("SERVER ACTIVO: PUERTO USADO :" + this.port);
     });
@@ -320,6 +450,10 @@ class SyncServer {
 
     return serverData.tempCodeMax;
   }
+  async getCurrentSyncCode(tableName) {
+    let syncCodeTable = await SyncMetadata.findOne({ tableName });
+    return syncCodeTable?.syncCodeMax ?? 0;
+  }
   async updateAndGetSyncCode(tableName, session = null) {
     const options = { new: true, upsert: true };
     if (session) {
@@ -335,7 +469,7 @@ class SyncServer {
   async createOrGet(Model, tableName, uuid, data) {
     return new Promise((resolve, reject) => {
       this.taskQueue.add({
-        data: { tableName, tempCode: -1 },
+        data: { tableName },
         task: async () => {
           const session = await mongoose.startSession();
           session.startTransaction();
@@ -360,7 +494,8 @@ class SyncServer {
       });
     });
   }
-  async _createOrGet(Model, tableName, uuid, data, session) {
+
+  _createOrGet = async (Model, tableName, uuid, data, session) => {
     let docDB = await Model.findOne({ uuid });
     if (!docDB) {
       data.syncCode = await this.updateAndGetSyncCode(tableName, session);
@@ -371,11 +506,11 @@ class SyncServer {
       );
     }
     return docDB;
-  }
+  };
   async updateFields(Model, tableName, uuid, data) {
     return new Promise((resolve, reject) => {
       this.taskQueue.add({
-        data: { tableName, tempCode: -1 },
+        data: { tableName },
         task: async () => {
           const session = await mongoose.startSession();
           session.startTransaction();
