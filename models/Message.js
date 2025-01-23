@@ -31,6 +31,7 @@ const MessageSchema = new Schema(
     time: { type: Number, default: 0 },
     sentStatus: { type: String, default: "empty" },
     read: { type: Boolean, default: false },
+    templateName: { type: String, default: "" },
   }),
   { timestamps: true }
 );
