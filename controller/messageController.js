@@ -4,10 +4,8 @@ const Message = require("../models/Message");
 const { sendWhatsappMessage, saveMediaBusiness } = require("../utils/server");
 const { default: axios } = require("axios");
 const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN;
-const SERVER_SAVE = process.env.SERVER_SAVE;
 const DOMAIN = process.env.DOMAIN;
 
-const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
 const https = require("https");
 const mime = require("mime-types");
 const { updateAndGetSyncCode } = require("../utils/sync");

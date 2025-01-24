@@ -41,9 +41,9 @@ SyncServer.init({
           CLOUD_API_ACCESS_TOKEN,
           filter
         );
-        res.json({ response });
+        res.json(response);
       } catch (error) {
-        res.json({ error });
+        res.json(error);
       }
     });
     app.post("/api/message/template/list", async (req, res, next) => {

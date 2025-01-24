@@ -30,11 +30,8 @@ const WEBHOOK_VERIFICATION_TOKEN = process.env.WEBHOOK_VERIFICATION_TOKEN;
 const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN;
 const GROQ_TOKEN = process.env.GROQ_TOKEN;
 const GROQ_MODEL = process.env.GROQ_MODEL;
-const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT;
-const BUSINESS_INFO = process.env.BUSINESS_INFO;
+
 // const PHONE_ID = process.env.PHONE_ID;
-const SERVER_SAVE = process.env.SERVER_SAVE;
-const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
 const agent = new https.Agent({
   rejectUnauthorized: false,
 });
