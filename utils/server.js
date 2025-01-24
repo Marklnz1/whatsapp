@@ -91,7 +91,7 @@ module.exports.sendConfirmationMessage = async (
     });
     // console.log(inspect(response));
   } catch (error) {
-    console.log("ERROR CONFIRMATION" + inspect(error.response.data));
+    console.log("ERROR CONFIRMATION" + inspect(error.response.data), metaToken);
   }
 };
 module.exports.sendReaction = async (
