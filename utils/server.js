@@ -173,10 +173,10 @@ module.exports.sendTemplateAndCreateDB = async (
   templateData,
   io
 ) => {
-  const messageUuid = uuidv7();
-  const body = getTemplateBody(templateData);
-
   try {
+    const messageUuid = uuidv7();
+    const body = getTemplateBody(templateData);
+
     let chatDB = await getChatDB(
       businessPhoneId,
       businessPhone,
