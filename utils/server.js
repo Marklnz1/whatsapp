@@ -10,10 +10,16 @@ const fs = require("fs");
 const mime = require("mime-types");
 
 const path = require("path");
+const Message = require("../models/Message");
+const Client = require("../models/Client");
+const WhatsappAccount = require("../models/WhatsappAccount");
+const Chat = require("../models/Chat");
+const { SyncServer } = require("../synchronization/SyncServer");
 ffmpeg.setFfprobePath(ffprobe.path);
 const ffprobeAsync = promisify(ffmpeg.ffprobe);
 const pipelineAsync = promisify(pipeline);
-const META_TOKEN = process.env.META_TOKEN;
+const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN;
+const CLOUD_API_VERSION = process.env.CLOUD_API_VERSION;
 
 const getMediaMetadata = async (filePath, mediaType) => {
   const metadata = await ffprobeAsync(filePath);
@@ -48,7 +54,7 @@ const getMediaToURL = async (url) => {
     url,
     responseType: "stream",
     headers: {
-      Authorization: `Bearer ${META_TOKEN}`,
+      Authorization: `Bearer ${CLOUD_API_ACCESS_TOKEN}`,
     },
   });
   return response.data;
@@ -117,6 +123,91 @@ module.exports.sendReaction = async (
     });
   } catch (error) {}
 };
+
+function getTemplateBody(templateData) {
+  for (const component of templateData.components) {
+    if (component.type == "BODY") {
+      return component;
+    }
+  }
+}
+async function getChatDB(businessPhoneId, businessPhone, destinationPhone) {
+  let whatsappAccountDB = await SyncServer.createOrGet(
+    WhatsappAccount,
+    "whatsappAccount",
+    businessPhone,
+    {
+      name: `+${businessPhone}`,
+      businessPhone: businessPhone,
+      businessPhoneId: businessPhoneId,
+    }
+  );
+  let clientDB = await SyncServer.createOrGet(
+    Client,
+    "client",
+    destinationPhone,
+    {
+      wid: destinationPhone,
+      username: `+${destinationPhone}`,
+    }
+  );
+  return await SyncServer.createOrGet(
+    Chat,
+    "chat",
+    `${clientDB.uuid}_${whatsappAccountDB.uuid}`,
+    {
+      client: clientDB.uuid,
+      whatsappAccount: whatsappAccountDB.uuid,
+      lastSeen: 0,
+      chatbot: false,
+    }
+  );
+}
+module.exports.sendTemplateAndCreateDB = async (
+  metaToken,
+  businessPhoneId,
+  businessPhone,
+  destinationPhone,
+  templateData,
+  io
+) => {
+  const messageUuid = uuidv7();
+  const body = getTemplateBody(templateData);
+
+  try {
+    let chatDB = await getChatDB(
+      businessPhoneId,
+      businessPhone,
+      destinationPhone
+    );
+    await SyncServer.createOrGet(Message, "message", messageUuid, {
+      chat: chatDB.uuid,
+      textContent: body.text,
+      sent: true,
+      templateName: templateData.name,
+    });
+    io.emit("serverChanged");
+
+    const messageId = await this.sendWhatsappMessage(
+      metaToken,
+      businessPhoneId,
+      destinationPhone,
+      "template",
+      {
+        name: templateData.name,
+        language: { code: templateData.language },
+      },
+      messageUuid
+    );
+    await SyncServer.updateFields(Message, "message", messageUuid, {
+      wid: messageId,
+      sentStatus: "send_requested",
+    });
+    io.emit("serverChanged");
+  } catch (error) {
+    console.log("ERROR AL ENVIAR EL TEMPLATE ", error.response.data);
+  }
+};
 module.exports.sendWhatsappMessage = async (
   metaToken,
   businessPhoneId,
@@ -153,6 +244,22 @@ module.exports.sendWhatsappMessage = async (
   });
   const messageId = response.data.messages[0].id;
   return messageId;
+};
+module.exports.getTemplates = async (
+  whatsappBusinessAccountId,
+  cloudApiAccessToken,
+  filter = {}
+) => {
+  const queryString = new URLSearchParams(filter).toString();
+  const response = await axios({
+    method: "GET",
+    url: `https://graph.facebook.com/${CLOUD_API_VERSION}/${whatsappBusinessAccountId}/message_templates?${queryString}`,
+    headers: {
+      Authorization: `Bearer ${cloudApiAccessToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
 };
 module.exports.saveMediaBusiness = (req, onFinish, onError) => {
   try {
@@ -302,7 +409,7 @@ module.exports.saveMediaClient = async (mediaId, category) => {
     method: "GET",
     url: "https://graph.facebook.com/" + mediaId,
     headers: {
-      Authorization: `Bearer ${META_TOKEN}`,
+      Authorization: `Bearer ${CLOUD_API_ACCESS_TOKEN}`,
     },
   });
   const mimetype = response.data.mime_type;

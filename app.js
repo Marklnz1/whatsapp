@@ -7,14 +7,23 @@ const WhatsappAccount = require("./models/WhatsappAccount");
 const { SyncServer } = require("./synchronization/SyncServer");
 const whatsAppController = require("./controller/whatsAppController");
 const Chat = require("./models/Chat");
-const { sendWhatsappMessage, saveMedia } = require("./utils/server");
+const {
+  sendWhatsappMessage,
+  saveMedia,
+  sendTemplateAndCreateDB,
+  getTemplates,
+} = require("./utils/server");
 const mediaController = require("./controller/mediaController");
 const MediaContent = require("./models/MediaContent");
 const MediaPrompt = require("./models/MediaPrompt");
 const mapLinkTemp = new Map();
 const path = require("path");
+const { v7: uuidv7 } = require("uuid");
+const { createSearchIndex } = require("./synchronization/SyncMetadata");
 
-const META_TOKEN = process.env.META_TOKEN;
+const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN;
+const WA_BUSINESS_ACCOUNT_ID = process.env.WA_BUSINESS_ACCOUNT_ID;
+
 SyncServer.init({
   port: PORT,
   mongoURL: MONGODB_URL,
@@ -23,6 +32,53 @@ SyncServer.init({
       res.json({ msg: "ok" });
     });
     app.get("/api/media/:name", mediaController.getMedia);
+    app.get("/api/media/:name", mediaController.getMedia);
+    app.get("/api/template/list", async (req, res, next) => {
+      try {
+        const filter = req.body.filter;
+        const response = await getTemplates(
+          WA_BUSINESS_ACCOUNT_ID,
+          CLOUD_API_ACCESS_TOKEN,
+          filter
+        );
+        res.json({ response });
+      } catch (error) {
+        res.json({ error });
+      }
+    });
+    app.post("/api/message/template/list", async (req, res, next) => {
+      try {
+        const io = res.locals.io;
+        const businessPhoneId = req.body["businessPhoneId"];
+        const businessPhone = req.body["businessPhone"];
+        const destinationPhones = req.body["destinationPhones"];
+        const templateName = req.body["templateName"];
+        const response = await getTemplates(
+          WA_BUSINESS_ACCOUNT_ID,
+          CLOUD_API_ACCESS_TOKEN,
+          { name: templateName }
+        );
+        const promises = [];
+        for (const phone of destinationPhones) {
+          promises.push(
+            sendTemplateAndCreateDB(
+              CLOUD_API_ACCESS_TOKEN,
+              businessPhoneId,
+              businessPhone,
+              phone,
+              response.data[0],
+              io
+            )
+          );
+        }
+        const resp = await Promise.allSettled(promises);
+        console.log("LA RESPUESTA ES ", resp);
+        res.json({ message: "ok" });
+      } catch (error) {
+        res.json({ error });
+      }
+    });
+
     app.post("/api/media/:category/:type/:subtype", (req, res, next) => {
       saveMedia(
         req,
@@ -97,7 +153,7 @@ SyncServer.syncPost({
       });
       const client = await Client.findOne({ uuid: chat.client });
       const messageWid = await sendWhatsappMessage(
-        META_TOKEN,
+        CLOUD_API_ACCESS_TOKEN,
         whatsappAccount.businessPhoneId,
         client.wid,
         "text",

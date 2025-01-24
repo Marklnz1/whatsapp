@@ -17,7 +17,7 @@
 
 // const socketController = require("./controller/socketController");
 // const messageController = require("./controller/messageController");
-// const META_TOKEN = process.env.META_TOKEN;
+// const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN;
 
 // const SERVER_SAVE = process.env.SERVER_SAVE;
 // const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
@@ -138,7 +138,7 @@
 //       businessPhone: chat.businessPhone,
 //     });
 //     const messageWid = await sendWhatsappMessage(
-//       META_TOKEN,
+//       CLOUD_API_ACCESS_TOKEN,
 //       whatsappAccount.businessPhoneId,
 //       chat.clientWid,
 //       "text",

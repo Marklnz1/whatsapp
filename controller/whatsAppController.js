@@ -26,13 +26,13 @@ const MediaPrompt = require("../models/MediaPrompt");
 require("dotenv").config();
 const DOMAIN = process.env.DOMAIN;
 
-const MY_TOKEN = process.env.MY_TOKEN;
-const META_TOKEN = process.env.META_TOKEN;
+const WEBHOOK_VERIFICATION_TOKEN = process.env.WEBHOOK_VERIFICATION_TOKEN;
+const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN;
 const GROQ_TOKEN = process.env.GROQ_TOKEN;
 const GROQ_MODEL = process.env.GROQ_MODEL;
 const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT;
 const BUSINESS_INFO = process.env.BUSINESS_INFO;
-const PHONE_ID = process.env.PHONE_ID;
+// const PHONE_ID = process.env.PHONE_ID;
 const SERVER_SAVE = process.env.SERVER_SAVE;
 const SERVER_SAVE_TOKEN = process.env.SERVER_SAVE_TOKEN;
 const agent = new https.Agent({
@@ -47,7 +47,11 @@ module.exports.verifyToken = (req, res) => {
   try {
     let token = req.query["hub.verify_token"];
     var challenge = req.query["hub.challenge"];
-    if (challenge != null && token != null && token == MY_TOKEN) {
+    if (
+      challenge != null &&
+      token != null &&
+      token == WEBHOOK_VERIFICATION_TOKEN
+    ) {
       res.send(challenge);
       return;
     }
@@ -184,7 +188,7 @@ const createChatClientMapData = async (contacts, recipientData) => {
         client: clientDB.uuid,
         whatsappAccount: whatsappAccountDB.uuid,
         lastSeen: 0,
-        chatbot: true,
+        chatbot: false,
       }
     );
     chatClientMapDB[wid] = { client: clientDB, chat: chatDB };
@@ -386,7 +390,7 @@ Asegúrate de que tu respuesta sea clara, coherente y que la multimedia (si la i
 
     if (emoji || emoji != "void") {
       sendReaction(
-        META_TOKEN,
+        CLOUD_API_ACCESS_TOKEN,
         businessPhoneId,
         clientDB.wid,
         clientMessageId,
@@ -402,10 +406,7 @@ Asegúrate de que tu respuesta sea clara, coherente y que la multimedia (si la i
     textContent: chatbotMessage,
     mediaContent: mediaContent?.uuid ?? "",
     sent: true,
-    read: false,
-    time: new Date().getTime(),
     category: "text",
-    sentStatus: "not_sent",
   });
   let sendContentData = {
     body: content,
@@ -418,7 +419,7 @@ Asegúrate de que tu respuesta sea clara, coherente y que la multimedia (si la i
     // console.log(`se intentara enviar con el link ${sendContentData.link}`);
   }
   const messageId = await sendWhatsappMessage(
-    META_TOKEN,
+    CLOUD_API_ACCESS_TOKEN,
     businessPhoneId,
     clientDB.wid,
     mediaContent?.category ?? "text",
@@ -474,7 +475,11 @@ const receiveMessageClient = async (
     );
     newMessageData.mediaContent = mediaContentUuid;
   }
-  sendConfirmationMessage(META_TOKEN, recipientData.phoneNumberId, message.id);
+  sendConfirmationMessage(
+    CLOUD_API_ACCESS_TOKEN,
+    recipientData.phoneNumberId,
+    message.id
+  );
 
   // console.log("EL MENSAJE ES ", util.inspect(mediaContent));
 

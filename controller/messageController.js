@@ -3,7 +3,7 @@ const Client = require("../models/Client");
 const Message = require("../models/Message");
 const { sendWhatsappMessage, saveMediaBusiness } = require("../utils/server");
 const { default: axios } = require("axios");
-const META_TOKEN = process.env.META_TOKEN;
+const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN;
 const SERVER_SAVE = process.env.SERVER_SAVE;
 const DOMAIN = process.env.DOMAIN;
 
@@ -41,7 +41,7 @@ module.exports.sendLocationMessage = async (req, res) => {
   });
   await newMessage.save();
   const messageId = await sendWhatsappMessage(
-    META_TOKEN,
+    CLOUD_API_ACCESS_TOKEN,
     businessPhoneId,
     client.wid,
     "interactive",
@@ -103,7 +103,7 @@ module.exports.sendTextMessage = async (req, res) => {
     // console.log("ID DEL MENSAJE CREADO => " + newMessage._id);
 
     const messageId = await sendWhatsappMessage(
-      META_TOKEN,
+      CLOUD_API_ACCESS_TOKEN,
       businessPhoneId,
       client.wid,
       "text",
@@ -195,7 +195,7 @@ module.exports.sendMediaMessage = (req, res) => {
         messageData.filename = orgFilename;
       }
       const messageId = await sendWhatsappMessage(
-        META_TOKEN,
+        CLOUD_API_ACCESS_TOKEN,
         businessPhoneId,
         dstPhone,
         category,
