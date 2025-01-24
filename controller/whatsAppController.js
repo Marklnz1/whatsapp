@@ -482,16 +482,16 @@ const receiveMessageClient = async (
     );
     newMessageData.mediaContent = mediaContentUuid;
   }
-  sendConfirmationMessage(
-    CLOUD_API_ACCESS_TOKEN,
-    recipientData.phoneNumberId,
-    message.id
-  );
 
   // console.log("EL MENSAJE ES ", util.inspect(mediaContent));
 
   let messagesHistorial = [];
   if (chat.chatbot && newMessageData.textContent) {
+    sendConfirmationMessage(
+      CLOUD_API_ACCESS_TOKEN,
+      recipientData.phoneNumberId,
+      message.id
+    );
     const list = await Message.find(
       { chat: chat.uuid },
       { sent: 1, textContent: 1 }
