@@ -181,7 +181,9 @@ const createChatClientMapData = async (contacts, recipientData) => {
         username,
       },
       async (docDB) => {
+        console.log("EL DOCUMENTO EXISTE NO? ", docDB.username, username);
         if (docDB.username != username) {
+          console.log("CAMBIANDO DOCUMENTO");
           await SyncServer.updateFields(Client, "client", wid, { username });
         }
       }
