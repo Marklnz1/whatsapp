@@ -179,12 +179,12 @@ const createChatClientMapData = async (contacts, recipientData) => {
       {
         wid,
         username,
-      },
-      async (docDB) => {
-        if (docDB.username != username) {
-          await SyncServer.updateFields(Client, "client", wid, { username });
-        }
       }
+      // async (docDB) => {
+      //   if (docDB.username != username) {
+      //     await SyncServer.updateFields(Client, "client", wid, { username });
+      //   }
+      // }
     );
 
     let chatDB = await SyncServer.createOrGet(
