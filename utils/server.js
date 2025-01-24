@@ -91,7 +91,7 @@ module.exports.sendConfirmationMessage = async (
     });
     // console.log(inspect(response));
   } catch (error) {
-    console.log("ERROR::" + error.message);
+    console.log("ERROR CONFIRMATION" + error.response.data);
   }
 };
 module.exports.sendReaction = async (
@@ -121,7 +121,9 @@ module.exports.sendReaction = async (
         "Content-Type": "application/json",
       },
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log("ERROR REACTION" + error.response.data);
+  }
 };
 
 function getTemplateBody(templateData) {
@@ -205,7 +207,8 @@ module.exports.sendTemplateAndCreateDB = async (
     });
     io.emit("serverChanged");
   } catch (error) {
-    console.log("ERROR AL ENVIAR EL TEMPLATE ", error.response.data);
+    console.log("ERROR AL ENVIAR EL TEMPLATE ");
+    throw Error(error.response.data);
   }
 };
 module.exports.sendWhatsappMessage = async (
