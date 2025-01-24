@@ -513,7 +513,11 @@ class SyncServer {
         { session, new: true, upsert: true, setDefaultsOnInsert: true }
       );
     } else if (onExistDocument != null) {
-      await onExistDocument(docDB);
+      try {
+        await onExistDocument(docDB);
+      } catch (error) {
+        console.log("EL ERROR ES ", inspect(error, true, 99));
+      }
     }
 
     return docDB;
