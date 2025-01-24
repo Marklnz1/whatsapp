@@ -207,7 +207,10 @@ module.exports.sendTemplateAndCreateDB = async (
     });
     io.emit("serverChanged");
   } catch (error) {
-    console.log("ERROR AL ENVIAR EL TEMPLATE ");
+    console.log(
+      "ERROR AL ENVIAR EL TEMPLATE ",
+      inspect(error.response.data, true, 9999)
+    );
     throw Error(error.response.data);
   }
 };
