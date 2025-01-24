@@ -47,6 +47,7 @@ SyncServer.init({
       }
     });
     app.post("/api/message/template/list", async (req, res, next) => {
+      console.log("ENTRANDO A LA API TEMPLATE");
       try {
         const io = res.locals.io;
         const businessPhoneId = req.body["businessPhoneId"];
