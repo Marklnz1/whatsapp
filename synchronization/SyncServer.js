@@ -466,7 +466,7 @@ class SyncServer {
     );
     return syncCodeTable.syncCodeMax;
   }
-  async createOrGet(Model, tableName, uuid, data) {
+  async createOrGet(Model, tableName, uuid, data, onExistDocument) {
     return new Promise((resolve, reject) => {
       this.taskQueue.add({
         data: { tableName },
@@ -479,7 +479,8 @@ class SyncServer {
               tableName,
               uuid,
               data,
-              session
+              session,
+              onExistDocument
             );
             await session.commitTransaction();
             resolve(docDB);
@@ -495,7 +496,14 @@ class SyncServer {
     });
   }
 
-  _createOrGet = async (Model, tableName, uuid, data, session) => {
+  _createOrGet = async (
+    Model,
+    tableName,
+    uuid,
+    data,
+    session,
+    onExistDocument
+  ) => {
     let docDB = await Model.findOne({ uuid });
     if (!docDB) {
       data.syncCode = await this.updateAndGetSyncCode(tableName, session);
@@ -504,7 +512,10 @@ class SyncServer {
         { $set: data },
         { session, new: true, upsert: true, setDefaultsOnInsert: true }
       );
+    } else if (onExistDocument != null) {
+      await onExistDocument(docDB);
     }
+
     return docDB;
   };
   async updateFields(Model, tableName, uuid, data) {
