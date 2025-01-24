@@ -466,7 +466,7 @@ class SyncServer {
     );
     return syncCodeTable.syncCodeMax;
   }
-  async createOrGet(Model, tableName, uuid, data, onExistDocument) {
+  async createOrGet(Model, tableName, uuid, data) {
     return new Promise((resolve, reject) => {
       this.taskQueue.add({
         data: { tableName },
@@ -479,8 +479,7 @@ class SyncServer {
               tableName,
               uuid,
               data,
-              session,
-              onExistDocument
+              session
             );
             await session.commitTransaction();
             resolve(docDB);
@@ -512,12 +511,6 @@ class SyncServer {
         { $set: data },
         { session, new: true, upsert: true, setDefaultsOnInsert: true }
       );
-    } else if (onExistDocument != null) {
-      try {
-        await onExistDocument(docDB);
-      } catch (error) {
-        console.log("EL ERROR ES ", inspect(error, true, 99));
-      }
     }
 
     return docDB;

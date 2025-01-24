@@ -172,22 +172,13 @@ const createChatClientMapData = async (contacts, recipientData) => {
         businessPhoneId: recipientData.phoneNumberId,
       }
     );
-    let clientDB = await SyncServer.createOrGet(
-      Client,
-      "client",
+    let clientDB = await SyncServer.createOrGet(Client, "client", wid, {
       wid,
-      {
-        wid,
-        username,
-      },
-      async (docDB) => {
-        console.log("EL DOCUMENTO EXISTE NO? ", docDB.username, username);
-        if (docDB.username != username) {
-          console.log("CAMBIANDO DOCUMENTO");
-          await SyncServer.updateFields(Client, "client", wid, { username });
-        }
-      }
-    );
+      username,
+    });
+    if (clientDB.username != username) {
+      await SyncServer.updateFields(Client, "client", wid, { username });
+    }
 
     let chatDB = await SyncServer.createOrGet(
       Chat,
