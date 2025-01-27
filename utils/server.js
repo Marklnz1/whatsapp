@@ -257,7 +257,6 @@ module.exports.getTemplates = async (
   cloudApiAccessToken,
   queryString
 ) => {
-  const queryString = new URLSearchParams(filter).toString();
   const response = await axios({
     method: "GET",
     url: `https://graph.facebook.com/${CLOUD_API_VERSION}/${whatsappBusinessAccountId}/message_templates?${queryString}`,
