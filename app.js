@@ -36,19 +36,21 @@ SyncServer.init({
     app.get("/api/media/:name", mediaController.getMedia);
     app.get("/api/media/:name", mediaController.getMedia);
     app.post("/api/template/create", async (req, res, next) => {
-      const response = await axios({
-        data: req.body,
-        method: "POST",
-        url: `https://graph.facebook.com/${CLOUD_API_VERSION}/${WA_BUSINESS_ACCOUNT_ID}/message_templates`,
-        headers: {
-          Authorization: `Bearer ${CLOUD_API_ACCESS_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-      });
-      const io = res.locals.io;
-      io.emit("templateChanged");
+      try {
+        const response = await axios({
+          data: req.body,
+          method: "POST",
+          url: `https://graph.facebook.com/${CLOUD_API_VERSION}/${WA_BUSINESS_ACCOUNT_ID}/message_templates`,
+          headers: {
+            Authorization: `Bearer ${CLOUD_API_ACCESS_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        });
+        const io = res.locals.io;
+        io.emit("templateChanged");
 
-      res.json(response.data);
+        res.json(response.data);
+      } catch (error) {}
     });
     app.get("/api/template/list", async (req, res, next) => {
       try {
@@ -60,7 +62,11 @@ SyncServer.init({
         );
         res.json(response);
       } catch (error) {
-        res.json(error);
+        if (error.response?.data != null) {
+          res.json({ error: error.response.data });
+        } else {
+          res.json({ error: error.message });
+        }
       }
     });
 
