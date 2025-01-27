@@ -58,7 +58,7 @@ SyncServer.init({
             error.response.data.error.error_user_msg
           );
 
-          res.json({ error: error.response.data });
+          res.json({ error: error.response.data.error.error_user_msg });
         } else {
           console.log("SE DETECTO ERROR2 ", error.message);
 
