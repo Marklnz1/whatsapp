@@ -34,7 +34,7 @@ SyncServer.init({
     });
     app.get("/api/media/:name", mediaController.getMedia);
     app.get("/api/media/:name", mediaController.getMedia);
-    app.pos("/api/template/create", async (req, res, next) => {
+    app.post("/api/template/create", async (req, res, next) => {
       const response = await axios({
         data: req.body.templateData,
         method: "GET",
