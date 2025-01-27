@@ -83,91 +83,91 @@ const extractChanges = (body) => {
   }
 };
 module.exports.receiveMessage = async (req, res) => {
-  try {
-    const io = res.locals.io;
-    console.log(
-      "SE RECIBIO EL SIGUIENTE MESSAGE " + util.inspect(req.body, true, 99)
-    );
-    let changes = extractChanges(req.body);
-    if (changes == null) {
-      return res.sendStatus(404);
-    }
-    for (const change of changes) {
-      let data = extractClientMessageData(change);
-      console.log("LA DATA ESSS ", data);
-      if (data != null) {
-        const chatClientMapData = await createChatClientMapData(
-          data.contacts,
-          data.recipientData
-        );
-
-        for (const message of data.messages) {
-          await receiveMessageClient(
-            message,
-            chatClientMapData,
-            data.recipientData,
-            io
-          );
-        }
-        continue;
-      }
-      data = extractMessageStatusData(change);
-
-      if (data != null) {
-        for (const statusData of data.statuses) {
-          const biz_opaque_callback_data = statusData.biz_opaque_callback_data;
-          const message = await Message.findOne({
-            uuid: biz_opaque_callback_data,
-          });
-
-          if (message) {
-            const currentStatus = message.sentStatus;
-            const futureStatus = statusData.status;
-            if (currentStatus == "sent") {
-              await SyncServer.updateFields(
-                Message,
-                "message",
-                biz_opaque_callback_data,
-                {
-                  time: statusData.timestamp * 1000,
-                }
-              );
-            }
-            if (
-              getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
-            ) {
-              await SyncServer.updateFields(
-                Message,
-                "message",
-                biz_opaque_callback_data,
-                {
-                  sentStatus: statusData.status,
-                }
-              );
-              io.emit("serverChanged");
-            }
-          }
-          const newState = new MessageStatus({
-            message: message?.id,
-            status: statusData.status,
-            time: new Date(statusData.timestamp * 1000),
-          });
-          await newState.save();
-        }
-        continue;
-      }
-
-      data = extractTemplateStatusData(change);
-      if (data != null) {
-        io.emit("templateChanged");
-      }
-    }
-
-    res.sendStatus(200);
-  } catch (e) {
-    // console.log(util.inspect(e));
-    res.sendStatus(404);
+  // try {
+  const io = res.locals.io;
+  console.log(
+    "SE RECIBIO EL SIGUIENTE MESSAGE " + util.inspect(req.body, true, 99)
+  );
+  let changes = extractChanges(req.body);
+  if (changes == null) {
+    return res.sendStatus(404);
   }
+  for (const change of changes) {
+    let data = extractClientMessageData(change);
+    console.log("LA DATA ESSS ", data);
+    if (data != null) {
+      const chatClientMapData = await createChatClientMapData(
+        data.contacts,
+        data.recipientData
+      );
+
+      for (const message of data.messages) {
+        await receiveMessageClient(
+          message,
+          chatClientMapData,
+          data.recipientData,
+          io
+        );
+      }
+      continue;
+    }
+    data = extractMessageStatusData(change);
+
+    if (data != null) {
+      for (const statusData of data.statuses) {
+        const biz_opaque_callback_data = statusData.biz_opaque_callback_data;
+        const message = await Message.findOne({
+          uuid: biz_opaque_callback_data,
+        });
+
+        if (message) {
+          const currentStatus = message.sentStatus;
+          const futureStatus = statusData.status;
+          if (currentStatus == "sent") {
+            await SyncServer.updateFields(
+              Message,
+              "message",
+              biz_opaque_callback_data,
+              {
+                time: statusData.timestamp * 1000,
+              }
+            );
+          }
+          if (
+            getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
+          ) {
+            await SyncServer.updateFields(
+              Message,
+              "message",
+              biz_opaque_callback_data,
+              {
+                sentStatus: statusData.status,
+              }
+            );
+            io.emit("serverChanged");
+          }
+        }
+        const newState = new MessageStatus({
+          message: message?.id,
+          status: statusData.status,
+          time: new Date(statusData.timestamp * 1000),
+        });
+        await newState.save();
+      }
+      continue;
+    }
+
+    data = extractTemplateStatusData(change);
+    if (data != null) {
+      io.emit("templateChanged");
+    }
+  }
+
+  res.sendStatus(200);
+  // } catch (e) {
+  //   // console.log(util.inspect(e));
+  //   res.sendStatus(404);
+  // }
 };
 const createChatClientMapData = async (contacts, recipientData) => {
   const chatClientMapDB = {};
