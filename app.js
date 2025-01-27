@@ -46,6 +46,7 @@ SyncServer.init({
             "Content-Type": "application/json",
           },
         });
+        console.log("SE ELIMINO?????? ", response.data);
         const io = res.locals.io;
         io.emit("templateChanged");
 
