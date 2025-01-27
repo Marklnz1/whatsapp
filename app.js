@@ -52,8 +52,11 @@ SyncServer.init({
         res.json(response.data);
       } catch (error) {
         console.log("se detecto error");
-        if (error.response?.data != null) {
-          console.log("SE DETECTO ERROR ", error.response.data);
+        if (error.response?.data?.error?.error_user_msg != null) {
+          console.log(
+            "SE DETECTO ERROR ",
+            error.response.data.error.error_user_msg
+          );
 
           res.json({ error: error.response.data });
         } else {
