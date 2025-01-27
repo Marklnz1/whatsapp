@@ -77,7 +77,7 @@ const getPriorityStatus = (state) => {
 };
 const extractChanges = (body) => {
   try {
-    return body_param.entry[0].changes;
+    return body.entry[0].changes;
   } catch (error) {
     return null;
   }
@@ -89,12 +89,12 @@ module.exports.receiveMessage = async (req, res) => {
     "SE RECIBIO EL SIGUIENTE MESSAGE " + util.inspect(req.body, true, 99)
   );
   let changes = extractChanges(req.body);
+
   if (changes == null) {
     return res.sendStatus(404);
   }
   for (const change of changes) {
     let data = extractClientMessageData(change);
-    console.log("LA DATA ESSS ", data);
     if (data != null) {
       const chatClientMapData = await createChatClientMapData(
         data.contacts,
