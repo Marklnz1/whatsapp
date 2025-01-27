@@ -49,11 +49,11 @@ SyncServer.init({
     });
     app.get("/api/template/list", async (req, res, next) => {
       try {
-        const filter = req.body.filter;
+        const queryString = req.originalUrl.split("?")[1] || "";
         const response = await getTemplates(
           WA_BUSINESS_ACCOUNT_ID,
           CLOUD_API_ACCESS_TOKEN,
-          filter
+          queryString
         );
         res.json(response);
       } catch (error) {

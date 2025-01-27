@@ -255,7 +255,7 @@ module.exports.sendWhatsappMessage = async (
 module.exports.getTemplates = async (
   whatsappBusinessAccountId,
   cloudApiAccessToken,
-  filter = {}
+  queryString
 ) => {
   const queryString = new URLSearchParams(filter).toString();
   const response = await axios({
