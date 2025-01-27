@@ -35,7 +35,7 @@ SyncServer.init({
     });
     app.get("/api/media/:name", mediaController.getMedia);
     app.get("/api/media/:name", mediaController.getMedia);
-    app.post("/api/template/delete", async (req, res, next) => {
+    app.delete("/api/template/delete", async (req, res, next) => {
       try {
         const response = await axios({
           data: req.body,
