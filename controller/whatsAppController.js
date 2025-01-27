@@ -94,6 +94,7 @@ module.exports.receiveMessage = async (req, res) => {
     }
     for (const change of changes) {
       let data = extractClientMessageData(change);
+      console.log("LA DATA ESSS ", data);
       if (data != null) {
         const chatClientMapData = await createChatClientMapData(
           data.contacts,
