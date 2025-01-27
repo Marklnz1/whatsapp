@@ -20,6 +20,7 @@ const mapLinkTemp = new Map();
 const path = require("path");
 const { v7: uuidv7 } = require("uuid");
 const { createSearchIndex } = require("./synchronization/SyncMetadata");
+const { default: axios } = require("axios");
 
 const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN;
 const WA_BUSINESS_ACCOUNT_ID = process.env.WA_BUSINESS_ACCOUNT_ID;
@@ -33,6 +34,18 @@ SyncServer.init({
     });
     app.get("/api/media/:name", mediaController.getMedia);
     app.get("/api/media/:name", mediaController.getMedia);
+    app.pos("/api/template/create", async (req, res, next) => {
+      const response = await axios({
+        data: req.body.templateData,
+        method: "GET",
+        url: `https://graph.facebook.com/${CLOUD_API_VERSION}/${req.body.whatsappBusinessAccountId}/message_templates`,
+        headers: {
+          Authorization: `Bearer ${CLOUD_API_ACCESS_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      });
+      res.json(response.data);
+    });
     app.get("/api/template/list", async (req, res, next) => {
       try {
         const filter = req.body.filter;
@@ -46,6 +59,7 @@ SyncServer.init({
         res.json(error);
       }
     });
+
     app.post("/api/message/template/list", async (req, res, next) => {
       console.log("ENTRANDO A LA API TEMPLATE");
       try {

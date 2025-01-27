@@ -251,6 +251,7 @@ module.exports.sendWhatsappMessage = async (
   const messageId = response.data.messages[0].id;
   return messageId;
 };
+
 module.exports.getTemplates = async (
   whatsappBusinessAccountId,
   cloudApiAccessToken,
