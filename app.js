@@ -45,6 +45,9 @@ SyncServer.init({
           "Content-Type": "application/json",
         },
       });
+      const io = res.locals.io;
+      io.emit("templateChanged");
+
       res.json(response.data);
     });
     app.get("/api/template/list", async (req, res, next) => {
