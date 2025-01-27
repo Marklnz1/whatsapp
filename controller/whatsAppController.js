@@ -75,80 +75,94 @@ const getPriorityStatus = (state) => {
       return -1;
   }
 };
+const extractChanges = (body) => {
+  try {
+    return body_param.entry[0].changes;
+  } catch (error) {
+    return null;
+  }
+};
 module.exports.receiveMessage = async (req, res) => {
   try {
     const io = res.locals.io;
     console.log(
       "SE RECIBIO EL SIGUIENTE MESSAGE " + util.inspect(req.body, true, 99)
     );
-    let data = extractClientMessageData(req.body);
-    if (data != null) {
-      const chatClientMapData = await createChatClientMapData(
-        data.contacts,
-        data.recipientData
-      );
-
-      for (const message of data.messages) {
-        await receiveMessageClient(
-          message,
-          chatClientMapData,
-          data.recipientData,
-          io
+    let changes = extractChanges(req.body);
+    if (changes == null) {
+      return res.sendStatus(404);
+    }
+    for (const change of changes) {
+      let data = extractClientMessageData(change);
+      if (data != null) {
+        const chatClientMapData = await createChatClientMapData(
+          data.contacts,
+          data.recipientData
         );
-      }
 
-      res.sendStatus(200);
-      return;
-    }
-    data = extractMessageStatusData(req.body);
-
-    if (data != null) {
-      for (const statusData of data.statuses) {
-        const biz_opaque_callback_data = statusData.biz_opaque_callback_data;
-        const message = await Message.findOne({
-          uuid: biz_opaque_callback_data,
-        });
-
-        if (message) {
-          const currentStatus = message.sentStatus;
-          const futureStatus = statusData.status;
-          if (currentStatus == "sent") {
-            await SyncServer.updateFields(
-              Message,
-              "message",
-              biz_opaque_callback_data,
-              {
-                time: statusData.timestamp * 1000,
-              }
-            );
-          }
-          if (
-            getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
-          ) {
-            await SyncServer.updateFields(
-              Message,
-              "message",
-              biz_opaque_callback_data,
-              {
-                sentStatus: statusData.status,
-              }
-            );
-            io.emit("serverChanged");
-          }
+        for (const message of data.messages) {
+          await receiveMessageClient(
+            message,
+            chatClientMapData,
+            data.recipientData,
+            io
+          );
         }
-        const newState = new MessageStatus({
-          message: message?.id,
-          status: statusData.status,
-          time: new Date(statusData.timestamp * 1000),
-        });
-        await newState.save();
+        continue;
       }
-      res.sendStatus(200);
-      return;
-    } else {
-      console.log("no estatus");
+      data = extractMessageStatusData(change);
+
+      if (data != null) {
+        for (const statusData of data.statuses) {
+          const biz_opaque_callback_data = statusData.biz_opaque_callback_data;
+          const message = await Message.findOne({
+            uuid: biz_opaque_callback_data,
+          });
+
+          if (message) {
+            const currentStatus = message.sentStatus;
+            const futureStatus = statusData.status;
+            if (currentStatus == "sent") {
+              await SyncServer.updateFields(
+                Message,
+                "message",
+                biz_opaque_callback_data,
+                {
+                  time: statusData.timestamp * 1000,
+                }
+              );
+            }
+            if (
+              getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
+            ) {
+              await SyncServer.updateFields(
+                Message,
+                "message",
+                biz_opaque_callback_data,
+                {
+                  sentStatus: statusData.status,
+                }
+              );
+              io.emit("serverChanged");
+            }
+          }
+          const newState = new MessageStatus({
+            message: message?.id,
+            status: statusData.status,
+            time: new Date(statusData.timestamp * 1000),
+          });
+          await newState.save();
+        }
+        continue;
+      }
+
+      data = extractTemplateStatusData(change);
+      if (data != null) {
+        io.emit("templateChanged");
+      }
     }
-    res.sendStatus(404);
+
+    res.sendStatus(200);
   } catch (e) {
     // console.log(util.inspect(e));
     res.sendStatus(404);
@@ -529,9 +543,12 @@ const extractRecipientData = (value) => {
     return null;
   }
 };
-const extractClientMessageData = (body_param) => {
+const extractClientMessageData = (change) => {
   try {
-    const value = body_param.entry[0].changes[0].value;
+    if (change.field != "messages") {
+      return null;
+    }
+    const value = change.value;
     const recipientData = extractRecipientData(value);
     const messages = value.messages;
     const contacts = value.contacts;
@@ -543,9 +560,12 @@ const extractClientMessageData = (body_param) => {
     return null;
   }
 };
-const extractMessageStatusData = (body_param) => {
+const extractMessageStatusData = (change) => {
   try {
-    const value = body_param.entry[0].changes[0].value;
+    if (change.field != "messages") {
+      return null;
+    }
+    const value = change.value;
     const recipientData = extractRecipientData(value);
     const statuses = value.statuses;
     if (statuses.length > 0) {
@@ -555,4 +575,11 @@ const extractMessageStatusData = (body_param) => {
   } catch (error) {
     return null;
   }
+};
+
+const extractTemplateStatusData = (change) => {
+  if (change.field != "message_template_status_update") {
+    return null;
+  }
+  return change.value;
 };
