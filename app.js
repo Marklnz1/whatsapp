@@ -37,7 +37,7 @@ SyncServer.init({
     app.post("/api/template/create", async (req, res, next) => {
       const response = await axios({
         data: req.body.templateData,
-        method: "GET",
+        method: "POST",
         url: `https://graph.facebook.com/${CLOUD_API_VERSION}/${req.body.whatsappBusinessAccountId}/message_templates`,
         headers: {
           Authorization: `Bearer ${CLOUD_API_ACCESS_TOKEN}`,
