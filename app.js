@@ -50,7 +50,18 @@ SyncServer.init({
         io.emit("templateChanged");
 
         res.json(response.data);
-      } catch (error) {}
+      } catch (error) {
+        console.log("se detecto error");
+        if (error.response?.data != null) {
+          console.log("SE DETECTO ERROR ", error.response.data);
+
+          res.json({ error: error.response.data });
+        } else {
+          console.log("SE DETECTO ERROR2 ", error.message);
+
+          res.json({ error: error.message });
+        }
+      }
     });
     app.get("/api/template/list", async (req, res, next) => {
       try {
@@ -62,6 +73,7 @@ SyncServer.init({
         );
         res.json(response);
       } catch (error) {
+        console.log("se detecto error");
         if (error.response?.data != null) {
           console.log("SE DETECTO ERROR ", error.response.data);
 
