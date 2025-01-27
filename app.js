@@ -35,6 +35,37 @@ SyncServer.init({
     });
     app.get("/api/media/:name", mediaController.getMedia);
     app.get("/api/media/:name", mediaController.getMedia);
+    app.post("/api/template/delete", async (req, res, next) => {
+      try {
+        const response = await axios({
+          data: req.body,
+          method: "DELETE",
+          url: `https://graph.facebook.com/${CLOUD_API_VERSION}/${WA_BUSINESS_ACCOUNT_ID}/message_templates?name=${req.query.name}`,
+          headers: {
+            Authorization: `Bearer ${CLOUD_API_ACCESS_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        });
+        const io = res.locals.io;
+        io.emit("templateChanged");
+
+        res.json(response.data);
+      } catch (error) {
+        console.log("se detecto error");
+        if (error.response?.data?.error?.error_user_msg != null) {
+          console.log(
+            "SE DETECTO ERROR ",
+            error.response.data.error.error_user_msg
+          );
+
+          res.json({ error: error.response.data.error.error_user_msg });
+        } else {
+          console.log("SE DETECTO ERROR2 ", error.message);
+
+          res.json({ error: error.message });
+        }
+      }
+    });
     app.post("/api/template/create", async (req, res, next) => {
       try {
         const response = await axios({
