@@ -24,6 +24,7 @@ const { default: axios } = require("axios");
 
 const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN;
 const WA_BUSINESS_ACCOUNT_ID = process.env.WA_BUSINESS_ACCOUNT_ID;
+const CLOUD_API_VERSION = process.env.CLOUD_API_VERSION;
 
 SyncServer.init({
   port: PORT,
@@ -36,9 +37,9 @@ SyncServer.init({
     app.get("/api/media/:name", mediaController.getMedia);
     app.post("/api/template/create", async (req, res, next) => {
       const response = await axios({
-        data: req.body.templateData,
+        data: req.body,
         method: "POST",
-        url: `https://graph.facebook.com/${CLOUD_API_VERSION}/${req.body.whatsappBusinessAccountId}/message_templates`,
+        url: `https://graph.facebook.com/${CLOUD_API_VERSION}/${WA_BUSINESS_ACCOUNT_ID}/message_templates`,
         headers: {
           Authorization: `Bearer ${CLOUD_API_ACCESS_TOKEN}`,
           "Content-Type": "application/json",
