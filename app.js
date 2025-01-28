@@ -21,6 +21,7 @@ const path = require("path");
 const { v7: uuidv7 } = require("uuid");
 const { createSearchIndex } = require("./synchronization/SyncMetadata");
 const { default: axios } = require("axios");
+const { inspect } = require("util");
 
 const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN;
 const WA_BUSINESS_ACCOUNT_ID = process.env.WA_BUSINESS_ACCOUNT_ID;
@@ -52,6 +53,7 @@ SyncServer.init({
 
         res.json(response.data);
       } catch (error) {
+        console.log("EL ERRORRRRR ", inspect(error.response.data, true, 99));
         if (error.response?.data?.error?.error_user_msg != null) {
           res.json({ error: error.response.data.error.error_user_msg });
         } else {
