@@ -35,6 +35,30 @@ SyncServer.init({
     });
     app.get("/api/media/:name", mediaController.getMedia);
     app.get("/api/media/:name", mediaController.getMedia);
+    app.post("/api/template/update/:id", async (req, res) => {
+      try {
+        const response = await axios({
+          data: req.body,
+          method: "POST",
+          url: `https://graph.facebook.com/${CLOUD_API_VERSION}/${req.params.id}`,
+          headers: {
+            Authorization: `Bearer ${CLOUD_API_ACCESS_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const io = res.locals.io;
+        io.emit("templateChanged");
+
+        res.json(response.data);
+      } catch (error) {
+        if (error.response?.data?.error?.error_user_msg != null) {
+          res.json({ error: error.response.data.error.error_user_msg });
+        } else {
+          res.json({ error: error.message });
+        }
+      }
+    });
     app.delete("/api/template/delete", async (req, res, next) => {
       try {
         const response = await axios({
@@ -46,28 +70,15 @@ SyncServer.init({
             "Content-Type": "application/json",
           },
         });
-        console.log(
-          "SE ELIMINO?????? ",
-          req.query.name,
-          req.query,
-          response.data
-        );
+
         const io = res.locals.io;
         io.emit("templateChanged");
 
         res.json(response.data);
       } catch (error) {
-        console.log("se detecto error");
         if (error.response?.data?.error?.error_user_msg != null) {
-          console.log(
-            "SE DETECTO ERROR ",
-            error.response.data.error.error_user_msg
-          );
-
           res.json({ error: error.response.data.error.error_user_msg });
         } else {
-          console.log("SE DETECTO ERROR2 ", error.message);
-
           res.json({ error: error.message });
         }
       }
