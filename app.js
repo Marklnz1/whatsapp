@@ -40,7 +40,8 @@ SyncServer.init({
       try {
         console.log(
           "SE INTENTARA ENVIAR LA DATA ",
-          inspect(req.body, true, 99)
+          inspect(req.body, true, 99),
+          `https://graph.facebook.com/${CLOUD_API_VERSION}/${req.params.id}`
         );
         const response = await axios({
           data: req.body,
