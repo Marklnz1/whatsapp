@@ -38,6 +38,7 @@ SyncServer.init({
     app.get("/api/media/:name", mediaController.getMedia);
     app.post("/api/template/update/:id", async (req, res) => {
       try {
+        console.log("SE INTENTARA ENVIAR LA DATA ", inspect(req.body));
         const response = await axios({
           data: req.body,
           method: "POST",
