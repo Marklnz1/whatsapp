@@ -158,8 +158,9 @@ module.exports.receiveMessage = async (req, res) => {
     }
 
     data = extractTemplateStatusData(change);
+    console.log("EMITIENDO POR ENTRADA", data);
+
     if (data != null) {
-      console.log("EMITIENDO POR ENTRADA");
       io.emit("templateChanged");
     }
   }
