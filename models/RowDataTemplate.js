@@ -11,7 +11,7 @@ const RowDataBroadcastSchema = new Schema(
     broadcast: { type: String, default: "" },
     phone: { type: String, default: "" },
     data: { type: String, default: "" },
-    messageUuid: { type: String, default: "" },
+    message: { type: String, default: "" },
   }),
   { timestamps: true }
 );
