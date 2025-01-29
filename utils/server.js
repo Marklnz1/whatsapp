@@ -169,35 +169,36 @@ module.exports.sendTemplateAndCreateDB = async (
   metaToken,
   businessPhoneId,
   businessPhone,
-  destinationPhone,
-  templateData,
+  destinationData,
+  templateDB,
   io
 ) => {
   try {
     const messageUuid = uuidv7();
-    const body = getTemplateBody(templateData);
+    const body = getTemplateBody(templateDB);
 
     let chatDB = await getChatDB(
       businessPhoneId,
       businessPhone,
-      destinationPhone
+      destinationData.phone
     );
     await SyncServer.createOrGet(Message, "message", messageUuid, {
       chat: chatDB.uuid,
       textContent: body.text,
       sent: true,
-      templateName: templateData.name,
+      templateName: templateDB.name,
     });
     io.emit("serverChanged");
 
     const messageId = await this.sendWhatsappMessage(
       metaToken,
       businessPhoneId,
-      destinationPhone,
+      destinationData.phone,
       "template",
       {
-        name: templateData.name,
-        language: { code: templateData.language },
+        name: templateDB.name,
+        language: { code: templateDB.language },
+        components: destinationData.parameters,
       },
       messageUuid
     );
