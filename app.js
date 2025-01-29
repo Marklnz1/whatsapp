@@ -151,12 +151,8 @@ SyncServer.init({
         const businessPhoneId = req.body["businessPhoneId"];
         const businessPhone = req.body["businessPhone"];
         const destinationDataList = req.body["destinationDataList"];
-        const templateName = req.body["templateName"];
-        const response = await getTemplates(
-          WA_BUSINESS_ACCOUNT_ID,
-          CLOUD_API_ACCESS_TOKEN,
-          { name: templateName }
-        );
+        const templateData = req.body["templateData"];
+
         const promises = [];
         for (const destinationData of destinationDataList) {
           promises.push(
@@ -165,7 +161,7 @@ SyncServer.init({
               businessPhoneId,
               businessPhone,
               destinationData,
-              response.data[0],
+              templateData,
               io
             )
           );

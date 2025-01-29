@@ -170,12 +170,12 @@ module.exports.sendTemplateAndCreateDB = async (
   businessPhoneId,
   businessPhone,
   destinationData,
-  templateDB,
+  templateData,
   io
 ) => {
   try {
     const messageUuid = uuidv7();
-    const body = getTemplateBody(templateDB);
+    // const body = getTemplateBody(templateDB);
 
     let chatDB = await getChatDB(
       businessPhoneId,
@@ -184,9 +184,9 @@ module.exports.sendTemplateAndCreateDB = async (
     );
     await SyncServer.createOrGet(Message, "message", messageUuid, {
       chat: chatDB.uuid,
-      textContent: body.text,
+      textContent: templateData.textContent,
       sent: true,
-      templateName: templateDB.name,
+      templateName: templateData.name,
     });
     io.emit("serverChanged");
 
@@ -196,8 +196,8 @@ module.exports.sendTemplateAndCreateDB = async (
       destinationData.phone,
       "template",
       {
-        name: templateDB.name,
-        language: { code: templateDB.language },
+        name: templateData.name,
+        language: { code: templateData.language },
         components: { type: "body", parameters: destinationData.parameters },
       },
       messageUuid
