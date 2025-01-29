@@ -8,7 +8,8 @@ const Schema = mongoose.Schema;
 */
 const RowDataBroadcastSchema = new Schema(
   generateFields({
-    pbone: { type: String, default: "" },
+    broadcast: { type: String, default: "" },
+    phone: { type: String, default: "" },
     data: { type: String, default: "" },
     messageId: { type: String, default: "" },
   }),
