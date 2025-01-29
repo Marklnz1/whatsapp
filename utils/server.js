@@ -198,7 +198,7 @@ module.exports.sendTemplateAndCreateDB = async (
       {
         name: templateDB.name,
         language: { code: templateDB.language },
-        components: destinationData.parameters,
+        components: { type: "body", parameters: destinationData.parameters },
       },
       messageUuid
     );
