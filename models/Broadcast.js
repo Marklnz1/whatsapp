@@ -13,7 +13,6 @@ const BroadcastSchema = new Schema(
     name: { type: String, default: "" },
     textContent: { type: String, default: "" },
     language: { type: String, default: "" },
-    status: { type: String, default: "" },
     category: { type: String, default: "" },
     subCategory: { type: String, default: "" },
     variableExampleMap: { type: String, default: "" },
