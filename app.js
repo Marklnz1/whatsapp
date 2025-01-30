@@ -286,7 +286,7 @@ SyncServer.syncPost({
           });
         })
         .catch((reason) => {
-          inspect(reason.response.data, true, 9999);
+          console.log(inspect(reason.response.data, true, 9999));
         });
       // console.log("SE OBTUVO EL WID " + messageWid);
     }
