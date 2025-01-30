@@ -252,6 +252,7 @@ SyncServer.syncPost({
       const parameters = [];
       for (const key of Object.keys(templateData)) {
         parameters.push({
+          type: "text",
           parameter_name: key,
           text: templateData[key] ?? "",
         });
