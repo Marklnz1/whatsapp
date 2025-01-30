@@ -22,7 +22,7 @@ class SyncServer {
     this.app = express();
     this.mongoURL = mongoURL;
     this.port = port;
-    this.server = http.createServer({}, this.app);
+    this.server = http.createServer(this.app);
     this.router = router;
     this.io = new Server(
       this.server
