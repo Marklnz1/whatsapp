@@ -240,6 +240,32 @@ SyncServer.syncPost({
   tableName: "message",
   onInsertAfter: async (messages) => {
     const messagesWithoutTemplate = [];
+    const clientSet = new Set();
+    const chatSet = new Set();
+    for (const message of messages) {
+      const chatSplit = message.chat.split["_"];
+      const clientUuid = chatSplit[0];
+      clientSet.add(clientUuid);
+      chatSet.add(message.chat);
+    }
+
+    for (const client of clientSet) {
+      await SyncServer.createOrGet(Client, "client", destinationPhone, {
+        wid: client,
+        username: `+${client}`,
+      });
+    }
+    for (const chat of chatSet) {
+      const chatSplit = chat.split["_"];
+      const clientUuid = chatSplit[0];
+      const accountUuid = chatSplit[1];
+      await SyncServer.createOrGet(Chat, "chat", `${chat}`, {
+        client: clientUuid,
+        whatsappAccount: accountUuid,
+        lastSeen: 0,
+        chatbot: false,
+      });
+    }
     for (const message of messages) {
       if (message.templateName == null || message.templateName.trim() === "") {
         messagesWithoutTemplate.push(message);
