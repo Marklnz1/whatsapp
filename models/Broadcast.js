@@ -8,8 +8,15 @@ const Schema = mongoose.Schema;
 */
 const BroadcastSchema = new Schema(
   generateFields({
+    broadcastName: { type: String, default: "" },
+    id: { type: String, default: "" },
     name: { type: String, default: "" },
-    templateName: { type: String, default: "" },
+    textContent: { type: String, default: "" },
+    language: { type: String, default: "" },
+    status: { type: String, default: "" },
+    category: { type: String, default: "" },
+    subCategory: { type: String, default: "" },
+    variableExampleMap: { type: String, default: "" },
   }),
   { timestamps: true }
 );
