@@ -251,7 +251,7 @@ SyncServer.syncPost({
       const templateData = JSON.parse(message.templateData);
       const parameters = [];
       for (const key in Object.keys(templateData)) {
-        parameters.add({
+        parameters.push({
           name: key,
           text: templateData[key] ?? "",
         });
