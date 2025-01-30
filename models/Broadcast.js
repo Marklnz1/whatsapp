@@ -9,7 +9,7 @@ const Schema = mongoose.Schema;
 const BroadcastSchema = new Schema(
   generateFields({
     broadcastName: { type: String, default: "" },
-    id: { type: String, default: "" },
+    metaId: { type: String, default: "" },
     name: { type: String, default: "" },
     textContent: { type: String, default: "" },
     language: { type: String, default: "" },
