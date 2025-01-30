@@ -251,7 +251,7 @@ SyncServer.syncPost({
     }
 
     for (const client of clientSet) {
-      await SyncServer.createOrGet(Client, "client", destinationPhone, {
+      await SyncServer.createOrGet(Client, "client", client, {
         wid: client,
         username: `+${client}`,
       });
@@ -260,7 +260,7 @@ SyncServer.syncPost({
       const chatSplit = chat.split("_");
       const clientUuid = chatSplit[0];
       const accountUuid = chatSplit[1];
-      await SyncServer.createOrGet(Chat, "chat", `${chat}`, {
+      await SyncServer.createOrGet(Chat, "chat", chat, {
         client: clientUuid,
         whatsappAccount: accountUuid,
         lastSeen: 0,
