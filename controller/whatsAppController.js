@@ -182,7 +182,7 @@ const createChatClientMapData = async (contacts, recipientData) => {
     let whatsappAccountDB = await SyncServer.createOrGet(
       WhatsappAccount,
       "whatsappAccount",
-      recipientData.phoneNumber,
+      recipientData.phoneNumberId,
       {
         name: `+${recipientData.phoneNumber}`,
         businessPhone: recipientData.phoneNumber,

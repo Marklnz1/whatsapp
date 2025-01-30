@@ -19,9 +19,12 @@ class LightQueue {
     }
 
     this.isProcessing = true;
-    const { task, data, error } = this.queue.shift();
+    const { task, data, error, onInsertAfter } = this.queue.shift();
     try {
-      await task();
+      const newDocs = await task();
+      if (newDocs && onInsertAfter) {
+        onInsertAfter(newDocs);
+      }
       await this.onEndTask(data, false);
     } catch (err) {
       console.error("Error processing task:", err);

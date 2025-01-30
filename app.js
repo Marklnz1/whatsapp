@@ -238,20 +238,53 @@ SyncServer.syncPost({ model: Broadcast, tableName: "broadcast" });
 SyncServer.syncPost({
   model: Message,
   tableName: "message",
-  onInsertAfter: async (docs) => {
-    for (const doc of docs) {
+  onInsertAfter: async (messages) => {
+    const messagesWithoutTemplate = [];
+    for (const message of messages) {
+      if (message.templateName == null || message.templateName.trim() === "") {
+        messagesWithoutTemplate.push(message);
+        continue;
+      }
+      const chatSplit = doc.chat.split("_");
+      const clientUuid = chatSplit[0];
+      const accountUuid = chatSplit[1];
+      const templateData = JSON.parse(message.templateData);
+      const parameters = [];
+      for (const key in Object.keys(templateData)) {
+        parameters.add({
+          name: key,
+          text: templateData[key] ?? "",
+        });
+      }
+      sendWhatsappMessage(
+        CLOUD_API_ACCESS_TOKEN,
+        accountUuid,
+        clientUuid,
+        "template",
+        {
+          name: message.templateName,
+          language: { code: "es" },
+          components: [{ type: "body", parameters }],
+        },
+        message.uuid
+      );
+      // console.log("SE OBTUVO EL WID " + messageWid);
+      await SyncServer.updateFields(Message, "message", doc.uuid, {
+        wid: messageWid,
+      });
+    }
+
+    for (const doc of messagesWithoutTemplate) {
       if (doc.sent == "false") {
         continue;
       }
-      const chat = await Chat.findOne({ uuid: doc.chat });
-      const whatsappAccount = await WhatsappAccount.findOne({
-        uuid: chat.whatsappAccount,
-      });
-      const client = await Client.findOne({ uuid: chat.client });
+      const chatSplit = doc.chat.split("_");
+      const clientUuid = chatSplit[0];
+      const accountUuid = chatSplit[1];
       const messageWid = await sendWhatsappMessage(
         CLOUD_API_ACCESS_TOKEN,
-        whatsappAccount.businessPhoneId,
-        client.wid,
+        accountUuid,
+        clientUuid,
         "text",
         {
           body: doc.textContent,

@@ -137,7 +137,7 @@ async function getChatDB(businessPhoneId, businessPhone, destinationPhone) {
   let whatsappAccountDB = await SyncServer.createOrGet(
     WhatsappAccount,
     "whatsappAccount",
-    businessPhone,
+    businessPhoneId,
     {
       name: `+${businessPhone}`,
       businessPhone: businessPhone,

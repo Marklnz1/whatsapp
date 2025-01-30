@@ -270,6 +270,7 @@ class SyncServer {
         tempCode,
         tableName,
       },
+      onInsertAfter,
       task: async () => {
         const session = await mongoose.startSession();
         session.startTransaction();
@@ -288,14 +289,11 @@ class SyncServer {
             session
           );
           await session.commitTransaction();
-          if (onInsertAfter) {
-            onInsertAfter(newDocs);
-          }
-          return false;
+
+          return newDocs;
         } catch (error) {
           await session.abortTransaction();
           console.error("Error en la transacción, se ha revertido:", error);
-          return true;
         } finally {
           await session.endSession();
         }
