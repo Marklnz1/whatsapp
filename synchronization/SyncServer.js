@@ -1,6 +1,6 @@
 const { Server } = require("socket.io");
 const express = require("express");
-const http = require("https");
+const http = require("http");
 const mongoose = require("mongoose");
 const SyncMetadata = require("./SyncMetadata");
 const LightQueue = require("./LightQueue");
