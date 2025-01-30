@@ -250,7 +250,7 @@ SyncServer.syncPost({
       const accountUuid = chatSplit[1];
       const templateData = JSON.parse(message.templateData);
       const parameters = [];
-      for (const key in Object.keys(templateData)) {
+      for (const key of Object.keys(templateData)) {
         parameters.push({
           name: key,
           text: templateData[key] ?? "",
