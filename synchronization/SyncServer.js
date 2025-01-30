@@ -48,13 +48,13 @@ class SyncServer {
   }
   _configServer() {
     this.app.use(express.json({ limit: "50mb" }));
-    this.app.use((req, res, next) => {
-      if (req.headers["x-forwarded-proto"] !== "https") {
-        // Cloudflare establece este header
-        return res.redirect(`https://${req.headers.host}${req.url}`);
-      }
-      next();
-    });
+    // this.app.use((req, res, next) => {
+    //   if (req.headers["x-forwarded-proto"] !== "https") {
+    //     // Cloudflare establece este header
+    //     return res.redirect(`https://${req.headers.host}${req.url}`);
+    //   }
+    //   next();
+    // });
     this.io.on("connection", (socket) => {
       console.log("Cliente conectado");
       socket.on("disconnect", () => {
