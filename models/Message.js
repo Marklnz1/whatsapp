@@ -32,6 +32,8 @@ const MessageSchema = new Schema(
     sentStatus: { type: String, default: "not_sent" },
     read: { type: Boolean, default: false },
     templateName: { type: String, default: "" },
+    templateData: { type: String, default: "" },
+    broadcast: { type: String, default: "" },
   }),
   { timestamps: true }
 );
