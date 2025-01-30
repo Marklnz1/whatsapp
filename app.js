@@ -245,7 +245,7 @@ SyncServer.syncPost({
         messagesWithoutTemplate.push(message);
         continue;
       }
-      const chatSplit = doc.chat.split("_");
+      const chatSplit = message.chat.split("_");
       const clientUuid = chatSplit[0];
       const accountUuid = chatSplit[1];
       const templateData = JSON.parse(message.templateData);
@@ -267,18 +267,19 @@ SyncServer.syncPost({
           components: [{ type: "body", parameters }],
         },
         message.uuid
-      );
-      // console.log("SE OBTUVO EL WID " + messageWid);
-      await SyncServer.updateFields(Message, "message", doc.uuid, {
-        wid: messageWid,
+      ).then((messageWid) => {
+        SyncServer.updateFields(Message, "message", message.uuid, {
+          wid: messageWid,
+        });
       });
+      // console.log("SE OBTUVO EL WID " + messageWid);
     }
 
-    for (const doc of messagesWithoutTemplate) {
-      if (doc.sent == "false") {
+    for (const message of messagesWithoutTemplate) {
+      if (message.sent == "false") {
         continue;
       }
-      const chatSplit = doc.chat.split("_");
+      const chatSplit = message.chat.split("_");
       const clientUuid = chatSplit[0];
       const accountUuid = chatSplit[1];
       const messageWid = await sendWhatsappMessage(
@@ -287,12 +288,12 @@ SyncServer.syncPost({
         clientUuid,
         "text",
         {
-          body: doc.textContent,
+          body: message.textContent,
         },
-        doc.uuid
+        message.uuid
       );
       // console.log("SE OBTUVO EL WID " + messageWid);
-      await SyncServer.updateFields(Message, "message", doc.uuid, {
+      await SyncServer.updateFields(Message, "message", message.uuid, {
         wid: messageWid,
       });
     }
