@@ -1,6 +1,6 @@
 const { Server } = require("socket.io");
 const express = require("express");
-const https = require("https");
+const http = require("http");
 const mongoose = require("mongoose");
 const SyncMetadata = require("./SyncMetadata");
 const LightQueue = require("./LightQueue");
@@ -22,7 +22,7 @@ class SyncServer {
     this.app = express();
     this.mongoURL = mongoURL;
     this.port = port;
-    this.server = https.createServer({}, this.app);
+    this.server = http.createServer({}, this.app);
     this.router = router;
     this.io = new Server(
       this.server
