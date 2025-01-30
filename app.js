@@ -256,6 +256,18 @@ SyncServer.syncPost({
           text: templateData[key] ?? "",
         });
       }
+      console.log(
+        "SE ENVIARA CON LOS DATOS ",
+        inspect(
+          {
+            name: message.templateName,
+            language: { code: "es" },
+            components: [{ type: "body", parameters }],
+          },
+          true,
+          99
+        )
+      );
       sendWhatsappMessage(
         CLOUD_API_ACCESS_TOKEN,
         accountUuid,
@@ -267,11 +279,15 @@ SyncServer.syncPost({
           components: [{ type: "body", parameters }],
         },
         message.uuid
-      ).then((messageWid) => {
-        SyncServer.updateFields(Message, "message", message.uuid, {
-          wid: messageWid,
+      )
+        .then((messageWid) => {
+          SyncServer.updateFields(Message, "message", message.uuid, {
+            wid: messageWid,
+          });
+        })
+        .catch((reason) => {
+          inspect(reason.response.data, true, 9999);
         });
-      });
       // console.log("SE OBTUVO EL WID " + messageWid);
     }
 
