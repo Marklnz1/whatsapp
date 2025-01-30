@@ -243,6 +243,7 @@ SyncServer.syncPost({
     const clientSet = new Set();
     const chatSet = new Set();
     for (const message of messages) {
+      console.log("EL CHAT ES ", inspect(message, true, 99));
       const chatSplit = message.chat.split["_"];
       const clientUuid = chatSplit[0];
       clientSet.add(clientUuid);
