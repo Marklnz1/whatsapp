@@ -33,7 +33,7 @@ SyncServer.init({
   mongoURL: MONGODB_URL,
   router: (app) => {
     app.get("/", (req, res) => {
-      res.json({ msg: "ok" });
+      res.render("index");
     });
     app.get("/api/media/:name", mediaController.getMedia);
     app.get("/api/media/:name", mediaController.getMedia);
