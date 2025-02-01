@@ -24,7 +24,9 @@ class LightQueue {
     let executeInsertAfter = true;
     try {
       newDocs = await task();
-      onInsertAfter(newDocs);
+      if (newDocs && onInsertAfter) {
+        onInsertAfter(newDocs);
+      }
       executeInsertAfter = false;
       await this.onEndTask(data, false);
     } catch (err) {
