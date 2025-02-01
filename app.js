@@ -244,10 +244,10 @@ SyncServer.syncPost({
     for (const doc of docs) {
       console.log(
         "CUMPLE??",
-        doc["sentStatus" == "not_sent"] && doc["sent"] == "true"
+        doc["sentStatus"] == "not_sent" && doc["sent"] == "true"
       );
       if (doc["sentStatus"] == "not_sent" && doc["sent"] == "true") {
-        doc["sentStatus"] = ["sent_requested"];
+        doc["sentStatus"] = "sent_requested";
       }
     }
   },
