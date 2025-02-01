@@ -247,7 +247,7 @@ SyncServer.syncPost({
         doc["sentStatus"] == "not_sent" && doc["sent"] == "true"
       );
       if (doc["sentStatus"] == "not_sent" && doc["sent"] == "true") {
-        doc["sentStatus"] = "sent_requested";
+        doc["sentStatus"] = "send_requested";
       }
     }
   },
