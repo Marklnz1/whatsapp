@@ -59,10 +59,10 @@ module.exports.verifyToken = (req, res) => {
 };
 const getPriorityStatus = (state) => {
   switch (state) {
-    case "not_sent":
-      return 0;
-    case "send_requested":
-      return 1;
+    // case "not_sent":
+    //   return 0;
+    // case "send_requested":
+    //   return 1;
     case "sent":
       return 2;
     case "delivered":
@@ -82,6 +82,31 @@ const extractChanges = (body) => {
     return null;
   }
 };
+const topStatuses = ["not_sent", "send_requested", "sent", "delivered", "read"];
+
+function getStatusesAfter(value) {
+  const index = topStatuses.indexOf(value);
+  // Si el status no existe, devolver array vacío
+  if (index === -1) {
+    return topStatuses;
+  }
+  // Si es el último estado, devolver array vacío
+  if (index === topStatuses.length - 1) {
+    return [];
+  }
+  // Devolver todos los estados después del índice encontrado
+  return topStatuses.slice(index + 1);
+}
+function getStatusError(statusData) {
+  try {
+    return {
+      errorCode: statusData.errors[0].code,
+      error: statusData.errors[0].error_data.details,
+    };
+  } catch (error) {
+    return {};
+  }
+}
 module.exports.receiveMessage = async (req, res) => {
   // try {
   const io = res.locals.io;
@@ -115,44 +140,34 @@ module.exports.receiveMessage = async (req, res) => {
 
     if (data != null) {
       for (const statusData of data.statuses) {
-        const biz_opaque_callback_data = statusData.biz_opaque_callback_data;
-        const message = await Message.findOne({
-          uuid: biz_opaque_callback_data,
-        });
+        const messageUuid = statusData.biz_opaque_callback_data;
 
-        if (message) {
-          const currentStatus = message.sentStatus;
-          const futureStatus = statusData.status;
-          if (currentStatus == "sent") {
-            await SyncServer.updateFields(
-              Message,
-              "message",
-              biz_opaque_callback_data,
-              {
-                time: statusData.timestamp * 1000,
-              }
-            );
-          }
-          if (
-            getPriorityStatus(currentStatus) < getPriorityStatus(futureStatus)
-          ) {
-            await SyncServer.updateFields(
-              Message,
-              "message",
-              biz_opaque_callback_data,
-              {
-                sentStatus: statusData.status,
-              }
-            );
-            io.emit("serverChanged");
-          }
-        }
-        const newState = new MessageStatus({
-          message: message?.id,
-          status: statusData.status,
-          time: new Date(statusData.timestamp * 1000),
+        await SyncServer.updateFields(Message, "message", messageUuid, {
+          sentStatus: {
+            $cond: {
+              if: {
+                $nin: ["$sentStatus", getStatusesAfter(statusData.status)],
+              },
+              then: statusData.status,
+              else: "$status",
+            },
+          },
+          time: {
+            $cond: {
+              if: {
+                $nin: ["$sentStatus", getStatusesAfter(statusData.status)],
+              },
+              then: statusData.timestamp * 1000,
+              else: "$time",
+            },
+          },
         });
-        await newState.save();
+        await SyncServer.createOrGet(MessageStatus, "messageStatus", uuidv7(), {
+          message: messageUuid,
+          messageStatus: statusData.status,
+          time: statusData.timestamp * 1000,
+          ...getStatusError(statusData),
+        });
       }
       continue;
     }
@@ -424,6 +439,7 @@ Asegúrate de que tu respuesta sea clara, coherente y que la multimedia (si la i
     mediaContent: mediaContent?.uuid ?? "",
     sent: true,
     category: "text",
+    sentStatus: "send_requested",
   });
   let sendContentData = {
     body: content,
@@ -446,7 +462,6 @@ Asegúrate de que tu respuesta sea clara, coherente y que la multimedia (si la i
   );
   await SyncServer.updateFields(Message, "message", messageUuid, {
     wid: messageId,
-    sentStatus: "send_requested",
   });
   return true;
 }

@@ -23,6 +23,7 @@ const { createSearchIndex } = require("./synchronization/SyncMetadata");
 const { default: axios } = require("axios");
 const { inspect } = require("util");
 const Broadcast = require("./models/Broadcast");
+const MessageStatus = require("./models/MessageStatus");
 
 const CLOUD_API_ACCESS_TOKEN = process.env.CLOUD_API_ACCESS_TOKEN;
 const WA_BUSINESS_ACCOUNT_ID = process.env.WA_BUSINESS_ACCOUNT_ID;
@@ -235,6 +236,7 @@ SyncServer.syncPost({ model: WhatsappAccount, tableName: "whatsappAccount" });
 SyncServer.syncPost({ model: MediaContent, tableName: "mediaContent" });
 SyncServer.syncPost({ model: MediaPrompt, tableName: "mediaPrompt" });
 SyncServer.syncPost({ model: Broadcast, tableName: "broadcast" });
+SyncServer.syncPost({ model: MessageStatus, tableName: "messageStatus" });
 SyncServer.syncPost({
   model: Message,
   tableName: "message",

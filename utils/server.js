@@ -187,6 +187,7 @@ module.exports.sendTemplateAndCreateDB = async (
       textContent: templateData.textContent,
       sent: true,
       templateName: templateData.name,
+      sentStatus: "send_requested",
     });
     io.emit("serverChanged");
 
@@ -204,7 +205,6 @@ module.exports.sendTemplateAndCreateDB = async (
     );
     await SyncServer.updateFields(Message, "message", messageUuid, {
       wid: messageId,
-      sentStatus: "send_requested",
     });
     io.emit("serverChanged");
   } catch (error) {

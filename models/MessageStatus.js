@@ -1,12 +1,15 @@
 const mongoose = require("mongoose");
+const { generateFields } = require("../synchronization/sync");
 const Schema = mongoose.Schema;
 
 const MessageStatusSchema = new Schema(
-  {
-    message: { type: mongoose.Schema.Types.ObjectId, ref: "message" },
-    status: String,
-    time: Date,
-  },
+  generateFields({
+    message: { type: String, default: "" },
+    messageStatus: { type: String, default: "" },
+    time: { type: Number, default: () => new Date().getTime() },
+    errorCode: { type: Number, default: 0 },
+    errorMessage: { type: String, default: "" },
+  }),
   { timestamps: true }
 );
 

@@ -28,12 +28,14 @@ const MessageSchema = new Schema(
     mediaContent: { type: String, default: "" },
     textContent: { type: String, default: "" },
     sent: { type: Boolean, default: false },
-    time: { type: Number, default: () => new Date().getTime() },
-    sentStatus: { type: String, default: "not_sent" },
-    read: { type: Boolean, default: false },
+
+    // read: { type: Boolean, default: false },
     templateName: { type: String, default: "" },
     templateData: { type: String, default: "" },
     broadcast: { type: String, default: "" },
+
+    sentStatus: { type: String, default: "not_sent" },
+    time: { type: Number, default: () => new Date().getTime() },
   }),
   { timestamps: true }
 );

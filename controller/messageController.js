@@ -35,7 +35,7 @@ module.exports.sendLocationMessage = async (req, res) => {
     time: new Date().getTime(),
     category: "location",
     businessPhone,
-    sentStatus: "not_sent",
+    sentStatus: "send_requested",
   });
   await newMessage.save();
   const messageId = await sendWhatsappMessage(
@@ -55,7 +55,7 @@ module.exports.sendLocationMessage = async (req, res) => {
     newMessage._id
   );
   newMessage.wid = messageId;
-  newMessage.sentStatus = "send_requested";
+
   await newMessage.save();
 };
 module.exports.readMessage = async (req, res) => {
@@ -95,7 +95,7 @@ module.exports.sendTextMessage = async (req, res) => {
       time: new Date().getTime(),
       category: "text",
       businessPhone,
-      sentStatus: "not_sent",
+      sentStatus: "send_requested",
     });
     await newMessage.save();
     // console.log("ID DEL MENSAJE CREADO => " + newMessage._id);
@@ -111,7 +111,6 @@ module.exports.sendTextMessage = async (req, res) => {
       newMessage._id
     );
     newMessage.wid = messageId;
-    newMessage.sentStatus = "send_requested";
     await newMessage.save();
     // console.log("TERMINANDOOOOOOOOOOOO FUNCION  ");
     res.json({});
@@ -162,7 +161,7 @@ module.exports.sendMediaMessage = (req, res) => {
         time: new Date().getTime(),
         category,
         businessPhone,
-        sentStatus: "not_sent",
+        sentStatus: "send_requested",
         width,
         height,
         duration,
@@ -200,10 +199,8 @@ module.exports.sendMediaMessage = (req, res) => {
         messageData,
         newMessage._id
       );
-      newMessage.sentStatus = "send_requested";
       newMessage.wid = messageId;
       await newMessage.save();
-      // console.log("SE TERMINOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOASDASD");
       res.sendStatus(200);
     },
     (error) => {
