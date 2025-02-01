@@ -65,7 +65,14 @@ const extractChanges = (body) => {
     return null;
   }
 };
-const topStatuses = ["not_sent", "send_requested", "sent", "delivered", "read"];
+const topStatuses = [
+  "not_sent",
+  "send_requested",
+  "sent",
+  "delivered",
+  "read",
+  "failed",
+];
 
 function getStatusesAfter(value) {
   const index = topStatuses.indexOf(value);
@@ -84,7 +91,7 @@ function getStatusError(statusData) {
   try {
     return {
       errorCode: statusData.errors[0].code,
-      error: statusData.errors[0].error_data.details,
+      errorMessage: statusData.errors[0].error_data.details,
     };
   } catch (error) {
     return {};
@@ -125,17 +132,19 @@ module.exports.receiveMessage = async (req, res) => {
       for (const statusData of data.statuses) {
         const messageUuid = statusData.biz_opaque_callback_data;
 
-        if (statusData.status != "read") {
-          await SyncServer.updateFields(
-            Message,
-            "message",
-            messageUuid,
-            {
-              sentStatus: statusData.status,
-              time: statusData.timestamp * 1000,
-            },
-            { sentStatus: { $nin: getStatusesAfter(statusData.status) } }
-          );
+        await SyncServer.updateFields(
+          Message,
+          "message",
+          messageUuid,
+          {
+            sentStatus: statusData.status,
+          },
+          { sentStatus: { $nin: getStatusesAfter(statusData.status) } }
+        );
+        if (statusData.status == "sent") {
+          await SyncServer.updateFields(Message, "message", messageUuid, {
+            time: statusData.timestamp * 1000,
+          });
         }
         await SyncServer.createOrGet(MessageStatus, "messageStatus", uuidv7(), {
           message: messageUuid,
