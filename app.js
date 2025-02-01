@@ -242,7 +242,11 @@ SyncServer.syncPost({
   tableName: "message",
   onInsertPrevious: ({ docs }) => {
     for (const doc of docs) {
-      if (doc["sentStatus" == "not_sent"] && doc["sent"] == "true") {
+      console.log(
+        "CUMPLE??",
+        doc["sentStatus" == "not_sent"] && doc["sent"] == "true"
+      );
+      if (doc["sentStatus"] == "not_sent" && doc["sent"] == "true") {
         doc["sentStatus"] = ["sent_requested"];
       }
     }
