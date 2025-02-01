@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const MessageStatusSchema = new Schema(
   generateFields({
     message: { type: String, default: "" },
-    messageStatus: { type: String, default: "" },
+    msgStatus: { type: String, default: "" },
     time: { type: Number, default: () => new Date().getTime() },
     errorCode: { type: Number, default: 0 },
     errorMessage: { type: String, default: "" },
