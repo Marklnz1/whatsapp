@@ -155,7 +155,7 @@ module.exports.receiveMessage = async (req, res) => {
         );
         await SyncServer.createOrGet(MessageStatus, "messageStatus", uuidv7(), {
           message: messageUuid,
-          messageStatus: statusData.status,
+          msgStatus: statusData.status,
           time: statusData.timestamp * 1000,
           ...getStatusError(statusData),
         });
