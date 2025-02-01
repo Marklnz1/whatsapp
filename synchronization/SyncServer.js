@@ -520,7 +520,7 @@ class SyncServer {
 
     return docDB;
   };
-  async updateFields(Model, tableName, uuid, data) {
+  async updateFields(Model, tableName, uuid, data, filter) {
     return new Promise((resolve, reject) => {
       this.taskQueue.add({
         data: { tableName },
@@ -528,7 +528,14 @@ class SyncServer {
           const session = await mongoose.startSession();
           session.startTransaction();
           try {
-            await this._updateFields(Model, tableName, uuid, data, session);
+            await this._updateFields(
+              Model,
+              tableName,
+              uuid,
+              data,
+              session,
+              filter
+            );
             await session.commitTransaction();
             resolve();
           } catch (error) {
@@ -542,15 +549,16 @@ class SyncServer {
       });
     });
   }
-  async _updateFields(Model, tableName, uuid, data, session) {
+  async _updateFields(Model, tableName, uuid, data, session, filter) {
     const keys = Object.keys(data);
     for (let key of keys) {
       data[`${key}UpdatedAt`] = new Date().getTime();
     }
     const newSyncCode = await this.updateAndGetSyncCode(tableName, session);
     data.syncCode = newSyncCode;
+    filter ??= {};
     await Model.updateOne(
-      { uuid },
+      { uuid, ...filter },
       {
         $set: data,
       }
