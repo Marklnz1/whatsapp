@@ -8,7 +8,9 @@ const MessageStatusSchema = new Schema(
     msgStatus: { type: String, default: "" },
     time: { type: Number, default: () => new Date().getTime() },
     errorCode: { type: Number, default: 0 },
+    errorTitle: { type: String, default: "" },
     errorMessage: { type: String, default: "" },
+    errorDetails: { type: String, default: "" },
   }),
   { timestamps: true }
 );

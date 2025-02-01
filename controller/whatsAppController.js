@@ -91,7 +91,9 @@ function getStatusError(statusData) {
   try {
     return {
       errorCode: statusData.errors[0].code,
-      errorMessage: statusData.errors[0].error_data.details,
+      errorTitle: statusData.errors[0].title,
+      errorMessage: statusData.errors[0].message,
+      errorDetails: statusData.errors[0].error_data.details,
     };
   } catch (error) {
     return {};
