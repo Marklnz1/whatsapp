@@ -104,7 +104,8 @@ function getStatusError(statusData) {
       error: statusData.errors[0].error_data.details,
     };
   } catch (error) {
-    return {};
+    console.log("DANDO ERROR NULL");
+    return { error: null };
   }
 }
 module.exports.receiveMessage = async (req, res) => {
