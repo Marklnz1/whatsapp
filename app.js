@@ -266,7 +266,6 @@ SyncServer.syncPost({
     for (const client of clientSet) {
       await SyncServer.createOrGet(Client, "client", client, {
         wid: client,
-        username: `+${client}`,
       });
     }
     for (const chat of chatSet) {
