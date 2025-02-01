@@ -145,7 +145,6 @@ class SyncServer {
     tableName,
     onInsertPrevious,
     onInsertAfter,
-    onBeforeCreate,
     excludedFields = [],
     getSyncfindData,
   }) {
@@ -218,9 +217,6 @@ class SyncServer {
       },
       async (req, res, next) => {
         try {
-          if (onBeforeCreate) {
-            await onBeforeCreate(req.body);
-          }
           await this.createOrGet(model, tableName, uuidv7(), req.body);
           res.json({ msg: "ok" });
         } catch (error) {

@@ -57,24 +57,7 @@ module.exports.verifyToken = (req, res) => {
     res.sendStatus(404);
   }
 };
-const getPriorityStatus = (state) => {
-  switch (state) {
-    // case "not_sent":
-    //   return 0;
-    // case "send_requested":
-    //   return 1;
-    case "sent":
-      return 2;
-    case "delivered":
-      return 3;
-    case "read":
-      return 4;
-    case "failed":
-      return 5;
-    default:
-      return -1;
-  }
-};
+
 const extractChanges = (body) => {
   try {
     return body.entry[0].changes;
@@ -104,8 +87,7 @@ function getStatusError(statusData) {
       error: statusData.errors[0].error_data.details,
     };
   } catch (error) {
-    console.log("DANDO ERROR NULL");
-    return { error: null };
+    return {};
   }
 }
 module.exports.receiveMessage = async (req, res) => {

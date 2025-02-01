@@ -240,6 +240,13 @@ SyncServer.syncPost({ model: MessageStatus, tableName: "messageStatus" });
 SyncServer.syncPost({
   model: Message,
   tableName: "message",
+  onInsertPrevious: (docs) => {
+    for (const doc of docs) {
+      if (doc["sentStatus" == "not_sent"] && doc["sent"] == "true") {
+        doc["sentStatus"] = ["sent_requested"];
+      }
+    }
+  },
   onInsertAfter: async (messages) => {
     const messagesWithoutTemplate = [];
     const clientSet = new Set();
