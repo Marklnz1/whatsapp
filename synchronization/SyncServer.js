@@ -297,6 +297,7 @@ class SyncServer {
         } catch (error) {
           await session.abortTransaction();
           console.error("Error en la transacción, se ha revertido:", error);
+          throw Error(error);
         } finally {
           await session.endSession();
         }

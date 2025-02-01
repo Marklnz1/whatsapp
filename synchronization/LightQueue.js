@@ -19,21 +19,22 @@ class LightQueue {
     }
 
     this.isProcessing = true;
-    const { task, data, error, onInsertAfter } = this.queue.shift();
+    const { task, data, onInsertAfter } = this.queue.shift();
+    let newDocs;
+    let executeInsertAfter = true;
     try {
-      const newDocs = await task();
-      if (newDocs && onInsertAfter) {
-        onInsertAfter(newDocs);
-      }
+      newDocs = await task();
+      onInsertAfter(newDocs);
+      executeInsertAfter = false;
       await this.onEndTask(data, false);
     } catch (err) {
       console.error("Error processing task:", err);
       await this.onEndTask(data, true);
-      if (error) {
-        error();
-      }
+      executeInsertAfter = false;
     }
-
+    if (executeInsertAfter && newDocs && onInsertAfter) {
+      onInsertAfter(newDocs);
+    }
     setImmediate(() => this.process());
   }
 }
