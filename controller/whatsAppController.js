@@ -149,7 +149,7 @@ module.exports.receiveMessage = async (req, res) => {
                 $nin: ["$sentStatus", getStatusesAfter(statusData.status)],
               },
               then: statusData.status,
-              else: "$status",
+              else: "not_sent",
             },
           },
           time: {
@@ -158,7 +158,7 @@ module.exports.receiveMessage = async (req, res) => {
                 $nin: ["$sentStatus", getStatusesAfter(statusData.status)],
               },
               then: statusData.timestamp * 1000,
-              else: "$time",
+              else: 0,
             },
           },
         });
