@@ -336,7 +336,6 @@ SyncServer.syncPost({
             errorMessage: errorData.message,
             errorDetails: errorData.message,
           });
-          console.log(inspect(reason.response.data, true, 9999), "ATRAPADA");
         });
       // console.log("SE OBTUVO EL WID " + messageWid);
     }
