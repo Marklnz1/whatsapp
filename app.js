@@ -325,16 +325,24 @@ SyncServer.syncPost({
             wid: messageWid,
           });
         })
-        .catch((reason) => {
+        .catch(async (reason) => {
           const errorData = reason.response.data.error;
-          SyncServer.createOrGet(MessageStatus, "messageStatus", uuidv7(), {
-            message: message.uuid,
-            msgStatus: "failed",
-            time: new Date().getTime(),
-            errorCode: errorData.code,
-            errorTitle: errorData.type,
-            errorMessage: errorData.message,
-            errorDetails: errorData.message,
+          await SyncServer.createOrGet(
+            MessageStatus,
+            "messageStatus",
+            uuidv7(),
+            {
+              message: message.uuid,
+              msgStatus: "failed",
+              time: message.time,
+              errorCode: errorData.code,
+              errorTitle: errorData.type,
+              errorMessage: errorData.message,
+              errorDetails: errorData.message,
+            }
+          );
+          SyncServer.updateFields(Message, "message", message.uuid, {
+            sentStatus: "failed",
           });
         });
       // console.log("SE OBTUVO EL WID " + messageWid);
