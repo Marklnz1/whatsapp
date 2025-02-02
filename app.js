@@ -341,9 +341,10 @@ SyncServer.syncPost({
               errorDetails: errorData.message,
             }
           );
-          SyncServer.updateFields(Message, "message", message.uuid, {
+          await SyncServer.updateFields(Message, "message", message.uuid, {
             sentStatus: "failed",
           });
+          SyncServer.io.emit("serverChanged");
         });
       // console.log("SE OBTUVO EL WID " + messageWid);
     }
