@@ -143,7 +143,7 @@ module.exports.receiveMessage = async (req, res) => {
           },
           { sentStatus: { $nin: getStatusesAfter(statusData.status) } }
         );
-        if (statusData.status == "sent") {
+        if (statusData.status == "sent" || statusData.status == "failed") {
           await SyncServer.updateFields(Message, "message", messageUuid, {
             time: statusData.timestamp * 1000,
           });
