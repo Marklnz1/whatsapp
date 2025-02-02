@@ -36,6 +36,7 @@ const MessageSchema = new Schema(
 
     sentStatus: { type: String, default: "not_sent" },
     time: { type: Number, default: () => new Date().getTime() },
+    errorDetails: { type: String, default: "not_sent" },
   }),
   { timestamps: true }
 );
