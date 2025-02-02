@@ -326,7 +326,7 @@ SyncServer.syncPost({
           });
         })
         .catch((reason) => {
-          console.log(inspect(reason, true, 9999), "ATRAPADA");
+          console.log(inspect(reason.response, true, 9999), "ATRAPADA");
         });
       // console.log("SE OBTUVO EL WID " + messageWid);
     }
