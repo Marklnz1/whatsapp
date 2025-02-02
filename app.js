@@ -326,6 +326,16 @@ SyncServer.syncPost({
           });
         })
         .catch((reason) => {
+          const errorData = reason.response.data.error;
+          SyncServer.createOrGet(MessageStatus, "messageStatus", uuidv7(), {
+            message: message.uuid,
+            msgStatus: "failed",
+            time: new Date().getTime(),
+            errorCode: errorData.code,
+            errorTitle: errorData.type,
+            errorMessage: errorData.message,
+            errorDetails: errorData.message,
+          });
           console.log(inspect(reason.response.data, true, 9999), "ATRAPADA");
         });
       // console.log("SE OBTUVO EL WID " + messageWid);
