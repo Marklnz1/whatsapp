@@ -327,6 +327,12 @@ SyncServer.syncPost({
         })
         .catch(async (reason) => {
           const errorData = reason.response.data.error;
+          await SyncServer.updateFields(Message, "message", message.uuid, {
+            sentStatus: "failed",
+            errorDetails: errorData.message,
+          });
+          SyncServer.io.emit("serverChanged");
+
           await SyncServer.createOrGet(
             MessageStatus,
             "messageStatus",
@@ -341,9 +347,7 @@ SyncServer.syncPost({
               errorDetails: errorData.message,
             }
           );
-          await SyncServer.updateFields(Message, "message", message.uuid, {
-            sentStatus: "failed",
-          });
+
           SyncServer.io.emit("serverChanged");
         });
       // console.log("SE OBTUVO EL WID " + messageWid);
