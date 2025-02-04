@@ -307,11 +307,17 @@ class SyncServer {
     return syncCodeTable.syncCodeMax;
   }
 
-  async createOrGet(tableName, uuid, data, filter) {
-    data.uuid = uuid;
+  async createOrGet(tableName, uuid, doc, filter) {
+    doc.uuid = uuid;
     return new Promise((resolve, reject) => {
       this.databaseQueueMap[tableName].addTaskDataInQueue(
-        [new InsertableDocument({ filter, data, insertOnlyIfNotExist: true })],
+        [
+          new InsertableDocument({
+            filter,
+            doc,
+            insertOnlyIfNotExist: true,
+          }),
+        ],
         (responseDocs, error) => {
           if (error) {
             reject();
