@@ -152,7 +152,7 @@ class DatabaseQueue {
         if (insertOnlyIfNotExist) {
           documentQuery[key] = {
             $cond: {
-              if: { $ne: ["$uuid", doc.uuid] },
+              if: { $eq: ["$uuid", undefined] },
               then: { $max: [`$${key}`, updatedAt] },
               else: `$${key}`,
             },
@@ -162,7 +162,7 @@ class DatabaseQueue {
             $cond: {
               if: {
                 $and: [
-                  { $ne: ["$uuid", doc.uuid] },
+                  { $eq: ["$uuid", undefined] },
                   { $lt: [`$${key}`, updatedAt] },
                 ],
               },
