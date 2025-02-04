@@ -153,8 +153,8 @@ class DatabaseQueue {
           documentQuery[key] = {
             $cond: {
               if: { $ne: ["$uuid", undefined] },
-              then: { $max: [`$${key}`, updatedAt] },
-              else: `$${key}`,
+              then: `$${key}`,
+              else: { $max: [`$${key}`, updatedAt] },
             },
           };
 
@@ -166,8 +166,8 @@ class DatabaseQueue {
                   { $lt: [`$${key}`, updatedAt] },
                 ],
               },
-              then: doc[fieldName],
-              else: `$${fieldName}`,
+              then: `$${fieldName},
+              else:  doc[fieldName]`,
             },
           };
         } else {
