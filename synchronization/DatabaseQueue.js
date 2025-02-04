@@ -148,56 +148,49 @@ class DatabaseQueue {
         }
         const updatedAt = doc[key];
         const fieldName = key.replace("UpdatedAt", "");
-        console.log(
-          "EL FIELDNAME ES ",
-          fieldName,
-          "EL VALOR ES ",
-          doc[fieldName]
-        );
-        documentQuery[key] = { $max: [`$${key}`, updatedAt] };
-        documentQuery[fieldName] = {
-          $cond: {
-            if: { $lt: [`$${key}`, updatedAt] },
-            then: doc[fieldName],
-            else: `$${fieldName}`,
-          },
-        };
-      }
-      if (insertOnlyIfNotExist) {
-        return {
-          updateOne: {
-            filter: { uuid: documentQuery.uuid, ...filter },
-            update: [{ $setOnInsert: documentQuery }],
-            upsert: true,
-            setDefaultsOnInsert: true,
-          },
-        };
-      } else {
-        console.log(
-          "SE INTERTARA¡¡¡¡¡",
-          inspect(
-            {
-              updateOne: {
-                filter: { uuid: documentQuery.uuid },
-                update: [{ $set: documentQuery }],
-                upsert: true,
-                setDefaultsOnInsert: true,
-              },
-            },
-            true,
-            999
-          )
-        );
 
-        return {
-          updateOne: {
-            filter: { uuid: documentQuery.uuid },
-            update: [{ $set: documentQuery }],
-            upsert: true,
-            setDefaultsOnInsert: true,
-          },
-        };
+        if (insertOnlyIfNotExist) {
+          documentQuery[key] = {
+            $cond: {
+              if: { $eq: ["$_id", null] },
+              then: { $max: [`$${key}`, updatedAt] },
+              else: `$${key}`,
+            },
+          };
+
+          documentQuery[fieldName] = {
+            $cond: {
+              if: {
+                $and: [
+                  { $eq: ["$_id", null] },
+                  { $lt: [`$${key}`, updatedAt] },
+                ],
+              },
+              then: doc[fieldName],
+              else: `$${fieldName}`,
+            },
+          };
+        } else {
+          documentQuery[key] = { $max: [`$${key}`, updatedAt] };
+
+          documentQuery[fieldName] = {
+            $cond: {
+              if: { $lt: [`$${key}`, updatedAt] },
+              then: doc[fieldName],
+              else: `$${fieldName}`,
+            },
+          };
+        }
       }
+
+      return {
+        updateOne: {
+          filter: { uuid: documentQuery.uuid, ...filter },
+          update: [{ $set: documentQuery }],
+          upsert: true,
+          setDefaultsOnInsert: true,
+        },
+      };
     });
     console.log(
       "SE TRATARA DE ENVIAR LA DATA => ",
