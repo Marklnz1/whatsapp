@@ -4,7 +4,7 @@ const MONGODB_URL = process.env.MONGODB_URL;
 const Client = require("./models/Client");
 const Message = require("./models/Message");
 const WhatsappAccount = require("./models/WhatsappAccount");
-const { SyncServer } = require("./synchronization/SyncServer");
+const SyncServer = require("./synchronization/SyncServer");
 const whatsAppController = require("./controller/whatsAppController");
 const Chat = require("./models/Chat");
 const {

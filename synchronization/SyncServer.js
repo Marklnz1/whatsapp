@@ -5,15 +5,15 @@ const mongoose = require("mongoose");
 const SyncMetadata = require("./SyncMetadata");
 const LightQueue = require("./LightQueue");
 const Change = require("./Change");
+const DatabaseQueue = require("./DatabaseQueue");
 const ServerData = require("./ServerData");
 const { inspect } = require("util");
 const { v7: uuidv7 } = require("uuid");
-
-// const { verifyUser, login_post } = require("../controllers/authController");
-// const extractUser = require("../middleware/extractUser");
-// const authController = require("../controllers/authController");
+const { completeFieldsToInsert } = require("./sync");
+const InsertableDocument = require("./InsertableDocument");
 
 class SyncServer {
+  databaseQueueMap = {};
   init({ port, mongoURL, router, auth }) {
     if (auth == null) {
       auth = (req, res, next) => next();
@@ -24,37 +24,12 @@ class SyncServer {
     this.port = port;
     this.server = http.createServer(this.app);
     this.router = router;
-    this.io = new Server(
-      this.server
-      //   {
-      //   cors: {
-      //     origin: "*",
-      //   },
-      // }
-    );
+    this.io = new Server(this.server);
     this._configServer();
-    this.codeQueue = new LightQueue(() => {});
-    this.taskQueue = new LightQueue(async ({ tableName, tempCode }, error) => {
-      console.log("SE PROCESO EL CAMBIO " + tempCode);
-      // const session = await mongoose.startSession();
-      if (tempCode != null) {
-        if (!error) {
-          await Change.deleteOne({ tempCode });
-        }
-        await this.updateProcessedTempCode(tempCode);
-      }
-      this.io.emit("serverChanged");
-    });
+    this.codeQueue = new LightQueue();
   }
   _configServer() {
     this.app.use(express.json({ limit: "50mb" }));
-    // this.app.use((req, res, next) => {
-    //   if (req.headers["x-forwarded-proto"] !== "https") {
-    //     // Cloudflare establece este header
-    //     return res.redirect(`https://${req.headers.host}${req.url}`);
-    //   }
-    //   next();
-    // });
     this.io.on("connection", (socket) => {
       console.log("Cliente conectado");
       socket.on("disconnect", () => {
@@ -71,9 +46,7 @@ class SyncServer {
     this.app.set("view engine", "html");
     this.app.engine("html", require("ejs").renderFile);
     this.router(this.app, this.auth);
-    // this.app.post("/login", login_post);
-    // this.app.get("/create", authController.create);
-    // this.app.use("*", extractUser);
+
     this.app.post(
       "/change/list/unprocessed/delete",
       async (req, res, next) => {
@@ -145,9 +118,17 @@ class SyncServer {
     tableName,
     onInsertPrevious,
     onInsertAfter,
+    onBeforeCreate,
     excludedFields = [],
     getSyncfindData,
   }) {
+    this.databaseQueueMap[tableName] = new DatabaseQueue(
+      model,
+      tableName,
+      onInsertPrevious,
+      onInsertAfter,
+      this.io
+    );
     let selectFields = excludedFields.map((field) => `-${field}`).join(" ");
     this.app.post(
       `/${tableName}/list/sync`,
@@ -161,7 +142,6 @@ class SyncServer {
               syncCode: { $gt: req.body["syncCodeMax"] },
               status: { $ne: "Deleted" },
               ...(getSyncfindData == null ? {} : getSyncfindData(req, res)),
-              // userId: res.locals.user.userId,
             };
 
             let docs = await model
@@ -174,27 +154,13 @@ class SyncServer {
 
             if (getSyncfindData != null) {
               syncCodeMax = await this.getCurrentSyncCode("movement");
-              // console.log(
-              //   "el syncodeMax es2222 ",
-              //   syncCodeMax,
-              //   "aa",
-              //   tableName
-              // );
             } else {
               syncCodeMax =
                 docs.length == 0
                   ? 0
                   : Math.max(...docs.map((doc) => doc.syncCode));
-              // console.log("el syncodeMax es ", syncCodeMax, "aa", tableName);
             }
-            // console.log(
-            //   "EL TAMAÑO DE LOS DOCS ES ",
-            //   docs.length,
-            //   "findata ",
-            //   findData,
-            //   " TABLENAME",
-            //   tableName
-            // );
+
             res.status(200).json({ docs: docs ?? [], syncCodeMax });
           } catch (error) {
             res.status(400).json({ error: error.message });
@@ -210,20 +176,24 @@ class SyncServer {
         }
       }
     );
-    this.app.post(
-      `/${tableName}/create`,
-      async (req, res, next) => {
-        await this.auth(req, res, next, tableName, "write");
-      },
-      async (req, res, next) => {
-        try {
-          await this.createOrGet(model, tableName, uuidv7(), req.body);
-          res.json({ msg: "ok" });
-        } catch (error) {
-          res.json({ error });
-        }
-      }
-    );
+    // this.app.post(
+    //   `/${tableName}/create`,
+    //   async (req, res, next) => {
+    //     await this.auth(req, res, next, tableName, "write");
+    //   },
+    //   async (req, res, next) => {
+    //     try {
+    //       //REVISAR PARA USUARIOS
+    //       // if (onBeforeCreate) {
+    //       //   await onBeforeCreate(req.body);
+    //       // }
+    //       await this.createOrGet(model, tableName, uuidv7(), req.body);
+    //       res.json({ msg: "ok" });
+    //     } catch (error) {
+    //       res.json({ error });
+    //     }
+    //   }
+    // );
     this.app.post(
       `/${tableName}/update/list/sync`,
       async (req, res, next) => {
@@ -232,7 +202,7 @@ class SyncServer {
       async (req, res, next) => {
         this.codeQueue.add({
           data: {},
-          task: async () => {
+          exec: async () => {
             try {
               const tempCode = await this.updateAndGetTempCode();
               console.log("DEVOLVIENDO EL TEMP CODE QUEUE => " + tempCode);
@@ -242,15 +212,21 @@ class SyncServer {
                 status: "inserted",
               });
               await change.save();
-              this.addTaskDataInQueue(
-                model,
-                tableName,
-                req.body["docs"],
-                tempCode,
-                onInsertPrevious,
-                onInsertAfter
-                // res.locals.user.userId
+              const insertableDocs = [];
+              for (const doc of req.body["docs"]) {
+                insertableDocs.push(
+                  new InsertableDocument({
+                    tempCode,
+                    doc,
+                    insertOnlyIfNotExist: false,
+                  })
+                );
+              }
+              console.log("QUE PASAAA?");
+              this.databaseQueueMap[tableName].addTaskDataInQueue(
+                insertableDocs
               );
+              console.log("RESPONDIENDO AL MENSAJE");
               res.status(200).json({ tempCode });
             } catch (error) {
               res.status(400).json({ error: error.message });
@@ -259,143 +235,6 @@ class SyncServer {
         });
       }
     );
-  }
-  addTaskDataInQueue(
-    Model,
-    tableName,
-    docs,
-    tempCode,
-    onInsertPrevious,
-    onInsertAfter
-  ) {
-    this.taskQueue.add({
-      data: {
-        tempCode,
-        tableName,
-      },
-      onInsertAfter,
-      task: async () => {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-        try {
-          if (onInsertPrevious) {
-            await onInsertPrevious({
-              docs,
-              session,
-              createOrGet: this._createOrGet,
-            });
-          }
-          const newDocs = await this.localToServer(
-            Model,
-            tableName,
-            docs,
-            session
-          );
-          await session.commitTransaction();
-
-          return newDocs;
-        } catch (error) {
-          await session.abortTransaction();
-          console.error("Error en la transacción, se ha revertido:", error);
-          throw Error(error);
-        } finally {
-          await session.endSession();
-        }
-      },
-    });
-  }
-  async localToServer(Model, tableName, docs, session) {
-    //mandar error por documento repetido
-    // const fieldSyncCodes = {};
-    // for (const field of Object.keys(docs[0])) {
-    //   if (field.endsWith("UpdatedAt")) {
-    //     continue;
-    //   }
-    //   fieldSyncCodes[field + "SyncCode"] = 1;
-    // }
-    const newDocs = [];
-    const syncCode = await this.updateAndGetSyncCode(tableName, session);
-    let set = new Set();
-
-    for (let d of docs) {
-      set.add(d.uuid);
-      d.syncCode = syncCode;
-      // d.userId = userId;
-    }
-    const serverDocs = await Model.find({
-      uuid: { $in: Array.from(set) },
-    });
-    const serverDocsMap = new Map();
-    for (const sd of serverDocs) {
-      serverDocsMap.set(sd.uuid, sd);
-    }
-    let deleteDocs = [];
-    for (const d of docs) {
-      const serverDoc = serverDocsMap.get(d.uuid);
-      // console.log(
-      //   "SE RECIBIO EN EL SERVIDOR EL INSERTEDAT : " + d["insertedAt"]
-      // );
-      // console.log(
-      //   "se analiza el doc local " +
-      //     inspect(d) +
-      //     " con el server " +
-      //     inspect(serverDoc)
-      // );
-
-      if (serverDoc == null) {
-        newDocs.push(d);
-        continue;
-      }
-      const keys = Object.keys(d);
-      for (const key of keys) {
-        if (
-          key.endsWith("UpdatedAt") ||
-          key == "uuid" ||
-          key == "syncCode" ||
-          key == "insertedAt"
-        ) {
-          continue;
-        }
-        const localDate = d[key + "UpdatedAt"];
-        const serverDate = serverDoc[key + "UpdatedAt"];
-        console.log(
-          "EL LOCAL ES FIELD:" +
-            key +
-            " VALUE: " +
-            d[key] +
-            "  : " +
-            localDate +
-            " el server es " +
-            serverDate
-        );
-        if (serverDate >= localDate) {
-          delete d[key];
-          delete d[key + "UpdatedAt"];
-        }
-      }
-      if (Object.keys(d).length == 0) {
-        deleteDocs.push(d);
-      }
-    }
-    docs = docs.filter((doc) => !deleteDocs.includes(doc));
-    // console.log("se analizaran " + docs.length);
-    if (docs.length == 0) {
-      return;
-    }
-    await Model.bulkWrite(
-      docs.map((doc) => {
-        return {
-          updateOne: {
-            filter: { uuid: doc.uuid },
-            update: { $set: doc },
-            upsert: true,
-            setDefaultsOnInsert: true,
-          },
-        };
-      }),
-      { session }
-    );
-    return newDocs;
   }
 
   async start({ exec } = {}) {
@@ -408,7 +247,6 @@ class SyncServer {
       socketTimeoutMS: 30000,
     });
     const syncCodeMax = await this.updateAndGetSyncCode("serverData");
-    // console.log("EL MAXIMO CODIGO ES " + syncCodeMax);
     await ServerData.findOneAndUpdate(
       { uuid: "momo" },
       {
@@ -468,100 +306,49 @@ class SyncServer {
     );
     return syncCodeTable.syncCodeMax;
   }
-  async createOrGet(Model, tableName, uuid, data) {
-    return new Promise((resolve, reject) => {
-      this.taskQueue.add({
-        data: { tableName },
-        task: async () => {
-          const session = await mongoose.startSession();
-          session.startTransaction();
-          try {
-            const docDB = await this._createOrGet(
-              Model,
-              tableName,
-              uuid,
-              data,
-              session
-            );
-            await session.commitTransaction();
-            resolve(docDB);
-          } catch (error) {
-            reject(error);
-            await session.abortTransaction();
-            console.error("Error en la transacción, se ha revertido:", error);
-          } finally {
-            await session.endSession();
-          }
-        },
-      });
-    });
-  }
 
-  _createOrGet = async (
-    Model,
-    tableName,
-    uuid,
-    data,
-    session,
-    onExistDocument
-  ) => {
-    let docDB = await Model.findOne({ uuid });
-    if (!docDB) {
-      data.syncCode = await this.updateAndGetSyncCode(tableName, session);
-      docDB = await Model.findOneAndUpdate(
-        { uuid },
-        { $set: data },
-        { session, new: true, upsert: true, setDefaultsOnInsert: true }
+  async createOrGet(tableName, uuid, data, filter) {
+    data.uuid = uuid;
+    return new Promise((resolve, reject) => {
+      this.databaseQueueMap[tableName].addTaskDataInQueue(
+        [new InsertableDocument({ filter, data, insertOnlyIfNotExist: true })],
+        (responseDocs, error) => {
+          if (error) {
+            reject();
+          } else {
+            for (const rd of responseDocs) {
+              if (rd.doc.uuid == uuid) {
+                resolve(rd.doc);
+              }
+              return;
+            }
+            reject();
+          }
+        }
       );
-    }
-
-    return docDB;
-  };
-  async updateFields(Model, tableName, uuid, data, filter) {
-    return new Promise((resolve, reject) => {
-      this.taskQueue.add({
-        data: { tableName },
-        task: async () => {
-          const session = await mongoose.startSession();
-          session.startTransaction();
-          try {
-            await this._updateFields(
-              Model,
-              tableName,
-              uuid,
-              data,
-              session,
-              filter
-            );
-            await session.commitTransaction();
-            resolve();
-          } catch (error) {
-            reject(error);
-            await session.abortTransaction();
-            console.error("Error en la transacción, se ha revertido:", error);
-          } finally {
-            await session.endSession();
-          }
-        },
-      });
     });
   }
-  async _updateFields(Model, tableName, uuid, data, session, filter) {
-    const keys = Object.keys(data);
-    for (let key of keys) {
-      data[`${key}UpdatedAt`] = new Date().getTime();
-    }
-    const newSyncCode = await this.updateAndGetSyncCode(tableName, session);
-    data.syncCode = newSyncCode;
-    filter ??= {};
-    await Model.updateOne(
-      { uuid, ...filter },
-      {
-        $set: data,
-      }
-    );
-    return newSyncCode;
+  async updateFields(tableName, uuid, data, filter) {
+    data.uuid = uuid;
+    return new Promise((resolve, reject) => {
+      this.databaseQueueMap[tableName].addTaskDataInQueue(
+        [new InsertableDocument({ filter, data, insertOnlyIfNotExist: false })],
+        (responseDocs, error) => {
+          if (error) {
+            reject();
+          } else {
+            for (const rd of responseDocs) {
+              if (rd.doc.uuid == uuid) {
+                resolve(rd.doc);
+              }
+              return;
+            }
+            reject();
+          }
+        }
+      );
+    });
   }
 }
 
-module.exports.SyncServer = new SyncServer();
+module.exports = new SyncServer();

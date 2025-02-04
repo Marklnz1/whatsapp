@@ -1,31 +1,7 @@
 const util = require("util");
 const SyncMetadata = require("./SyncMetadata");
-// module.exports.createOrGet = async (Model, tableName, data) => {
-//   try {
-//     var docData = { ...data, syncCode: -1, version: 0 };
-//     var doc = new Model(docData);
-//     await doc.save();
-//     const newSyncCode = await this.update_fields(
-//       Model,
-//       tableName,
-//       {
-//         uuid: data.uuid,
-//       },
-//       {}
-//     );
-//     docData.version = 1;
-//     docData.newSyncCode = newSyncCode;
-//     return docData;
-//   } catch (error) {
-//     const keys = Object.keys(error.keyValue);
-//     if (error.code === 11000 && keys.length === 1 && keys[0] === "uuid") {
-//       const existingDoc = await Model.findOne({ uuid: data.uuid });
-//       return existingDoc;
-//     } else {
-//       throw error;
-//     }
-//   }
-// };
+const { v7: uuidv7 } = require("uuid");
+
 module.exports.generateFields = (fields) => {
   fields.status = { type: String, default: "inserted" };
   for (const key in fields) {
@@ -37,20 +13,18 @@ module.exports.generateFields = (fields) => {
     }
   }
 
-  const finalFields = {
+  fields = {
     uuid: {
       type: String,
       unique: true,
       required: true,
     },
-    // userId: String,
     syncCode: { type: Number, required: true },
     insertedAt: { type: Number, default: () => new Date().getTime() },
-    // version: { type: Number, default: 1 },
     ...fields,
   };
 
-  return finalFields;
+  return fields;
 };
 // module.exports.update_list_sync = async (Model, tableName, req, res, next) => {
 //   try {
