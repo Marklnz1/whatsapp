@@ -19,7 +19,7 @@ const ConversationalForm = require("../models/ConversationalForm");
 const ConversationalFormValue = require("../models/ConversationalFormValue");
 const WhatsappAccount = require("../models/WhatsappAccount");
 const Chat = require("../models/Chat");
-const { SyncServer } = require("../synchronization/SyncServer");
+const SyncServer = require("../synchronization/SyncServer");
 const MediaContent = require("../models/MediaContent");
 const MediaPrompt = require("../models/MediaPrompt");
 

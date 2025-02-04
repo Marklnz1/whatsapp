@@ -14,7 +14,7 @@ const Message = require("../models/Message");
 const Client = require("../models/Client");
 const WhatsappAccount = require("../models/WhatsappAccount");
 const Chat = require("../models/Chat");
-const { SyncServer } = require("../synchronization/SyncServer");
+const SyncServer = require("../synchronization/SyncServer");
 ffmpeg.setFfprobePath(ffprobe.path);
 const ffprobeAsync = promisify(ffmpeg.ffprobe);
 const pipelineAsync = promisify(pipeline);
