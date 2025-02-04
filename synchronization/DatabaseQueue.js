@@ -202,7 +202,11 @@ class DatabaseQueue {
     })
       .session(session)
       .exec();
-    console.log("ME RESPONDE BULK CON ", inspect(response, true, 99));
+    console.log(
+      "ME RESPONDE BULK CON ",
+      this.Model,
+      inspect(response, true, 99)
+    );
     const responseDocs = [];
     for (const sda of serverDocsAfter) {
       responseDocs.push(
