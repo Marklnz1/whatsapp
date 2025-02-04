@@ -196,12 +196,13 @@ class DatabaseQueue {
       "SE TRATARA DE ENVIAR LA DATA => ",
       inspect(bulkWriteData, true, 99)
     );
-    await this.Model.bulkWrite(bulkWriteData, { session });
+    const response = await this.Model.bulkWrite(bulkWriteData, { session });
     const serverDocsAfter = await this.Model.find({
       uuid: { $in: Array.from(uuidSet) },
     })
       .session(session)
       .exec();
+    console.log("ME RESPONDE BULK CON ", inspect(response, true, 99));
     const responseDocs = [];
     for (const sda of serverDocsAfter) {
       responseDocs.push(
