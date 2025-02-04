@@ -167,7 +167,7 @@ class DatabaseQueue {
         return {
           updateOne: {
             filter: { uuid: documentQuery.uuid, ...filter },
-            update: { $setOnInsert: documentQuery },
+            update: [{ $setOnInsert: documentQuery }],
             upsert: true,
             setDefaultsOnInsert: true,
           },
