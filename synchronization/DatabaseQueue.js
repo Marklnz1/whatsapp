@@ -166,7 +166,7 @@ class DatabaseQueue {
       if (insertOnlyIfNotExist) {
         return {
           updateOne: {
-            filter: { _id: documentQuery.uuid, ...filter },
+            filter: { uuid: documentQuery.uuid, ...filter },
             update: { $setOnInsert: documentQuery },
             upsert: true,
             setDefaultsOnInsert: true,
