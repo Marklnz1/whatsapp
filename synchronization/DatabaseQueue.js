@@ -166,8 +166,8 @@ class DatabaseQueue {
                   { $lt: [`$${key}`, updatedAt] },
                 ],
               },
-              then: `$${fieldName},
-              else:  doc[fieldName]`,
+              then: `$${fieldName}`,
+              else: doc[fieldName],
             },
           };
         } else {
