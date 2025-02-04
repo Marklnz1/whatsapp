@@ -137,71 +137,70 @@ class DatabaseQueue {
     for (const sd in serverDocsPrevious) {
       existUuidList.push(sd.uuid);
     }
-    await this.Model.bulkWrite(
-      insertableDocs.map((insertableDoc) => {
-        const doc = insertableDoc.doc;
-        const filter = insertableDoc.filter;
-        const insertOnlyIfNotExist = insertableDoc.insertOnlyIfNotExist;
-        const documentQuery = { uuid: doc.uuid, syncCode };
-        for (const key of Object.keys(doc)) {
-          if (!key.endsWith("UpdatedAt")) {
-            continue;
-          }
-          const updatedAt = doc[key];
-          const fieldName = key.replace("UpdatedAt", "");
-          console.log(
-            "EL FIELDNAME ES ",
-            fieldName,
-            "EL VALOR ES ",
-            doc[fieldName]
-          );
-          documentQuery[key] = { $max: [`$${key}`, updatedAt] };
-          documentQuery[fieldName] = {
-            $cond: {
-              if: { $lt: [`$${key}`, updatedAt] },
-              then: doc[fieldName],
-              else: `$${fieldName}`,
-            },
-          };
+    const bulkWriteData = insertableDocs.map((insertableDoc) => {
+      const doc = insertableDoc.doc;
+      const filter = insertableDoc.filter;
+      const insertOnlyIfNotExist = insertableDoc.insertOnlyIfNotExist;
+      const documentQuery = { uuid: doc.uuid, syncCode };
+      for (const key of Object.keys(doc)) {
+        if (!key.endsWith("UpdatedAt")) {
+          continue;
         }
-        if (insertOnlyIfNotExist) {
-          return {
-            updateOne: {
-              filter: { _id: documentQuery.uuid, ...filter },
-              update: { $setOnInsert: documentQuery },
-              upsert: true,
-              setDefaultsOnInsert: true,
-            },
-          };
-        } else {
-          console.log(
-            "SE INTERTARA¡¡¡¡¡",
-            inspect(
-              {
-                updateOne: {
-                  filter: { uuid: documentQuery.uuid },
-                  update: [{ $set: documentQuery }],
-                  upsert: true,
-                  setDefaultsOnInsert: true,
-                },
+        const updatedAt = doc[key];
+        const fieldName = key.replace("UpdatedAt", "");
+        console.log(
+          "EL FIELDNAME ES ",
+          fieldName,
+          "EL VALOR ES ",
+          doc[fieldName]
+        );
+        documentQuery[key] = { $max: [`$${key}`, updatedAt] };
+        documentQuery[fieldName] = {
+          $cond: {
+            if: { $lt: [`$${key}`, updatedAt] },
+            then: doc[fieldName],
+            else: `$${fieldName}`,
+          },
+        };
+      }
+      if (insertOnlyIfNotExist) {
+        return {
+          updateOne: {
+            filter: { _id: documentQuery.uuid, ...filter },
+            update: { $setOnInsert: documentQuery },
+            upsert: true,
+            setDefaultsOnInsert: true,
+          },
+        };
+      } else {
+        console.log(
+          "SE INTERTARA¡¡¡¡¡",
+          inspect(
+            {
+              updateOne: {
+                filter: { uuid: documentQuery.uuid },
+                update: [{ $set: documentQuery }],
+                upsert: true,
+                setDefaultsOnInsert: true,
               },
-              true,
-              999
-            )
-          );
-
-          return {
-            updateOne: {
-              filter: { uuid: documentQuery.uuid },
-              update: [{ $set: documentQuery }],
-              upsert: true,
-              setDefaultsOnInsert: true,
             },
-          };
-        }
-      }),
-      { session }
-    );
+            true,
+            999
+          )
+        );
+
+        return {
+          updateOne: {
+            filter: { uuid: documentQuery.uuid },
+            update: [{ $set: documentQuery }],
+            upsert: true,
+            setDefaultsOnInsert: true,
+          },
+        };
+      }
+    });
+    console.log("SE TRATARA DE ENVIAR LA DATA => ", inspect(bulkWriteData));
+    await this.Model.bulkWrite(bulkWriteData, { session });
     const serverDocsAfter = await this.Model.find({
       uuid: { $in: Array.from(uuidSet) },
     })
