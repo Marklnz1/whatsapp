@@ -135,7 +135,6 @@ module.exports.receiveMessage = async (req, res) => {
         const messageUuid = statusData.biz_opaque_callback_data;
 
         await SyncServer.updateFields(
-          Message,
           "message",
           messageUuid,
           {
@@ -144,17 +143,17 @@ module.exports.receiveMessage = async (req, res) => {
           { sentStatus: { $nin: getStatusesAfter(statusData.status) } }
         );
         if (statusData.status == "sent") {
-          await SyncServer.updateFields(Message, "message", messageUuid, {
+          await SyncServer.updateFields("message", messageUuid, {
             time: statusData.timestamp * 1000,
           });
         }
         if (statusData.status == "failed") {
-          await SyncServer.updateFields(Message, "message", messageUuid, {
+          await SyncServer.updateFields("message", messageUuid, {
             time: statusData.timestamp * 1000,
             errorDetails: getStatusError(statusData).errorDetails,
           });
         }
-        await SyncServer.createOrGet(MessageStatus, "messageStatus", uuidv7(), {
+        await SyncServer.createOrGet("messageStatus", uuidv7(), {
           message: messageUuid,
           msgStatus: statusData.status,
           time: statusData.timestamp * 1000,
@@ -187,7 +186,6 @@ const createChatClientMapData = async (contacts, recipientData) => {
     const username = profile.name;
     const wid = contact.wa_id;
     let whatsappAccountDB = await SyncServer.createOrGet(
-      WhatsappAccount,
       "whatsappAccount",
       recipientData.phoneNumberId,
       {
@@ -196,16 +194,15 @@ const createChatClientMapData = async (contacts, recipientData) => {
         businessPhoneId: recipientData.phoneNumberId,
       }
     );
-    let clientDB = await SyncServer.createOrGet(Client, "client", wid, {
+    let clientDB = await SyncServer.createOrGet("client", wid, {
       wid,
       username,
     });
     if (clientDB.username != username) {
-      await SyncServer.updateFields(Client, "client", wid, { username });
+      await SyncServer.updateFields("client", wid, { username });
     }
 
     let chatDB = await SyncServer.createOrGet(
-      Chat,
       "chat",
       `${clientDB.uuid}_${whatsappAccountDB.uuid}`,
       {
@@ -424,7 +421,7 @@ Asegúrate de que tu respuesta sea clara, coherente y que la multimedia (si la i
   }
 
   const messageUuid = uuidv7();
-  await SyncServer.createOrGet(Message, "message", messageUuid, {
+  await SyncServer.createOrGet("message", messageUuid, {
     chat: chat.uuid,
     wid: null,
     textContent: chatbotMessage,
@@ -452,7 +449,7 @@ Asegúrate de que tu respuesta sea clara, coherente y que la multimedia (si la i
     messageUuid,
     clientMessageId
   );
-  await SyncServer.updateFields(Message, "message", messageUuid, {
+  await SyncServer.updateFields("message", messageUuid, {
     wid: messageId,
   });
   return true;
@@ -492,7 +489,6 @@ const receiveMessageClient = async (
     };
     const mediaContentUuid = uuidv7();
     await SyncServer.createOrGet(
-      MediaContent,
       "mediaContent",
       mediaContentUuid,
       mediaContent
@@ -524,7 +520,7 @@ const receiveMessageClient = async (
     }
     messagesHistorial = messagesHistorial.reverse();
   }
-  await SyncServer.createOrGet(Message, "message", uuidv7(), newMessageData);
+  await SyncServer.createOrGet("message", uuidv7(), newMessageData);
   io.emit("serverChanged");
 
   if (chat.chatbot && newMessageData.textContent) {

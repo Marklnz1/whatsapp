@@ -135,7 +135,6 @@ function getTemplateBody(templateData) {
 }
 async function getChatDB(businessPhoneId, businessPhone, destinationPhone) {
   let whatsappAccountDB = await SyncServer.createOrGet(
-    WhatsappAccount,
     "whatsappAccount",
     businessPhoneId,
     {
@@ -144,17 +143,11 @@ async function getChatDB(businessPhoneId, businessPhone, destinationPhone) {
       businessPhoneId: businessPhoneId,
     }
   );
-  let clientDB = await SyncServer.createOrGet(
-    Client,
-    "client",
-    destinationPhone,
-    {
-      wid: destinationPhone,
-      username: `+${destinationPhone}`,
-    }
-  );
+  let clientDB = await SyncServer.createOrGet("client", destinationPhone, {
+    wid: destinationPhone,
+    username: `+${destinationPhone}`,
+  });
   return await SyncServer.createOrGet(
-    Chat,
     "chat",
     `${clientDB.uuid}_${whatsappAccountDB.uuid}`,
     {
@@ -182,7 +175,7 @@ module.exports.sendTemplateAndCreateDB = async (
       businessPhone,
       destinationData.phone
     );
-    await SyncServer.createOrGet(Message, "message", messageUuid, {
+    await SyncServer.createOrGet("message", messageUuid, {
       chat: chatDB.uuid,
       textContent: templateData.textContent,
       sent: true,
@@ -203,7 +196,7 @@ module.exports.sendTemplateAndCreateDB = async (
       },
       messageUuid
     );
-    await SyncServer.updateFields(Message, "message", messageUuid, {
+    await SyncServer.updateFields("message", messageUuid, {
       wid: messageId,
     });
     io.emit("serverChanged");

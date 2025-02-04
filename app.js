@@ -264,7 +264,7 @@ SyncServer.syncPost({
     }
 
     for (const client of clientSet) {
-      await SyncServer.createOrGet(Client, "client", client, {
+      await SyncServer.createOrGet("client", client, {
         wid: client,
       });
     }
@@ -272,7 +272,7 @@ SyncServer.syncPost({
       const chatSplit = chat.split("_");
       const clientUuid = chatSplit[0];
       const accountUuid = chatSplit[1];
-      await SyncServer.createOrGet(Chat, "chat", chat, {
+      await SyncServer.createOrGet("chat", chat, {
         client: clientUuid,
         whatsappAccount: accountUuid,
         lastSeen: 0,
@@ -321,32 +321,27 @@ SyncServer.syncPost({
         message.uuid
       )
         .then((messageWid) => {
-          SyncServer.updateFields(Message, "message", message.uuid, {
+          SyncServer.updateFields("message", message.uuid, {
             wid: messageWid,
           });
         })
         .catch(async (reason) => {
           const errorData = reason.response.data.error;
-          await SyncServer.updateFields(Message, "message", message.uuid, {
+          await SyncServer.updateFields("message", message.uuid, {
             sentStatus: "failed",
             errorDetails: errorData.message,
           });
           SyncServer.io.emit("serverChanged");
 
-          await SyncServer.createOrGet(
-            MessageStatus,
-            "messageStatus",
-            uuidv7(),
-            {
-              message: message.uuid,
-              msgStatus: "failed",
-              time: message.time,
-              errorCode: errorData.code,
-              errorTitle: errorData.type,
-              errorMessage: errorData.message,
-              errorDetails: errorData.message,
-            }
-          );
+          await SyncServer.createOrGet("messageStatus", uuidv7(), {
+            message: message.uuid,
+            msgStatus: "failed",
+            time: message.time,
+            errorCode: errorData.code,
+            errorTitle: errorData.type,
+            errorMessage: errorData.message,
+            errorDetails: errorData.message,
+          });
 
           SyncServer.io.emit("serverChanged");
         });
@@ -371,7 +366,7 @@ SyncServer.syncPost({
         message.uuid
       );
       // console.log("SE OBTUVO EL WID " + messageWid);
-      await SyncServer.updateFields(Message, "message", message.uuid, {
+      await SyncServer.updateFields("message", message.uuid, {
         wid: messageWid,
       });
     }
