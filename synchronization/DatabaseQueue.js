@@ -199,7 +199,10 @@ class DatabaseQueue {
         };
       }
     });
-    console.log("SE TRATARA DE ENVIAR LA DATA => ", inspect(bulkWriteData));
+    console.log(
+      "SE TRATARA DE ENVIAR LA DATA => ",
+      inspect(bulkWriteData, true, 99)
+    );
     await this.Model.bulkWrite(bulkWriteData, { session });
     const serverDocsAfter = await this.Model.find({
       uuid: { $in: Array.from(uuidSet) },
