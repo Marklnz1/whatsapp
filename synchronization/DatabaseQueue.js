@@ -149,43 +149,24 @@ class DatabaseQueue {
         const updatedAt = doc[key];
         const fieldName = key.replace("UpdatedAt", "");
 
-        if (insertOnlyIfNotExist) {
-          documentQuery[key] = {
-            $cond: {
-              if: { $eq: [{ $type: "$uuid" }, "missing"] },
-              then: { $max: [`$${key}`, updatedAt] },
-              else: `$${key}`,
-            },
-          };
+        documentQuery[key] = { $max: [`$${key}`, updatedAt] };
 
-          documentQuery[fieldName] = {
-            $cond: {
-              if: {
-                $and: [
-                  { $eq: [{ $type: "$uuid" }, "missing"] },
-                  { $lt: [`$${key}`, updatedAt] },
-                ],
-              },
-              then: doc[fieldName],
-              else: `$${fieldName}`,
-            },
-          };
-        } else {
-          documentQuery[key] = { $max: [`$${key}`, updatedAt] };
-
-          documentQuery[fieldName] = {
-            $cond: {
-              if: { $lt: [`$${key}`, updatedAt] },
-              then: doc[fieldName],
-              else: `$${fieldName}`,
-            },
-          };
-        }
+        documentQuery[fieldName] = {
+          $cond: {
+            if: { $lt: [`$${key}`, updatedAt] },
+            then: doc[fieldName],
+            else: `$${fieldName}`,
+          },
+        };
       }
 
       return {
         updateOne: {
-          filter: { uuid: documentQuery.uuid, ...filter },
+          filter: {
+            uuid: documentQuery.uuid,
+            ...filter,
+            ...(insertOnlyIfNotExist ? { _id: { $exists: true } } : {}),
+          },
           update: [{ $set: documentQuery }],
           upsert: true,
           setDefaultsOnInsert: true,
