@@ -14,14 +14,15 @@ class DatabaseQueue {
     this.onInsertPrevious = onInsertPrevious;
 
     this.lightQueue = new LightQueue(async ({ insertableDocs, error }) => {
-      console.log("ERROR???", error);
       if (!error) {
-        const tempCodes = [];
+        let tempCodes = new Set();
+
         for (const iDoc of insertableDocs) {
           if (iDoc.tempCode != null) {
-            tempCodes.push(iDoc.tempCode);
+            tempCodes.add(iDoc.tempCode);
           }
         }
+        tempCodes = [...tempCodes];
         console.log("HAY TEMPCODES ", tempCodes);
         if (tempCodes.length > 0) {
           if (!error) {
@@ -215,21 +216,14 @@ class DatabaseQueue {
         },
       };
     });
-    // console.log(
-    //   "SE TRATARA DE ENVIAR LA DATA => ",
-    //   inspect(bulkWriteData, true, 99)
-    // );
-    const response = await this.Model.bulkWrite(bulkWriteData, { session });
+
+    await this.Model.bulkWrite(bulkWriteData, { session });
     const serverDocsAfter = await this.Model.find({
       uuid: { $in: Array.from(uuidSet) },
     })
       .session(session)
       .exec();
-    console.log(
-      "ME RESPONDE BULK CON ",
-      this.Model,
-      inspect(response, true, 99)
-    );
+
     const responseDocs = [];
     for (const sda of serverDocsAfter) {
       responseDocs.push(
