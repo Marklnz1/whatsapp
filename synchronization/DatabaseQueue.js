@@ -144,16 +144,8 @@ class DatabaseQueue {
       const doc = insertableDoc.doc;
       const filter = insertableDoc.filter;
       const insertOnlyIfNotExist = insertableDoc.insertOnlyIfNotExist;
-      const uuid = insertOnlyIfNotExist
-        ? {
-            $ifNull: [`$uuid`, doc.uuid],
-          }
-        : doc.uuid;
-      const syncCode = insertOnlyIfNotExist
-        ? {
-            $ifNull: [`$syncCode`, serverSyncCode],
-          }
-        : serverSyncCode;
+      const uuid = doc.uuid;
+      const syncCode = serverSyncCode;
       const documentQuery = { uuid, syncCode };
       for (const key of Object.keys(doc)) {
         if (!key.endsWith("UpdatedAt")) {
@@ -163,13 +155,8 @@ class DatabaseQueue {
         const fieldName = key.replace("UpdatedAt", "");
 
         if (insertOnlyIfNotExist) {
-          documentQuery[key] = {
-            $ifNull: [`$${key}`, updatedAt],
-          };
-
-          documentQuery[fieldName] = {
-            $ifNull: [`$${fieldName}`, doc[fieldName]],
-          };
+          documentQuery[key] = updatedAt;
+          documentQuery[fieldName] = doc[fieldName];
         } else {
           documentQuery[key] = { $max: [`$${key}`, updatedAt] };
 
@@ -186,7 +173,9 @@ class DatabaseQueue {
       return {
         updateOne: {
           filter: { uuid: doc.uuid, ...filter },
-          update: [{ $set: documentQuery }],
+          update: insertOnlyIfNotExist
+            ? { $setOnInsert: documentQuery }
+            : [{ $set: documentQuery }],
           upsert: true,
           setDefaultsOnInsert: true,
         },
