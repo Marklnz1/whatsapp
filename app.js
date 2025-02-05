@@ -255,7 +255,7 @@ SyncServer.syncPost({
         messages.push(iDoc.doc);
       }
     }
-
+    console.log("TODOS LOS MENSAJES", messages);
     const messagesWithoutTemplate = [];
     const clientSet = new Set();
     const chatSet = new Set();
@@ -350,7 +350,11 @@ SyncServer.syncPost({
       //   });
       // console.log("SE OBTUVO EL WID " + messageWid);
     }
-
+    console.log(
+      "Mensajes sin sin template",
+      messagesWithoutTemplate,
+      contadorEnvio
+    );
     for (const message of messagesWithoutTemplate) {
       if (message.sent == "false") {
         continue;
