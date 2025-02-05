@@ -14,29 +14,30 @@ class DatabaseQueue {
     this.onInsertPrevious = onInsertPrevious;
 
     this.lightQueue = new LightQueue(async ({ insertableDocs, error }) => {
-      if (!error) {
-        let tempCodes = new Set();
+      let tempCodes = new Set();
 
-        for (const iDoc of insertableDocs) {
-          if (iDoc.tempCode != null) {
-            tempCodes.add(iDoc.tempCode);
-          }
-        }
-        tempCodes = [...tempCodes];
-        console.log("HAY TEMPCODES ", tempCodes);
-        if (tempCodes.length > 0) {
-          if (!error) {
-            await Change.deleteMany({
-              tempCode: { $in: tempCodes },
-            });
-          }
-          console.log(
-            "se aumento el tempCode a ",
-            tempCodes[tempCodes.length - 1]
-          );
-          await this.updateProcessedTempCode(tempCodes[tempCodes.length - 1]);
+      for (const iDoc of insertableDocs) {
+        if (iDoc.tempCode != null) {
+          tempCodes.add(iDoc.tempCode);
         }
       }
+      tempCodes = [...tempCodes];
+      console.log(
+        "HUBO ERROR?",
+        error,
+        " SE PROCESARON LOS TEMPCODES",
+        tempCodes
+      );
+      if (tempCodes.length > 0) {
+        if (!error) {
+          await Change.deleteMany({
+            tempCode: { $in: tempCodes },
+          });
+        }
+
+        await this.updateProcessedTempCode(tempCodes[tempCodes.length - 1]);
+      }
+
       this.io.emit("serverChanged");
     });
   }
