@@ -19,12 +19,12 @@ class LightQueue {
     }
 
     this.isProcessing = true;
-    const { exec } = this.queue.shift();
+    const task = this.queue.shift();
 
-    const response = await exec();
+    const response = await task();
 
     if (this.onEndTask != null) {
-      await this.onEndTask(response);
+      await this.onEndTask(response ?? {});
     }
     setImmediate(() => this.process());
   }

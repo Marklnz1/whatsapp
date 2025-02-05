@@ -13,29 +13,15 @@ class DatabaseQueue {
     this.onInsertAfter = onInsertAfter;
     this.onInsertPrevious = onInsertPrevious;
 
-    this.lightQueue = new LightQueue(async ({ insertableDocs, error }) => {
-      let tempCodes = new Set();
-
-      for (const iDoc of insertableDocs) {
-        if (iDoc.tempCode != null) {
-          tempCodes.add(iDoc.tempCode);
-        }
-      }
-      tempCodes = [...tempCodes];
-      console.log(
-        "HUBO ERROR?",
-        error,
-        " SE PROCESARON LOS TEMPCODES",
-        tempCodes
-      );
-      if (tempCodes.length > 0) {
+    this.lightQueue = new LightQueue(async ({ tempCode, error }) => {
+      if (tempCode != null) {
         if (!error) {
           await Change.deleteMany({
-            tempCode: { $in: tempCodes },
+            tempCode,
           });
         }
 
-        await this.updateProcessedTempCode(tempCodes[tempCodes.length - 1]);
+        await this.updateProcessedTempCode(tempCode);
       }
 
       this.io.emit("serverChanged");
@@ -48,95 +34,104 @@ class DatabaseQueue {
       { upsert: true, setDefaultsOnInsert: true }
     );
   }
-  addTaskDataInQueue(insertableDocs, onEndTask) {
-    const task = {
-      data: { insertableDocs, onEndTask },
-      exec: async () => {
-        const session = await mongoose.startSession();
-        const insertableDocsAll = insertableDocs;
-        const onEndTaskList = [];
-        if (onEndTask != null) {
-          onEndTaskList.push(onEndTask);
-        }
-        for (const task of this.lightQueue.queue) {
-          insertableDocsAll.push(...task.data.insertableDocs);
-          if (task.data.onEndTask != null) {
-            onEndTaskList.push(task.data.onEndTask);
-          }
-        }
-        console.log("SE PROCESARAN LOS INSERTABLESDOCS", insertableDocsAll);
-        this.lightQueue.queue = [];
-        try {
-          session.startTransaction();
+  addTaskDataInQueue({ tempCode, docs }) {
+    const task = async () => {
+      const session = await mongoose.startSession();
 
-          if (this.onInsertPrevious != null) {
-            await this.onInsertPrevious({
-              insertableDocs: insertableDocsAll,
-              session,
-            });
-          }
-          const response = await this.insertToServer({
-            insertableDocs: insertableDocsAll,
+      try {
+        session.startTransaction();
+
+        if (this.onInsertPrevious != null) {
+          await this.onInsertPrevious({
+            docs,
             session,
           });
-          await session.commitTransaction();
-          if (this.onInsertAfter != null) {
-            try {
-              const result = this.onInsertAfter(response.responseDocs);
-              if (result instanceof Promise) {
-                result.catch((error) =>
-                  console.log("onInsertAfter ERROR (async):", error)
-                );
-              }
-            } catch (error) {
-              console.log("onInsertAfter ERROR (sync):", error);
-            }
-          }
-
-          try {
-            for (const onEndTask of onEndTaskList) {
-              try {
-                const taskResult = onEndTask(response.responseDocs, false);
-                if (taskResult instanceof Promise) {
-                  taskResult.catch((error) =>
-                    console.log("OnEndTask ERROR (async):", error)
-                  );
-                }
-              } catch (error) {
-                console.log("OnEndTask ERROR (sync):", error);
-              }
-            }
-          } catch (error) {
-            console.log("OnEndTask Loop ERROR:", error);
-          }
-          return { insertableDocs: insertableDocsAll, error: false };
-        } catch (error) {
-          await session.abortTransaction();
-          console.error("Error en la transacción, se ha revertido:", error);
-          try {
-            for (const onEndTask of onEndTaskList) {
-              try {
-                const taskResult = onEndTask(null, true);
-                if (taskResult instanceof Promise) {
-                  taskResult.catch((error) =>
-                    console.log("OnEndTask ERROR (async):", error)
-                  );
-                }
-              } catch (error) {
-                console.log("OnEndTask ERROR (sync):", error);
-              }
-            }
-          } catch (error) {
-            console.log("OnEndTask Loop ERROR:", error);
-          }
-          return { insertableDocs: insertableDocsAll, error: true };
-        } finally {
-          await session.endSession();
         }
-      },
+        const documentsCreated = await this.insertToServer({
+          docs,
+          session,
+        });
+        await session.commitTransaction();
+        if (this.onInsertAfter != null) {
+          try {
+            const result = this.onInsertAfter(documentsCreated);
+            if (result instanceof Promise) {
+              result.catch((error) =>
+                console.log("onInsertAfter ERROR (async):", error)
+              );
+            }
+          } catch (error) {
+            console.log("onInsertAfter ERROR (sync):", error);
+          }
+        }
+        return { tempCode, error: false };
+      } catch (error) {
+        await session.abortTransaction();
+        console.error("Error en la transacción, se ha revertido:", error);
+        return { tempCode, error: true };
+      } finally {
+        await session.endSession();
+      }
     };
 
     this.lightQueue.add(task);
+  }
+  async instantReplacement({ doc, filter }) {
+    doc = this.completeFieldsToInsert(doc);
+    return new Promise((resolve, reject) => {
+      this.lightQueue.add(async () => {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        try {
+          doc.syncCode = await this.updateAndGetSyncCode(
+            this.tableName,
+            session
+          );
+          filter ??= {};
+          await this.Model.updateOne(
+            { uuid: doc.uuid, ...filter },
+            {
+              $set: doc,
+            },
+            { session, new: true, upsert: true, setDefaultsOnInsert: true }
+          );
+          await session.commitTransaction();
+          resolve();
+        } catch (error) {
+          reject(error);
+          await session.abortTransaction();
+          console.error("Error en la transacción, se ha revertido:", error);
+        } finally {
+          await session.endSession();
+        }
+      });
+    });
+  }
+  async createOrGet(doc) {
+    doc = this.completeFieldsToInsert(doc);
+    return new Promise((resolve, reject) => {
+      this.lightQueue.add(async () => {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        try {
+          const updatedDocument = await this.Model.findOneAndUpdate(
+            { uuid: doc.uuid },
+            {
+              $setOnInsert: doc,
+            },
+            { session, new: true, upsert: true, setDefaultsOnInsert: true }
+          );
+          await session.commitTransaction();
+          resolve(updatedDocument);
+        } catch (error) {
+          reject(error);
+          await session.abortTransaction();
+          console.error("Error en la transacción, se ha revertido:", error);
+        } finally {
+          await session.endSession();
+        }
+      });
+    });
   }
   async updateAndGetSyncCode(tableName, session = null) {
     const options = { new: true, upsert: true };
@@ -150,83 +145,93 @@ class DatabaseQueue {
     );
     return syncCodeTable.syncCodeMax;
   }
-  async insertToServer({ insertableDocs, session }) {
-    const serverSyncCode = await this.updateAndGetSyncCode(
-      this.tableName,
-      session
-    );
+  async insertToServer({ docs, session }) {
+    const newDocs = [];
+    const syncCode = await this.updateAndGetSyncCode(this.tableName, session);
+    let docUuidSet = new Set();
+    for (let d of docs) {
+      this.completeFieldsToInsert(d);
+      docUuidSet.add(d.uuid);
+      d.syncCode = syncCode;
+    }
 
-    const uuidSet = new Set();
-    // console.log("INSERTABLE DOCSSS?? ", insertableDocs);
-    for (let insDoc of insertableDocs) {
-      uuidSet.add(insDoc.doc.uuid);
-      insDoc.syncCode = serverSyncCode;
-    }
-    const serverDocsPrevious = await this.Model.find({
-      uuid: { $in: Array.from(uuidSet) },
+    const serverDocs = await this.Model.find({
+      uuid: { $in: Array.from(docUuidSet) },
     });
-    const existUuidList = [];
-    for (const sd of serverDocsPrevious) {
-      existUuidList.push(sd.uuid);
+    const serverDocsMap = new Map();
+    for (const sd of serverDocs) {
+      serverDocsMap.set(sd.uuid, sd);
     }
-    const bulkWriteData = insertableDocs.map((insertableDoc) => {
-      const doc = insertableDoc.doc;
-      const filter = insertableDoc.filter;
-      const insertOnlyIfNotExist = insertableDoc.insertOnlyIfNotExist;
-      const uuid = doc.uuid;
-      const syncCode = serverSyncCode;
-      const documentQuery = { uuid, syncCode };
-      for (const key of Object.keys(doc)) {
-        if (!key.endsWith("UpdatedAt")) {
+    let deleteDocs = [];
+    for (const d of docs) {
+      const serverDoc = serverDocsMap.get(d.uuid);
+
+      if (serverDoc == null) {
+        newDocs.push(d);
+        continue;
+      }
+      const keys = Object.keys(d);
+      for (const key of keys) {
+        if (
+          key.endsWith("UpdatedAt") ||
+          key == "uuid" ||
+          key == "syncCode" ||
+          key == "insertedAt"
+        ) {
           continue;
         }
-        const updatedAt = doc[key];
-        const fieldName = key.replace("UpdatedAt", "");
+        const localDate = d[key + "UpdatedAt"];
+        const serverDate = serverDoc[key + "UpdatedAt"];
 
-        if (insertOnlyIfNotExist) {
-          documentQuery[key] = updatedAt;
-          documentQuery[fieldName] = doc[fieldName];
-        } else {
-          documentQuery[key] = { $max: [`$${key}`, updatedAt] };
-
-          documentQuery[fieldName] = {
-            $cond: {
-              if: { $lt: [`$${key}`, updatedAt] },
-              then: doc[fieldName],
-              else: `$${fieldName}`,
-            },
-          };
+        if (serverDate >= localDate) {
+          delete d[key];
+          delete d[key + "UpdatedAt"];
         }
       }
-
-      return {
-        updateOne: {
-          filter: { uuid: doc.uuid, ...filter },
-          update: insertOnlyIfNotExist
-            ? { $setOnInsert: documentQuery }
-            : [{ $set: documentQuery }],
-          upsert: true,
-          setDefaultsOnInsert: true,
-        },
-      };
-    });
-    if (this.tableName == "message") {
-      console.log("SE ENVIARA ", inspect(bulkWriteData, true, 99));
+      if (Object.keys(d).length == 0) {
+        deleteDocs.push(d);
+      }
     }
-    await this.Model.bulkWrite(bulkWriteData, { session });
-    const serverDocsAfter = await this.Model.find({
-      uuid: { $in: Array.from(uuidSet) },
-    })
-      .session(session)
-      .exec();
-
-    const responseDocs = [];
-    for (const sda of serverDocsAfter) {
-      responseDocs.push(
-        new DocumentInsertResponse(sda, !existUuidList.includes(sda.uuid))
-      );
+    docs = docs.filter((doc) => !deleteDocs.includes(doc));
+    // console.log("se analizaran " + docs.length);
+    if (docs.length == 0) {
+      return;
     }
-    return { insertableDocs, responseDocs };
+    await this.Model.bulkWrite(
+      docs.map((doc) => {
+        return {
+          updateOne: {
+            filter: { uuid: doc.uuid },
+            update: { $set: doc },
+            upsert: true,
+            setDefaultsOnInsert: true,
+          },
+        };
+      }),
+      { session }
+    );
+    return newDocs;
+  }
+  completeFieldsToInsert(fields) {
+    // if (!fields.insertedAt) {
+    //   fields.insertedAt = new Date().getTime();
+    // }
+    if (!fields.uuid) {
+      fields.uuid = uuidv7();
+    }
+    for (const key of Object.keys(fields)) {
+      if (
+        key == "uuid" ||
+        key == "insertedAt" ||
+        key.endsWith("UpdatedAt") ||
+        fields[key] == null ||
+        fields[`${key}UpdatedAt`] != null
+      ) {
+        continue;
+      }
+      fields[`${key}UpdatedAt`] = new Date().getTime();
+    }
+    return fields;
   }
 }
 

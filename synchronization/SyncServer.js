@@ -10,7 +10,6 @@ const ServerData = require("./ServerData");
 const { inspect } = require("util");
 const { v7: uuidv7 } = require("uuid");
 const { completeFieldsToInsert } = require("./sync");
-const InsertableDocument = require("./InsertableDocument");
 
 class SyncServer {
   databaseQueueMap = {};
@@ -212,19 +211,11 @@ class SyncServer {
                 status: "inserted",
               });
               await change.save();
-              const insertableDocs = [];
-              for (const doc of req.body["docs"]) {
-                insertableDocs.push(
-                  new InsertableDocument({
-                    tempCode,
-                    doc,
-                    insertOnlyIfNotExist: false,
-                  })
-                );
-              }
-              this.databaseQueueMap[tableName].addTaskDataInQueue(
-                insertableDocs
-              );
+
+              this.databaseQueueMap[tableName].addTaskDataInQueue({
+                docs: req.body["docs"],
+                tempCode,
+              });
               res.status(200).json({ tempCode });
             } catch (error) {
               res.status(400).json({ error: error.message });
@@ -304,62 +295,52 @@ class SyncServer {
     );
     return syncCodeTable.syncCodeMax;
   }
-
-  async createOrGet(tableName, uuid, doc, filter) {
-    doc.uuid = uuid;
-    return new Promise((resolve, reject) => {
-      this.databaseQueueMap[tableName].addTaskDataInQueue(
-        [
-          new InsertableDocument({
-            filter,
-            doc,
-            insertOnlyIfNotExist: true,
-          }),
-        ],
-        (responseDocs, error) => {
-          // console.log("EL RESPONSE DOC QUE SE DIO ES ", responseDocs);
-          if (error) {
-            reject();
-          } else {
-            for (const rd of responseDocs) {
-              if (rd.doc.uuid == uuid) {
-                resolve(rd.doc);
-              }
-              return;
-            }
-            reject();
-          }
-        }
-      );
-    });
+  async instantReplacement({ tableName, doc, filter }) {
+    await this.databaseQueueMap[tableName].instantReplacement({ doc, filter });
   }
-  async updateFields(tableName, uuid, doc, filter) {
-    doc.uuid = uuid;
-    return new Promise((resolve, reject) => {
-      this.databaseQueueMap[tableName].addTaskDataInQueue(
-        [
-          new InsertableDocument({
-            filter,
-            doc,
-            insertOnlyIfNotExist: false,
-          }),
-        ],
-        (responseDocs, error) => {
-          if (error) {
-            reject();
-          } else {
-            for (const rd of responseDocs) {
-              if (rd.doc.uuid == uuid) {
-                resolve(rd.doc);
-              }
-              return;
-            }
-            reject();
-          }
-        }
-      );
-    });
+  async createOrGet({ tableName, doc }) {
+    return await this.databaseQueueMap[tableName].createOrGet({ doc });
   }
+  // async createOrGet(tableName, uuid, doc) {
+  //   doc.uuid = uuid;
+  //   return new Promise((resolve, reject) => {
+  //     this.databaseQueueMap[tableName].addTaskDataInQueue(
+  //       {
+  //         insertableDocs: ,
+  //       },
+  //       (responseDocs, error) => {
+  //         if (error || responseDocs.length == 0) {
+  //           reject();
+  //         } else {
+  //           resolve(responseDocs[0]);
+  //         }
+  //       }
+  //     );
+  //   });
+  // }
+  // async updateFields(tableName, uuid, doc, filter) {
+  //   doc.uuid = uuid;
+  //   return new Promise((resolve, reject) => {
+  //     this.databaseQueueMap[tableName].addTaskDataInQueue(
+  //       {
+  //         insertableDocs: [
+  //           new InsertableDocument({
+  //             filter,
+  //             doc,
+  //             insertOnlyIfNotExist: false,
+  //           }),
+  //         ],
+  //       },
+  //       (responseDocs, error) => {
+  //         if (error || responseDocs.length == 0) {
+  //           reject();
+  //         } else {
+  //           resolve(responseDocs[0]);
+  //         }
+  //       }
+  //     );
+  //   });
+  // }
 }
 
 module.exports = new SyncServer();

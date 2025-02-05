@@ -138,25 +138,41 @@ module.exports.receiveMessage = async (req, res) => {
       for (const statusData of data.statuses) {
         const messageUuid = statusData.biz_opaque_callback_data;
 
-        await SyncServer.updateFields("message", messageUuid, {
-          sentStatus: statusData.status,
+        await SyncServer.instantReplacement({
+          tableName: "message",
+          doc: {
+            uuid: messageUuid,
+            sentStatus: statusData.status,
+          },
+          filter: { sentStatus: { $nin: getStatusesAfter(statusData.status) } },
         });
         if (statusData.status == "sent") {
-          await SyncServer.updateFields("message", messageUuid, {
-            time: statusData.timestamp * 1000,
+          await SyncServer.instantReplacement({
+            tableName: "message",
+            doc: {
+              uuid: messageUuid,
+              time: statusData.timestamp * 1000,
+            },
           });
         }
         if (statusData.status == "failed") {
-          await SyncServer.updateFields("message", messageUuid, {
-            time: statusData.timestamp * 1000,
-            errorDetails: getStatusError(statusData).errorDetails,
+          await SyncServer.instantReplacement({
+            tableName: "message",
+            doc: {
+              uuid: messageUuid,
+              time: statusData.timestamp * 1000,
+              errorDetails: getStatusError(statusData).errorDetails,
+            },
           });
         }
-        await SyncServer.createOrGet("messageStatus", uuidv7(), {
-          message: messageUuid,
-          msgStatus: statusData.status,
-          time: statusData.timestamp * 1000,
-          ...getStatusError(statusData),
+        await SyncServer.createOrGet({
+          tableName: "messageStatus",
+          doc: {
+            message: messageUuid,
+            msgStatus: statusData.status,
+            time: statusData.timestamp * 1000,
+            ...getStatusError(statusData),
+          },
         });
       }
       continue;
@@ -189,35 +205,38 @@ const createChatClientMapData = async (contacts, recipientData) => {
     const username = profile.name;
     const wid = contact.wa_id;
     // console.log("CREANDO CUENTAAAAAAAAAAAAAAAAAAAA");
-    let whatsappAccountDB = await SyncServer.createOrGet(
-      "whatsappAccount",
-      recipientData.phoneNumberId,
-      {
+    let whatsappAccountDB = await SyncServer.createOrGet({
+      tableName: "whatsappAccount",
+      doc: {
+        uuid: recipientData.phoneNumberId,
         name: `+${recipientData.phoneNumber}`,
         businessPhone: recipientData.phoneNumber,
         businessPhoneId: recipientData.phoneNumberId,
-      }
-    );
+      },
+    });
     // console.log("termino CREACION DE  CUENTAAAAAAAAAAAAAAAAAAAA");
 
-    let clientDB = await SyncServer.createOrGet("client", wid, {
-      wid,
-      username,
+    let clientDB = await SyncServer.createOrGet({
+      tableName: "client",
+      doc: { uuid: wid, wid, username },
     });
     if (clientDB.username != username) {
-      await SyncServer.updateFields("client", wid, { username });
+      await SyncServer.instantReplacement({
+        tableName: "client",
+        doc: { uuid: wid, username },
+      });
     }
 
-    let chatDB = await SyncServer.createOrGet(
-      "chat",
-      `${clientDB.uuid}_${whatsappAccountDB.uuid}`,
-      {
+    let chatDB = await SyncServer.createOrGet({
+      tableName: "chat",
+      doc: {
+        uuid: `${clientDB.uuid}_${whatsappAccountDB.uuid}`,
         client: clientDB.uuid,
         whatsappAccount: whatsappAccountDB.uuid,
         lastSeen: 0,
         chatbot: false,
-      }
-    );
+      },
+    });
     chatClientMapDB[wid] = { client: clientDB, chat: chatDB };
   }
 
@@ -427,14 +446,18 @@ Asegúrate de que tu respuesta sea clara, coherente y que la multimedia (si la i
   }
 
   const messageUuid = uuidv7();
-  await SyncServer.createOrGet("message", messageUuid, {
-    chat: chat.uuid,
-    wid: null,
-    textContent: chatbotMessage,
-    mediaContent: mediaContent?.uuid ?? "",
-    sent: true,
-    category: "text",
-    sentStatus: "send_requested",
+  await SyncServer.createOrGet({
+    tableName: "message",
+    doc: {
+      uuid: messageUuid,
+      chat: chat.uuid,
+      wid: null,
+      textContent: chatbotMessage,
+      mediaContent: mediaContent?.uuid ?? "",
+      sent: true,
+      category: "text",
+      sentStatus: "send_requested",
+    },
   });
   let sendContentData = {
     body: content,
@@ -455,8 +478,9 @@ Asegúrate de que tu respuesta sea clara, coherente y que la multimedia (si la i
     messageUuid,
     clientMessageId
   );
-  await SyncServer.updateFields("message", messageUuid, {
-    wid: messageId,
+  await SyncServer.instantReplacement({
+    tableName: "message",
+    doc: { uuid: messageUuid, wid: messageId },
   });
   return true;
 }
@@ -489,17 +513,16 @@ const receiveMessageClient = async (
     const metadata = await saveMediaClient(messageData.id, category);
     newMessageData.textContent = messageData.caption;
     mediaContent = {
+      uuid: uuidv7(),
       category,
       metaFileName,
       ...metadata,
     };
-    const mediaContentUuid = uuidv7();
-    await SyncServer.createOrGet(
-      "mediaContent",
-      mediaContentUuid,
-      mediaContent
-    );
-    newMessageData.mediaContent = mediaContentUuid;
+    await SyncServer.createOrGet({
+      tableName: "mediaContent",
+      doc: mediaContent,
+    });
+    newMessageData.mediaContent = mediaContent.uuid;
   }
 
   // console.log("EL MENSAJE ES ", util.inspect(mediaContent));
@@ -526,7 +549,10 @@ const receiveMessageClient = async (
     }
     messagesHistorial = messagesHistorial.reverse();
   }
-  await SyncServer.createOrGet("message", uuidv7(), newMessageData);
+  await SyncServer.createOrGet({
+    tableName: "message",
+    newMessageData,
+  });
   io.emit("serverChanged");
 
   if (chat.chatbot && newMessageData.textContent) {

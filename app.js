@@ -237,12 +237,11 @@ SyncServer.syncPost({ model: MediaContent, tableName: "mediaContent" });
 SyncServer.syncPost({ model: MediaPrompt, tableName: "mediaPrompt" });
 SyncServer.syncPost({ model: Broadcast, tableName: "broadcast" });
 SyncServer.syncPost({ model: MessageStatus, tableName: "messageStatus" });
-let contadorEnvio = 0;
 SyncServer.syncPost({
   model: Message,
   tableName: "message",
-  onInsertPrevious: ({ insertableDocs }) => {
-    for (const doc of insertableDocs) {
+  onInsertPrevious: ({ docs }) => {
+    for (const doc of docs) {
       if (doc["sentStatus"] == "not_sent" && doc["sent"] == "true") {
         doc["sentStatus"] = "send_requested";
       }
@@ -257,29 +256,34 @@ SyncServer.syncPost({
     }
     console.log("TODOS LOS MENSAJES", messages);
     const messagesWithoutTemplate = [];
-    const clientSet = new Set();
+    const clientUuidSet = new Set();
     const chatSet = new Set();
     for (const message of messages) {
       const chatSplit = message.chat.split("_");
       const clientUuid = chatSplit[0];
-      clientSet.add(clientUuid);
+      clientUuidSet.add(clientUuid);
       chatSet.add(message.chat);
     }
 
-    for (const client of clientSet) {
-      await SyncServer.createOrGet("client", client, {
-        wid: client,
+    for (const clientUuid of clientUuidSet) {
+      await SyncServer.createOrGet({
+        tableName: "client",
+        doc: { uuid: clientUuid, wid: clientUuid },
       });
     }
     for (const chat of chatSet) {
       const chatSplit = chat.split("_");
       const clientUuid = chatSplit[0];
       const accountUuid = chatSplit[1];
-      await SyncServer.createOrGet("chat", chat, {
-        client: clientUuid,
-        whatsappAccount: accountUuid,
-        lastSeen: 0,
-        chatbot: false,
+      await SyncServer.createOrGet({
+        tableName: "chat",
+        doc: {
+          uuid: chat,
+          client: clientUuid,
+          whatsappAccount: accountUuid,
+          lastSeen: 0,
+          chatbot: false,
+        },
       });
     }
     for (const message of messages) {
@@ -311,44 +315,52 @@ SyncServer.syncPost({
           99
         )
       );
-      // sendWhatsappMessage(
-      //   CLOUD_API_ACCESS_TOKEN,
-      //   accountUuid,
-      //   clientUuid,
-      //   "template",
-      //   {
-      //     name: message.templateName,
-      //     language: { code: "es" },
-      //     components: [{ type: "body", parameters }],
-      //   },
-      //   message.uuid
-      // )
-      //   .then((messageWid) => {
-      //     SyncServer.updateFields("message", message.uuid, {
-      //       wid: messageWid,
-      //     });
-      //   })
-      //   .catch(async (reason) => {
-      //     const errorData = reason.response.data.error;
-      //     await SyncServer.updateFields("message", message.uuid, {
-      //       sentStatus: "failed",
-      //       errorDetails: errorData.message,
-      //     });
-      //     SyncServer.io.emit("serverChanged");
+      sendWhatsappMessage(
+        CLOUD_API_ACCESS_TOKEN,
+        accountUuid,
+        clientUuid,
+        "template",
+        {
+          name: message.templateName,
+          language: { code: "es" },
+          components: [{ type: "body", parameters }],
+        },
+        message.uuid
+      )
+        .then((messageWid) => {
+          SyncServer.instantReplacement({
+            tableName: "message",
+            doc: { uuid: message.uuid, wid: messageWid },
+          });
+        })
+        .catch(async (reason) => {
+          const errorData = reason.response.data.error;
+          await SyncServer.instantReplacement({
+            tableName: "message",
+            doc: {
+              uuid: message.uuid,
+              sentStatus: "failed",
+              errorDetails: errorData.message,
+            },
+          });
+          SyncServer.io.emit("serverChanged");
 
-      //     await SyncServer.createOrGet("messageStatus", uuidv7(), {
-      //       message: message.uuid,
-      //       msgStatus: "failed",
-      //       time: message.time,
-      //       errorCode: errorData.code,
-      //       errorTitle: errorData.type,
-      //       errorMessage: errorData.message,
-      //       errorDetails: errorData.message,
-      //     });
+          await SyncServer.createOrGet({
+            tableName: "messageStatus",
+            doc: {
+              message: message.uuid,
+              msgStatus: "failed",
+              time: message.time,
+              errorCode: errorData.code,
+              errorTitle: errorData.type,
+              errorMessage: errorData.message,
+              errorDetails: errorData.message,
+            },
+          });
 
-      //     SyncServer.io.emit("serverChanged");
-      //   });
-      // console.log("SE OBTUVO EL WID " + messageWid);
+          SyncServer.io.emit("serverChanged");
+        });
+      console.log("SE OBTUVO EL WID " + messageWid);
     }
     console.log(
       "Mensajes sin sin template",
@@ -363,10 +375,7 @@ SyncServer.syncPost({
       const chatSplit = message.chat.split("_");
       const clientUuid = chatSplit[0];
       const accountUuid = chatSplit[1];
-      contadorEnvio++;
-      if (contadorEnvio > 3) {
-        return;
-      }
+
       console.log("ENVIANDO");
       const messageWid = await sendWhatsappMessage(
         CLOUD_API_ACCESS_TOKEN,
@@ -379,8 +388,9 @@ SyncServer.syncPost({
         message.uuid
       );
       console.log("SE OBTUVO EL WID " + messageWid);
-      await SyncServer.updateFields("message", message.uuid, {
-        wid: messageWid,
+      await SyncServer.instantReplacement({
+        tableName: "message",
+        doc: { uuid: message.uuid, wid: messageWid },
       });
     }
   },

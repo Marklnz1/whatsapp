@@ -134,29 +134,29 @@ function getTemplateBody(templateData) {
   }
 }
 async function getChatDB(businessPhoneId, businessPhone, destinationPhone) {
-  let whatsappAccountDB = await SyncServer.createOrGet(
-    "whatsappAccount",
-    businessPhoneId,
-    {
+  let whatsappAccountDB = await SyncServer.createOrGet({
+    tableName: "whatsappAccount",
+    doc: {
+      uuid: businessPhoneId,
       name: `+${businessPhone}`,
       businessPhone: businessPhone,
       businessPhoneId: businessPhoneId,
-    }
-  );
+    },
+  });
   let clientDB = await SyncServer.createOrGet("client", destinationPhone, {
     wid: destinationPhone,
     username: `+${destinationPhone}`,
   });
-  return await SyncServer.createOrGet(
-    "chat",
-    `${clientDB.uuid}_${whatsappAccountDB.uuid}`,
-    {
+  return await SyncServer.createOrGet({
+    tableName: "chat",
+    doc: {
+      uuid: `${clientDB.uuid}_${whatsappAccountDB.uuid}`,
       client: clientDB.uuid,
       whatsappAccount: whatsappAccountDB.uuid,
       lastSeen: 0,
       chatbot: false,
-    }
-  );
+    },
+  });
 }
 module.exports.sendTemplateAndCreateDB = async (
   metaToken,
@@ -175,12 +175,16 @@ module.exports.sendTemplateAndCreateDB = async (
       businessPhone,
       destinationData.phone
     );
-    await SyncServer.createOrGet("message", messageUuid, {
-      chat: chatDB.uuid,
-      textContent: templateData.textContent,
-      sent: true,
-      templateName: templateData.name,
-      sentStatus: "send_requested",
+    await SyncServer.createOrGet({
+      tableName: "message",
+      doc: {
+        uuid: messageUuid,
+        chat: chatDB.uuid,
+        textContent: templateData.textContent,
+        sent: true,
+        templateName: templateData.name,
+        sentStatus: "send_requested",
+      },
     });
     io.emit("serverChanged");
 
