@@ -140,7 +140,6 @@ module.exports.receiveMessage = async (req, res) => {
 
         await SyncServer.updateFields("message", messageUuid, {
           sentStatus: statusData.status,
-          sentStatusUpdatedAt: statusData.timestamp * 1000,
         });
         if (statusData.status == "sent") {
           await SyncServer.updateFields("message", messageUuid, {
