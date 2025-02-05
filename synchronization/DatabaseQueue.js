@@ -231,6 +231,7 @@ class DatabaseQueue {
       }),
       { session }
     );
+    throw Error("provocadooOooOOOOOOOOOOOOOOOOOOOOOOOOO");
     return newDocs;
   }
   completeFieldsToInsert(fields) {
