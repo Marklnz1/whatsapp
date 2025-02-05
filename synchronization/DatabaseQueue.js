@@ -125,7 +125,8 @@ class DatabaseQueue {
         session.startTransaction();
         try {
           console.log(
-            "SE CREATEORGET PARA ".this.tableName,
+            "SE CREATEORGET PARA ",
+            this.tableName,
             " CON DATA: ",
             inspect(doc, true, 99)
           );
