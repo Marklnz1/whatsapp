@@ -122,13 +122,16 @@ class DatabaseQueue {
     return syncCodeTable.syncCodeMax;
   }
   async insertToServer({ insertableDocs, session }) {
-    const syncCode = await this.updateAndGetSyncCode(this.tableName, session);
+    const serverSyncCode = await this.updateAndGetSyncCode(
+      this.tableName,
+      session
+    );
 
     const uuidSet = new Set();
     // console.log("INSERTABLE DOCSSS?? ", insertableDocs);
     for (let insDoc of insertableDocs) {
       uuidSet.add(insDoc.doc.uuid);
-      insDoc.syncCode = syncCode;
+      insDoc.syncCode = serverSyncCode;
     }
     const serverDocsPrevious = await this.Model.find({
       uuid: { $in: Array.from(uuidSet) },
@@ -141,6 +144,11 @@ class DatabaseQueue {
       const doc = insertableDoc.doc;
       const filter = insertableDoc.filter;
       const insertOnlyIfNotExist = insertableDoc.insertOnlyIfNotExist;
+      const syncCode = insertOnlyIfNotExist
+        ? {
+            $ifNull: [`$syncCode`, serverSyncCode],
+          }
+        : serverSyncCode;
       const documentQuery = { uuid: doc.uuid, syncCode };
       for (const key of Object.keys(doc)) {
         if (!key.endsWith("UpdatedAt")) {
@@ -150,9 +158,13 @@ class DatabaseQueue {
         const fieldName = key.replace("UpdatedAt", "");
 
         if (insertOnlyIfNotExist) {
-          documentQuery[key] = updatedAt;
+          documentQuery[key] = {
+            $ifNull: [`$${key}`, updatedAt],
+          };
 
-          documentQuery[fieldName] = doc[fieldName];
+          documentQuery[fieldName] = {
+            $ifNull: [`$${fieldName}`, doc[fieldName]],
+          };
         } else {
           documentQuery[key] = { $max: [`$${key}`, updatedAt] };
 
