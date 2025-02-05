@@ -54,7 +54,7 @@ class DatabaseQueue {
         console.log("EJECUTANDO TAREA");
         const session = await mongoose.startSession();
         const insertableDocsAll = insertableDocs;
-        const onEndTaskList = [];
+        const onEndTaskList = [onEndTask];
         for (const task of this.lightQueue.queue) {
           console.log(
             "task con tempCode",
@@ -181,10 +181,10 @@ class DatabaseQueue {
         },
       };
     });
-    console.log(
-      "SE TRATARA DE ENVIAR LA DATA => ",
-      inspect(bulkWriteData, true, 99)
-    );
+    // console.log(
+    //   "SE TRATARA DE ENVIAR LA DATA => ",
+    //   inspect(bulkWriteData, true, 99)
+    // );
     const response = await this.Model.bulkWrite(bulkWriteData, { session });
     const serverDocsAfter = await this.Model.find({
       uuid: { $in: Array.from(uuidSet) },
