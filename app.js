@@ -240,8 +240,8 @@ SyncServer.syncPost({ model: MessageStatus, tableName: "messageStatus" });
 SyncServer.syncPost({
   model: Message,
   tableName: "message",
-  onInsertPrevious: ({ docs }) => {
-    for (const doc of docs) {
+  onInsertPrevious: ({ insertableDocs }) => {
+    for (const doc of insertableDocs) {
       console.log(
         "CUMPLE??",
         doc["sentStatus"] == "not_sent" && doc["sent"] == "true"
