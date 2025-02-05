@@ -59,7 +59,7 @@ class DatabaseQueue {
           onEndTaskList.push(onEndTask);
         }
         for (const task of this.lightQueue.queue) {
-          insertableDocsAll.push(task.data.insertableDocs);
+          insertableDocsAll.push(...task.data.insertableDocs);
           if (task.data.onEndTask != null) {
             onEndTaskList.push(task.data.onEndTask);
           }
