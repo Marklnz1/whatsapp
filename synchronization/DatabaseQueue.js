@@ -150,13 +150,9 @@ class DatabaseQueue {
         const fieldName = key.replace("UpdatedAt", "");
 
         if (insertOnlyIfNotExist) {
-          documentQuery[key] = {
-            $ifNull: [`$${key}`, updatedAt],
-          };
+          documentQuery[key] = updatedAt;
 
-          documentQuery[fieldName] = {
-            $ifNull: [`$${fieldName}`, doc[fieldName]],
-          };
+          documentQuery[fieldName] = doc[fieldName];
         } else {
           documentQuery[key] = { $max: [`$${key}`, updatedAt] };
 
