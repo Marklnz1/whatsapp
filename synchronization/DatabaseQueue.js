@@ -54,7 +54,10 @@ class DatabaseQueue {
         console.log("EJECUTANDO TAREA");
         const session = await mongoose.startSession();
         const insertableDocsAll = insertableDocs;
-        const onEndTaskList = [onEndTask];
+        const onEndTaskList = [];
+        if (onEndTask != null) {
+          onEndTaskList.push(onEndTask);
+        }
         for (const task of this.lightQueue.queue) {
           console.log(
             "task con tempCode",
@@ -84,21 +87,52 @@ class DatabaseQueue {
           await session.commitTransaction();
           if (this.onInsertAfter != null) {
             try {
-              this.onInsertAfter(response.responseDocs);
+              const result = this.onInsertAfter(response.responseDocs);
+              if (result instanceof Promise) {
+                result.catch((error) =>
+                  console.log("onInsertAfter ERROR (async):", error)
+                );
+              }
             } catch (error) {
-              console.log("ERROR OnInsertAfter exec");
+              console.log("onInsertAfter ERROR (sync):", error);
             }
           }
-          for (const onEndTask of onEndTaskList) {
-            onEndTask(response.responseDocs, false);
-          }
 
+          try {
+            for (const onEndTask of onEndTaskList) {
+              try {
+                const taskResult = onEndTask(response.responseDocs, false);
+                if (taskResult instanceof Promise) {
+                  taskResult.catch((error) =>
+                    console.log("OnEndTask ERROR (async):", error)
+                  );
+                }
+              } catch (error) {
+                console.log("OnEndTask ERROR (sync):", error);
+              }
+            }
+          } catch (error) {
+            console.log("OnEndTask Loop ERROR:", error);
+          }
           return { insertableDocs: insertableDocsAll, error: false };
         } catch (error) {
           await session.abortTransaction();
           console.error("Error en la transacción, se ha revertido:", error);
-          for (const onEndTask of onEndTaskList) {
-            onEndTask(null, true);
+          try {
+            for (const onEndTask of onEndTaskList) {
+              try {
+                const taskResult = onEndTask(null, true);
+                if (taskResult instanceof Promise) {
+                  taskResult.catch((error) =>
+                    console.log("OnEndTask ERROR (async):", error)
+                  );
+                }
+              } catch (error) {
+                console.log("OnEndTask ERROR (sync):", error);
+              }
+            }
+          } catch (error) {
+            console.log("OnEndTask Loop ERROR:", error);
           }
           return { insertableDocs: insertableDocsAll, error: true };
         } finally {
