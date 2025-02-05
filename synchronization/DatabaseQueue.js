@@ -92,7 +92,8 @@ class DatabaseQueue {
           );
           filter ??= {};
           console.log(
-            "SE INSTANREPLACEMENTE PARA ".this.tableName,
+            "SE INSTANREPLACEMENTE PARA ",
+            this.tableName,
             " CON DATA: ",
             inspect(doc, true, 99)
           );
