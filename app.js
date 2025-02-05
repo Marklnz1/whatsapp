@@ -356,7 +356,7 @@ SyncServer.syncPost({
       contadorEnvio
     );
     for (const message of messagesWithoutTemplate) {
-      if (message.sent == "false") {
+      if (!message.sent) {
         continue;
       }
       const chatSplit = message.chat.split("_");
