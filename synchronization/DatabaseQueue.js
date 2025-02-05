@@ -102,7 +102,7 @@ class DatabaseQueue {
             {
               $set: doc,
             },
-            { session, new: true, upsert: true, setDefaultsOnInsert: true }
+            { session }
           );
           await session.commitTransaction();
           resolve();
