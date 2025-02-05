@@ -251,7 +251,7 @@ SyncServer.syncPost({
     const messages = [];
     for (const doc of documentsCreatedLocal) {
       if (doc.sent == "true") {
-        messages.push(doc.doc);
+        messages.push(doc);
       }
     }
     console.log("TODOS LOS MENSAJES", messages);
