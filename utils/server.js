@@ -143,9 +143,13 @@ async function getChatDB(businessPhoneId, businessPhone, destinationPhone) {
       businessPhoneId: businessPhoneId,
     },
   });
-  let clientDB = await SyncServer.createOrGet("client", destinationPhone, {
-    wid: destinationPhone,
-    username: `+${destinationPhone}`,
+  let clientDB = await SyncServer.createOrGet({
+    tableName: "client",
+    doc: {
+      uuid: destinationPhone,
+      wid: destinationPhone,
+      username: `+${destinationPhone}`,
+    },
   });
   return await SyncServer.createOrGet({
     tableName: "chat",
