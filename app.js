@@ -237,7 +237,7 @@ SyncServer.syncPost({ model: MediaContent, tableName: "mediaContent" });
 SyncServer.syncPost({ model: MediaPrompt, tableName: "mediaPrompt" });
 SyncServer.syncPost({ model: Broadcast, tableName: "broadcast" });
 SyncServer.syncPost({ model: MessageStatus, tableName: "messageStatus" });
-let contadorEnvio = 3;
+let contadorEnvio = 0;
 SyncServer.syncPost({
   model: Message,
   tableName: "message",
