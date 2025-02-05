@@ -551,7 +551,7 @@ const receiveMessageClient = async (
   }
   await SyncServer.createOrGet({
     tableName: "message",
-    newMessageData,
+    doc: newMessageData,
   });
   io.emit("serverChanged");
 
