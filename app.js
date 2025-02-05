@@ -357,6 +357,7 @@ SyncServer.syncPost({
     );
     for (const message of messagesWithoutTemplate) {
       if (!message.sent) {
+        console.log("NO SE ENVIARA PORQUE ", message.sent);
         continue;
       }
       const chatSplit = message.chat.split("_");
@@ -366,6 +367,7 @@ SyncServer.syncPost({
       if (contadorEnvio > 3) {
         return;
       }
+      console.log("ENVIANDO");
       const messageWid = await sendWhatsappMessage(
         CLOUD_API_ACCESS_TOKEN,
         accountUuid,
