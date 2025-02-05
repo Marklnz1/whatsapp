@@ -242,10 +242,6 @@ SyncServer.syncPost({
   tableName: "message",
   onInsertPrevious: ({ insertableDocs }) => {
     for (const doc of insertableDocs) {
-      console.log(
-        "CUMPLE??",
-        doc["sentStatus"] == "not_sent" && doc["sent"] == "true"
-      );
       if (doc["sentStatus"] == "not_sent" && doc["sent"] == "true") {
         doc["sentStatus"] = "send_requested";
       }
@@ -258,6 +254,12 @@ SyncServer.syncPost({
         messages.push(insertableDocs.doc);
       }
     }
+    console.log(
+      "LOS INSERTABLEDOCS SON ",
+      insertableDocs,
+      " LO EXTRAIDO ES ",
+      messages
+    );
     const messagesWithoutTemplate = [];
     const clientSet = new Set();
     const chatSet = new Set();

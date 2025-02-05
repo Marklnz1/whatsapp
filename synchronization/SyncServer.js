@@ -317,7 +317,7 @@ class SyncServer {
           }),
         ],
         (responseDocs, error) => {
-          console.log("EL RESPONSE DOC QUE SE DIO ES ", responseDocs);
+          // console.log("EL RESPONSE DOC QUE SE DIO ES ", responseDocs);
           if (error) {
             reject();
           } else {
