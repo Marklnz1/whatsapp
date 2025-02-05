@@ -4,7 +4,7 @@ const { v7: uuidv7 } = require("uuid");
 
 module.exports.generateFields = (fields) => {
   fields.status = { type: String, default: "inserted" };
-  for (const key in fields) {
+  for (const key of Object.keys(fields)) {
     if (fields.hasOwnProperty(key)) {
       fields[`${key}UpdatedAt`] = {
         type: Number,

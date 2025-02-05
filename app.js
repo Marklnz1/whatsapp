@@ -237,6 +237,7 @@ SyncServer.syncPost({ model: MediaContent, tableName: "mediaContent" });
 SyncServer.syncPost({ model: MediaPrompt, tableName: "mediaPrompt" });
 SyncServer.syncPost({ model: Broadcast, tableName: "broadcast" });
 SyncServer.syncPost({ model: MessageStatus, tableName: "messageStatus" });
+const contadorEnvio = 3;
 SyncServer.syncPost({
   model: Message,
   tableName: "message",
@@ -357,20 +358,24 @@ SyncServer.syncPost({
       const chatSplit = message.chat.split("_");
       const clientUuid = chatSplit[0];
       const accountUuid = chatSplit[1];
-      // const messageWid = await sendWhatsappMessage(
-      //   CLOUD_API_ACCESS_TOKEN,
-      //   accountUuid,
-      //   clientUuid,
-      //   "text",
-      //   {
-      //     body: message.textContent,
-      //   },
-      //   message.uuid
-      // );
-      // console.log("SE OBTUVO EL WID " + messageWid);
-      // await SyncServer.updateFields("message", message.uuid, {
-      //   wid: messageWid,
-      // });
+      contadorEnvio++;
+      if (contadorEnvio > 3) {
+        return;
+      }
+      const messageWid = await sendWhatsappMessage(
+        CLOUD_API_ACCESS_TOKEN,
+        accountUuid,
+        clientUuid,
+        "text",
+        {
+          body: message.textContent,
+        },
+        message.uuid
+      );
+      console.log("SE OBTUVO EL WID " + messageWid);
+      await SyncServer.updateFields("message", message.uuid, {
+        wid: messageWid,
+      });
     }
   },
 });

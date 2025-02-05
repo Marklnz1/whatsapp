@@ -14,7 +14,7 @@ class InsertableDocument {
     if (!fields.uuid) {
       fields.uuid = uuidv7();
     }
-    for (const key in fields) {
+    for (const key of Object.keys(fields)) {
       if (
         key == "uuid" ||
         key == "insertedAt" ||

@@ -166,7 +166,7 @@ class DatabaseQueue {
       uuid: { $in: Array.from(uuidSet) },
     });
     const existUuidList = [];
-    for (const sd in serverDocsPrevious) {
+    for (const sd of serverDocsPrevious) {
       existUuidList.push(sd.uuid);
     }
     const bulkWriteData = insertableDocs.map((insertableDoc) => {
