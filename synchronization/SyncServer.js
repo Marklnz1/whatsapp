@@ -199,7 +199,6 @@ class SyncServer {
         this.codeQueue.add(async () => {
           try {
             const tempCode = await this.updateAndGetTempCode();
-            console.log("SE GENERO EL TEMPCODE: " + tempCode);
             const change = new Change({
               tableName: tableName,
               tempCode,
@@ -211,6 +210,8 @@ class SyncServer {
               docs: req.body["docs"],
               tempCode,
             });
+            console.log("SE DEVUELVE EL TEMPCODE: " + tempCode);
+
             res.status(200).json({ tempCode });
           } catch (error) {
             res.status(400).json({ error: error.message });
