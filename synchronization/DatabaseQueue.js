@@ -220,8 +220,8 @@ class DatabaseQueue {
     if (docs.length == 0) {
       return;
     }
-    console.log("ESPERANDO 10 SEGUNDOS");
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    // console.log("ESPERANDO 10 SEGUNDOS");
+    // await new Promise((resolve) => setTimeout(resolve, 5000));
 
     await this.Model.bulkWrite(
       docs.map((doc) => {
