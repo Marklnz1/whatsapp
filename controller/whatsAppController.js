@@ -185,6 +185,7 @@ const createChatClientMapData = async (contacts, recipientData) => {
 
     const username = profile.name;
     const wid = contact.wa_id;
+    console.log("CREANDO CUENTAAAAAAAAAAAAAAAAAAAA");
     let whatsappAccountDB = await SyncServer.createOrGet(
       "whatsappAccount",
       recipientData.phoneNumberId,
@@ -194,6 +195,8 @@ const createChatClientMapData = async (contacts, recipientData) => {
         businessPhoneId: recipientData.phoneNumberId,
       }
     );
+    console.log("termino CREACION DE  CUENTAAAAAAAAAAAAAAAAAAAA");
+
     let clientDB = await SyncServer.createOrGet("client", wid, {
       wid,
       username,
