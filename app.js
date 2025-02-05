@@ -251,7 +251,8 @@ SyncServer.syncPost({
       }
     }
   },
-  onInsertAfter: async (messages) => {
+  onInsertAfter: async (insertableDocs) => {
+    const messages = insertableDocs.map((iDoc) => iDoc.doc);
     const messagesWithoutTemplate = [];
     const clientSet = new Set();
     const chatSet = new Set();
