@@ -205,7 +205,7 @@ class SyncServer {
           exec: async () => {
             try {
               const tempCode = await this.updateAndGetTempCode();
-              console.log("DEVOLVIENDO EL TEMP CODE QUEUE => " + tempCode);
+              console.log("SE GENERO EL TEMPCODE: " + tempCode);
               const change = new Change({
                 tableName: tableName,
                 tempCode,
@@ -222,11 +222,9 @@ class SyncServer {
                   })
                 );
               }
-              console.log("QUE PASAAA?");
               this.databaseQueueMap[tableName].addTaskDataInQueue(
                 insertableDocs
               );
-              console.log("RESPONDIENDO AL MENSAJE");
               res.status(200).json({ tempCode });
             } catch (error) {
               res.status(400).json({ error: error.message });

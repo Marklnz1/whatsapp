@@ -48,11 +48,9 @@ class DatabaseQueue {
     );
   }
   addTaskDataInQueue(insertableDocs, onEndTask) {
-    console.log("AGREGANDO TAREA");
     const task = {
       data: { insertableDocs, onEndTask },
       exec: async () => {
-        console.log("EJECUTANDO TAREA");
         const session = await mongoose.startSession();
         const insertableDocsAll = insertableDocs;
         const onEndTaskList = [];
@@ -60,17 +58,12 @@ class DatabaseQueue {
           onEndTaskList.push(onEndTask);
         }
         for (const task of this.lightQueue.queue) {
-          console.log(
-            "task con tempCode",
-            task.data.insertableDocs,
-            task.data.insertableDocs[0].tempCode
-          );
-
           insertableDocsAll.push(task.data.insertableDocs);
           if (task.data.onEndTask != null) {
             onEndTaskList.push(task.data.onEndTask);
           }
         }
+        console.log("SE PROCESARAN LOS INSERTABLESDOCS", insertableDocsAll);
         this.lightQueue.queue = [];
         try {
           session.startTransaction();
