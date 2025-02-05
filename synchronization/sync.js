@@ -16,7 +16,7 @@ module.exports.generateFields = (fields) => {
   fields = {
     uuid: {
       type: String,
-      // unique: true,
+      unique: true,
       required: true,
     },
     syncCode: { type: Number, required: true },
