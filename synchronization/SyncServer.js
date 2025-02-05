@@ -116,7 +116,7 @@ class SyncServer {
     model,
     tableName,
     onInsertPrevious,
-    onInsertAfter,
+    onInsertLocalAfter,
     onBeforeCreate,
     excludedFields = [],
     getSyncfindData,
@@ -125,7 +125,7 @@ class SyncServer {
       model,
       tableName,
       onInsertPrevious,
-      onInsertAfter,
+      onInsertLocalAfter,
       this.io
     );
     let selectFields = excludedFields.map((field) => `-${field}`).join(" ");

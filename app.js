@@ -247,11 +247,11 @@ SyncServer.syncPost({
       }
     }
   },
-  onInsertAfter: async (responseDocs) => {
+  onInsertLocalAfter: async (documentsCreatedLocal) => {
     const messages = [];
-    for (const iDoc of responseDocs) {
-      if (iDoc.doc.sent && iDoc.isNew) {
-        messages.push(iDoc.doc);
+    for (const doc of documentsCreatedLocal) {
+      if (doc.sent == "true") {
+        messages.push(doc.doc);
       }
     }
     console.log("TODOS LOS MENSAJES", messages);

@@ -8,11 +8,11 @@ const Change = require("./Change");
 const { v7: uuidv7 } = require("uuid");
 
 class DatabaseQueue {
-  constructor(Model, tableName, onInsertPrevious, onInsertAfter, io) {
+  constructor(Model, tableName, onInsertPrevious, onInsertLocalAfter, io) {
     this.io = io;
     this.Model = Model;
     this.tableName = tableName;
-    this.onInsertAfter = onInsertAfter;
+    this.onInsertLocalAfter = onInsertLocalAfter;
     this.onInsertPrevious = onInsertPrevious;
 
     this.lightQueue = new LightQueue(async ({ tempCode, error }) => {
@@ -49,14 +49,14 @@ class DatabaseQueue {
             session,
           });
         }
-        const documentsCreated = await this.insertToServer({
+        const documentsCreatedLocal = await this.insertToServer({
           docs,
           session,
         });
         await session.commitTransaction();
-        if (this.onInsertAfter != null) {
+        if (this.onInsertLocalAfter != null) {
           try {
-            const result = this.onInsertAfter(documentsCreated);
+            const result = this.onInsertLocalAfter(documentsCreatedLocal);
             if (result instanceof Promise) {
               result.catch((error) =>
                 console.log("onInsertAfter ERROR (async):", error)
