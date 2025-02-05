@@ -247,10 +247,10 @@ SyncServer.syncPost({
       }
     }
   },
-  onInsertAfter: async (insertableDocs) => {
+  onInsertAfter: async (responseDocs) => {
     const messages = [];
-    for (const iDoc of insertableDocs) {
-      if (iDoc.doc.sent) {
+    for (const iDoc of responseDocs) {
+      if (iDoc.doc.sent && iDoc.isNew) {
         messages.push(iDoc.doc);
       }
     }
