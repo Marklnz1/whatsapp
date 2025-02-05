@@ -251,15 +251,10 @@ SyncServer.syncPost({
     const messages = [];
     for (const iDoc of insertableDocs) {
       if (iDoc.doc.sent) {
-        messages.push(insertableDocs.doc);
+        messages.push(iDoc.doc);
       }
     }
-    console.log(
-      "LOS INSERTABLEDOCS SON ",
-      insertableDocs,
-      " LO EXTRAIDO ES ",
-      messages
-    );
+
     const messagesWithoutTemplate = [];
     const clientSet = new Set();
     const chatSet = new Set();
