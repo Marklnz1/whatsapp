@@ -159,7 +159,16 @@ class DatabaseQueue {
           };
 
           documentQuery[fieldName] = {
-            $ifNull: [`$${fieldName}`, doc[fieldName]],
+            $ifNull: [
+              `$${fieldName}`,
+              {
+                $cond: {
+                  if: { $lt: [`$${key}`, updatedAt] },
+                  then: doc[fieldName],
+                  else: `$${fieldName}`,
+                },
+              },
+            ],
           };
           // {
           //   $cond: {
