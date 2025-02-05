@@ -362,11 +362,7 @@ SyncServer.syncPost({
         });
       console.log("SE OBTUVO EL WID " + messageWid);
     }
-    console.log(
-      "Mensajes sin sin template",
-      messagesWithoutTemplate,
-      contadorEnvio
-    );
+
     for (const message of messagesWithoutTemplate) {
       if (!message.sent) {
         console.log("NO SE ENVIARA PORQUE ", message.sent);
