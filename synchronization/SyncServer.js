@@ -152,7 +152,7 @@ class SyncServer {
             let syncCodeMax;
 
             if (getSyncfindData != null) {
-              syncCodeMax = await this.getCurrentSyncCode("movement");
+              syncCodeMax = await this.getCurrentSyncCode(tableName);
             } else {
               syncCodeMax =
                 docs.length == 0
@@ -166,10 +166,7 @@ class SyncServer {
           }
         };
         if (getSyncfindData != null) {
-          this.codeQueue.add({
-            data: {},
-            task,
-          });
+          this.codeQueue.add(task);
         } else {
           await task();
         }
@@ -199,28 +196,25 @@ class SyncServer {
         await this.auth(req, res, next, tableName, "write");
       },
       async (req, res, next) => {
-        this.codeQueue.add({
-          data: {},
-          exec: async () => {
-            try {
-              const tempCode = await this.updateAndGetTempCode();
-              console.log("SE GENERO EL TEMPCODE: " + tempCode);
-              const change = new Change({
-                tableName: tableName,
-                tempCode,
-                status: "inserted",
-              });
-              await change.save();
+        this.codeQueue.add(async () => {
+          try {
+            const tempCode = await this.updateAndGetTempCode();
+            console.log("SE GENERO EL TEMPCODE: " + tempCode);
+            const change = new Change({
+              tableName: tableName,
+              tempCode,
+              status: "inserted",
+            });
+            await change.save();
 
-              this.databaseQueueMap[tableName].addTaskDataInQueue({
-                docs: req.body["docs"],
-                tempCode,
-              });
-              res.status(200).json({ tempCode });
-            } catch (error) {
-              res.status(400).json({ error: error.message });
-            }
-          },
+            this.databaseQueueMap[tableName].addTaskDataInQueue({
+              docs: req.body["docs"],
+              tempCode,
+            });
+            res.status(200).json({ tempCode });
+          } catch (error) {
+            res.status(400).json({ error: error.message });
+          }
         });
       }
     );
