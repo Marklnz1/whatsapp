@@ -310,43 +310,43 @@ SyncServer.syncPost({
           99
         )
       );
-      sendWhatsappMessage(
-        CLOUD_API_ACCESS_TOKEN,
-        accountUuid,
-        clientUuid,
-        "template",
-        {
-          name: message.templateName,
-          language: { code: "es" },
-          components: [{ type: "body", parameters }],
-        },
-        message.uuid
-      )
-        .then((messageWid) => {
-          SyncServer.updateFields("message", message.uuid, {
-            wid: messageWid,
-          });
-        })
-        .catch(async (reason) => {
-          const errorData = reason.response.data.error;
-          await SyncServer.updateFields("message", message.uuid, {
-            sentStatus: "failed",
-            errorDetails: errorData.message,
-          });
-          SyncServer.io.emit("serverChanged");
+      // sendWhatsappMessage(
+      //   CLOUD_API_ACCESS_TOKEN,
+      //   accountUuid,
+      //   clientUuid,
+      //   "template",
+      //   {
+      //     name: message.templateName,
+      //     language: { code: "es" },
+      //     components: [{ type: "body", parameters }],
+      //   },
+      //   message.uuid
+      // )
+      //   .then((messageWid) => {
+      //     SyncServer.updateFields("message", message.uuid, {
+      //       wid: messageWid,
+      //     });
+      //   })
+      //   .catch(async (reason) => {
+      //     const errorData = reason.response.data.error;
+      //     await SyncServer.updateFields("message", message.uuid, {
+      //       sentStatus: "failed",
+      //       errorDetails: errorData.message,
+      //     });
+      //     SyncServer.io.emit("serverChanged");
 
-          await SyncServer.createOrGet("messageStatus", uuidv7(), {
-            message: message.uuid,
-            msgStatus: "failed",
-            time: message.time,
-            errorCode: errorData.code,
-            errorTitle: errorData.type,
-            errorMessage: errorData.message,
-            errorDetails: errorData.message,
-          });
+      //     await SyncServer.createOrGet("messageStatus", uuidv7(), {
+      //       message: message.uuid,
+      //       msgStatus: "failed",
+      //       time: message.time,
+      //       errorCode: errorData.code,
+      //       errorTitle: errorData.type,
+      //       errorMessage: errorData.message,
+      //       errorDetails: errorData.message,
+      //     });
 
-          SyncServer.io.emit("serverChanged");
-        });
+      //     SyncServer.io.emit("serverChanged");
+      //   });
       // console.log("SE OBTUVO EL WID " + messageWid);
     }
 
@@ -357,20 +357,20 @@ SyncServer.syncPost({
       const chatSplit = message.chat.split("_");
       const clientUuid = chatSplit[0];
       const accountUuid = chatSplit[1];
-      const messageWid = await sendWhatsappMessage(
-        CLOUD_API_ACCESS_TOKEN,
-        accountUuid,
-        clientUuid,
-        "text",
-        {
-          body: message.textContent,
-        },
-        message.uuid
-      );
+      // const messageWid = await sendWhatsappMessage(
+      //   CLOUD_API_ACCESS_TOKEN,
+      //   accountUuid,
+      //   clientUuid,
+      //   "text",
+      //   {
+      //     body: message.textContent,
+      //   },
+      //   message.uuid
+      // );
       // console.log("SE OBTUVO EL WID " + messageWid);
-      await SyncServer.updateFields("message", message.uuid, {
-        wid: messageWid,
-      });
+      // await SyncServer.updateFields("message", message.uuid, {
+      //   wid: messageWid,
+      // });
     }
   },
 });
