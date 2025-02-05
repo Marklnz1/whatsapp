@@ -144,6 +144,11 @@ class DatabaseQueue {
       const doc = insertableDoc.doc;
       const filter = insertableDoc.filter;
       const insertOnlyIfNotExist = insertableDoc.insertOnlyIfNotExist;
+      const uuid = insertOnlyIfNotExist
+        ? {
+            $ifNull: [`$uuid`, doc.uuid],
+          }
+        : doc.uuid;
       const syncCode = insertOnlyIfNotExist
         ? {
             $ifNull: [`$syncCode`, serverSyncCode],
