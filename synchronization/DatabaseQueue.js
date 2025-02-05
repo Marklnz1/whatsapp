@@ -131,6 +131,10 @@ class DatabaseQueue {
             " CON DATA: ",
             inspect(doc, true, 99)
           );
+          doc.syncCode = await this.updateAndGetSyncCode(
+            this.tableName,
+            session
+          );
           const updatedDocument = await this.Model.findOneAndUpdate(
             { uuid: doc.uuid },
             {
