@@ -22,10 +22,6 @@ class InsertableDocument {
         fields[key] == null ||
         fields[`${key}UpdatedAt`] != null
       ) {
-        if (fields[key] == null && !key.endsWith("UpdatedAt")) {
-          delete d[key];
-          delete d[`${key}UpdatedAt`];
-        }
         continue;
       }
       fields[`${key}UpdatedAt`] = new Date().getTime();
