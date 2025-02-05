@@ -151,37 +151,12 @@ class DatabaseQueue {
 
         if (insertOnlyIfNotExist) {
           documentQuery[key] = {
-            $cond: {
-              if: { $ne: ["$uuid", undefined] },
-              then: `$${key}`,
-              else: { $max: [`$${key}`, updatedAt] },
-            },
+            $ifNull: [`$${key}`, updatedAt],
           };
 
           documentQuery[fieldName] = {
-            $ifNull: [
-              `$${fieldName}`,
-              {
-                $cond: {
-                  if: { $lt: [`$${key}`, updatedAt] },
-                  then: doc[fieldName],
-                  else: `$${fieldName}`,
-                },
-              },
-            ],
+            $ifNull: [`$${fieldName}`, doc[fieldName]],
           };
-          // {
-          //   $cond: {
-          //     if: {
-          //       $and: [
-          //         { $ne: ["$uuid", undefined] },
-          //         { $lt: [`$${key}`, updatedAt] },
-          //       ],
-          //     },
-          //     then: `$${fieldName}`,
-          //     else: doc[fieldName],
-          //   },
-          // };
         } else {
           documentQuery[key] = { $max: [`$${key}`, updatedAt] };
 
