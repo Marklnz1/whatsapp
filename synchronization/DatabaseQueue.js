@@ -210,7 +210,9 @@ class DatabaseQueue {
         },
       };
     });
-
+    if (this.tableName == "message") {
+      console.log("SE ENVIARA ", bulkWriteData);
+    }
     await this.Model.bulkWrite(bulkWriteData, { session });
     const serverDocsAfter = await this.Model.find({
       uuid: { $in: Array.from(uuidSet) },
