@@ -154,7 +154,7 @@ class DatabaseQueue {
             $ifNull: [`$syncCode`, serverSyncCode],
           }
         : serverSyncCode;
-      const documentQuery = { uuid: doc.uuid, syncCode };
+      const documentQuery = { uuid, syncCode };
       for (const key of Object.keys(doc)) {
         if (!key.endsWith("UpdatedAt")) {
           continue;
