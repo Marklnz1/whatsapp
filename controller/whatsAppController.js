@@ -138,14 +138,10 @@ module.exports.receiveMessage = async (req, res) => {
       for (const statusData of data.statuses) {
         const messageUuid = statusData.biz_opaque_callback_data;
 
-        await SyncServer.updateFields(
-          "message",
-          messageUuid,
-          {
-            sentStatus: statusData.status,
-          },
-          { sentStatus: { $nin: getStatusesAfter(statusData.status) } }
-        );
+        await SyncServer.updateFields("message", messageUuid, {
+          sentStatus: statusData.status,
+          sentStatusUpdatedAt: statusData.timestamp * 1000,
+        });
         if (statusData.status == "sent") {
           await SyncServer.updateFields("message", messageUuid, {
             time: statusData.timestamp * 1000,

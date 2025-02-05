@@ -1,7 +1,6 @@
 class InsertableDocument {
-  constructor({ tempCode, filter, doc, insertOnlyIfNotExist = false }) {
+  constructor({ tempCode, doc, insertOnlyIfNotExist = false }) {
     this.tempCode = tempCode;
-    this.filter = filter;
     this.completeFieldsToInsert(doc);
     this.doc = doc;
     this.insertOnlyIfNotExist = insertOnlyIfNotExist;
