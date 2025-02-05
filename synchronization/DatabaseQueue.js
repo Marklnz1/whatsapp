@@ -5,6 +5,8 @@ const SyncMetadata = require("./SyncMetadata");
 const { inspect } = require("util");
 const DocumentInsertResponse = require("./DocumentInsertResponse");
 const Change = require("./Change");
+const { v7: uuidv7 } = require("uuid");
+
 class DatabaseQueue {
   constructor(Model, tableName, onInsertPrevious, onInsertAfter, io) {
     this.io = io;
