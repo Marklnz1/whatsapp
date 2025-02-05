@@ -101,9 +101,13 @@ function getStatusError(statusData) {
 }
 module.exports.receiveMessage = async (req, res) => {
   // try {
+  const random = Math.floor(Math.random() * 1001);
   const io = res.locals.io;
   console.log(
-    "SE RECIBIO EL SIGUIENTE MESSAGE " + util.inspect(req.body, true, 99)
+    "SE RECIBIO EL SIGUIENTE MESSAGE (" +
+      random +
+      ") " +
+      util.inspect(req.body, true, 99)
   );
   let changes = extractChanges(req.body);
 
@@ -170,7 +174,7 @@ module.exports.receiveMessage = async (req, res) => {
       io.emit("templateChanged");
     }
   }
-
+  console.log("SE RESPONDIENDO CON 200 A (" + random + ")");
   res.sendStatus(200);
   // } catch (e) {
   //   // console.log(util.inspect(e));
