@@ -174,7 +174,11 @@ module.exports.receiveMessage = async (req, res) => {
       io.emit("templateChanged");
     }
   }
-  console.log("SE RESPONDIENDO CON 200 A (" + random + ")");
+  console.log(
+    "SE RESPONDIENDO CON 200 A (" +
+      random +
+      ")==========================================="
+  );
   res.sendStatus(200);
   // } catch (e) {
   //   // console.log(util.inspect(e));
