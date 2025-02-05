@@ -299,7 +299,7 @@ class SyncServer {
     await this.databaseQueueMap[tableName].instantReplacement({ doc, filter });
   }
   async createOrGet({ tableName, doc }) {
-    return await this.databaseQueueMap[tableName].createOrGet({ doc });
+    return await this.databaseQueueMap[tableName].createOrGet(doc);
   }
   // async createOrGet(tableName, uuid, doc) {
   //   doc.uuid = uuid;
