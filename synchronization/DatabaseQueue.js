@@ -79,6 +79,7 @@ class DatabaseQueue {
     this.lightQueue.add(task);
   }
   async instantReplacement({ doc, filter }) {
+    console.log("INSTANT DATOS ANTES ", inspect(doc, true, 99));
     doc = this.completeFieldsToInsert(doc);
     return new Promise((resolve, reject) => {
       this.lightQueue.add(async () => {
@@ -90,6 +91,11 @@ class DatabaseQueue {
             session
           );
           filter ??= {};
+          console.log(
+            "SE INSTANREPLACEMENTE PARA ".this.tableName,
+            " CON DATA: ",
+            inspect(doc, true, 99)
+          );
           await this.Model.updateOne(
             { uuid: doc.uuid, ...filter },
             {
@@ -110,12 +116,19 @@ class DatabaseQueue {
     });
   }
   async createOrGet(doc) {
+    console.log("CREATEORGET DATOS ANTES ", inspect(doc, true, 99));
+
     doc = this.completeFieldsToInsert(doc);
     return new Promise((resolve, reject) => {
       this.lightQueue.add(async () => {
         const session = await mongoose.startSession();
         session.startTransaction();
         try {
+          console.log(
+            "SE CREATEORGET PARA ".this.tableName,
+            " CON DATA: ",
+            inspect(doc, true, 99)
+          );
           const updatedDocument = await this.Model.findOneAndUpdate(
             { uuid: doc.uuid },
             {
