@@ -115,16 +115,16 @@ class SyncServer {
   syncPost({
     model,
     tableName,
-    onInsertPrevious,
+    onInsertLocalPrevious,
     onInsertLocalAfter,
-    onBeforeCreate,
+    onCreatePreviousServer,
     excludedFields = [],
-    getSyncfindData,
+    filterLocalResponse,
   }) {
     this.databaseQueueMap[tableName] = new DatabaseQueue(
       model,
       tableName,
-      onInsertPrevious,
+      onInsertLocalPrevious,
       onInsertLocalAfter,
       this.io
     );
@@ -139,8 +139,10 @@ class SyncServer {
           try {
             let findData = {
               syncCode: { $gt: req.body["syncCodeMax"] },
-              status: { $ne: "Deleted" },
-              ...(getSyncfindData == null ? {} : getSyncfindData(req, res)),
+              // status: { $ne: "Deleted" },
+              ...(filterLocalResponse == null
+                ? {}
+                : filterLocalResponse(req, res)),
             };
 
             let docs = await model
@@ -151,7 +153,7 @@ class SyncServer {
 
             let syncCodeMax;
 
-            if (getSyncfindData != null) {
+            if (filterLocalResponse != null) {
               syncCodeMax = await this.getCurrentSyncCode(tableName);
             } else {
               syncCodeMax =
@@ -165,31 +167,30 @@ class SyncServer {
             res.status(400).json({ error: error.message });
           }
         };
-        if (getSyncfindData != null) {
+        if (filterLocalResponse != null) {
           this.codeQueue.add(task);
         } else {
           await task();
         }
       }
     );
-    // this.app.post(
-    //   `/${tableName}/create`,
-    //   async (req, res, next) => {
-    //     await this.auth(req, res, next, tableName, "write");
-    //   },
-    //   async (req, res, next) => {
-    //     try {
-    //       //REVISAR PARA USUARIOS
-    //       // if (onBeforeCreate) {
-    //       //   await onBeforeCreate(req.body);
-    //       // }
-    //       await this.createOrGet(model, tableName, uuidv7(), req.body);
-    //       res.json({ msg: "ok" });
-    //     } catch (error) {
-    //       res.json({ error });
-    //     }
-    //   }
-    // );
+    this.app.post(
+      `/${tableName}/create`,
+      async (req, res, next) => {
+        await this.auth(req, res, next, tableName, "write");
+      },
+      async (req, res, next) => {
+        try {
+          if (onCreatePreviousServer) {
+            await onCreatePreviousServer(req.body);
+          }
+          await this.databaseQueueMap[tableName].createOrGet(req.body);
+          res.json({ msg: "ok" });
+        } catch (error) {
+          res.json({ error });
+        }
+      }
+    );
     this.app.post(
       `/${tableName}/update/list/sync`,
       async (req, res, next) => {
@@ -296,46 +297,6 @@ class SyncServer {
   async createOrGet({ tableName, doc }) {
     return await this.databaseQueueMap[tableName].createOrGet(doc);
   }
-  // async createOrGet(tableName, uuid, doc) {
-  //   doc.uuid = uuid;
-  //   return new Promise((resolve, reject) => {
-  //     this.databaseQueueMap[tableName].addTaskDataInQueue(
-  //       {
-  //         insertableDocs: ,
-  //       },
-  //       (responseDocs, error) => {
-  //         if (error || responseDocs.length == 0) {
-  //           reject();
-  //         } else {
-  //           resolve(responseDocs[0]);
-  //         }
-  //       }
-  //     );
-  //   });
-  // }
-  // async updateFields(tableName, uuid, doc, filter) {
-  //   doc.uuid = uuid;
-  //   return new Promise((resolve, reject) => {
-  //     this.databaseQueueMap[tableName].addTaskDataInQueue(
-  //       {
-  //         insertableDocs: [
-  //           new InsertableDocument({
-  //             filter,
-  //             doc,
-  //             insertOnlyIfNotExist: false,
-  //           }),
-  //         ],
-  //       },
-  //       (responseDocs, error) => {
-  //         if (error || responseDocs.length == 0) {
-  //           reject();
-  //         } else {
-  //           resolve(responseDocs[0]);
-  //         }
-  //       }
-  //     );
-  //   });
-  // }
 }
 
 module.exports = new SyncServer();

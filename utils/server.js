@@ -157,8 +157,6 @@ async function getChatDB(businessPhoneId, businessPhone, destinationPhone) {
       uuid: `${clientDB.uuid}_${whatsappAccountDB.uuid}`,
       client: clientDB.uuid,
       whatsappAccount: whatsappAccountDB.uuid,
-      lastSeen: 0,
-      chatbot: false,
     },
   });
 }
@@ -190,7 +188,7 @@ module.exports.sendTemplateAndCreateDB = async (
         sentStatus: "send_requested",
       },
     });
-    io.emit("serverChanged");
+    // io.emit("serverChanged");
 
     const messageId = await this.sendWhatsappMessage(
       metaToken,
@@ -207,7 +205,7 @@ module.exports.sendTemplateAndCreateDB = async (
     await SyncServer.updateFields("message", messageUuid, {
       wid: messageId,
     });
-    io.emit("serverChanged");
+    // io.emit("serverChanged");
   } catch (error) {
     console.log(
       "ERROR AL ENVIAR EL TEMPLATE ",

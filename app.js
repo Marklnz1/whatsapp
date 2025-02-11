@@ -240,7 +240,7 @@ SyncServer.syncPost({ model: MessageStatus, tableName: "messageStatus" });
 SyncServer.syncPost({
   model: Message,
   tableName: "message",
-  onInsertPrevious: ({ docs }) => {
+  onInsertLocalPrevious: ({ docs }) => {
     for (const doc of docs) {
       if (doc["sentStatus"] == "not_sent" && doc["sent"] == "true") {
         doc["sentStatus"] = "send_requested";
@@ -281,8 +281,6 @@ SyncServer.syncPost({
           uuid: chat,
           client: clientUuid,
           whatsappAccount: accountUuid,
-          lastSeen: 0,
-          chatbot: false,
         },
       });
     }
@@ -343,7 +341,7 @@ SyncServer.syncPost({
               errorDetails: errorData.message,
             },
           });
-          SyncServer.io.emit("serverChanged");
+          // SyncServer.io.emit("serverChanged");
 
           await SyncServer.createOrGet({
             tableName: "messageStatus",
@@ -358,7 +356,7 @@ SyncServer.syncPost({
             },
           });
 
-          SyncServer.io.emit("serverChanged");
+          // SyncServer.io.emit("serverChanged");
         });
       console.log("SE OBTUVO EL WID " + messageWid);
     }

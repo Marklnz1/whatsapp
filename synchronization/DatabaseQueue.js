@@ -8,12 +8,12 @@ const Change = require("./Change");
 const { v7: uuidv7 } = require("uuid");
 
 class DatabaseQueue {
-  constructor(Model, tableName, onInsertPrevious, onInsertLocalAfter, io) {
+  constructor(Model, tableName, onInsertLocalPrevious, onInsertLocalAfter, io) {
     this.io = io;
     this.Model = Model;
     this.tableName = tableName;
     this.onInsertLocalAfter = onInsertLocalAfter;
-    this.onInsertPrevious = onInsertPrevious;
+    this.onInsertLocalPrevious = onInsertLocalPrevious;
 
     this.lightQueue = new LightQueue(async ({ tempCode, error }) => {
       console.log("SE PROCESO EL TEMPCODE", tempCode, " ERROR_STATUS:", error);
@@ -45,8 +45,8 @@ class DatabaseQueue {
       try {
         session.startTransaction();
 
-        if (this.onInsertPrevious != null) {
-          await this.onInsertPrevious({
+        if (this.onInsertLocalPrevious != null) {
+          await this.onInsertLocalPrevious({
             docs,
             session,
           });

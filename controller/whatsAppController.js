@@ -234,7 +234,6 @@ const createChatClientMapData = async (contacts, recipientData) => {
         client: clientDB.uuid,
         whatsappAccount: whatsappAccountDB.uuid,
         lastSeen: 0,
-        chatbot: false,
       },
     });
     chatClientMapDB[wid] = { client: clientDB, chat: chatDB };
@@ -553,7 +552,7 @@ const receiveMessageClient = async (
     tableName: "message",
     doc: newMessageData,
   });
-  io.emit("serverChanged");
+  // io.emit("serverChanged");
 
   if (chat.chatbot && newMessageData.textContent) {
     const mediaPrompts = await MediaPrompt.find();
@@ -566,9 +565,9 @@ const receiveMessageClient = async (
       messagesHistorial,
       mediaPrompts
     );
-    if (newBotMessage) {
-      io.emit("serverChanged");
-    }
+    // if (newBotMessage) {
+    //   io.emit("serverChanged");
+    // }
   }
 };
 
